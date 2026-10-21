@@ -370,39 +370,24 @@ export default function Contact({ onOpenResume }) {
                       <div className="form-alert-error-header">
                         <AlertCircle size={18} className="flex-shrink-0" />
                         <span>
-                          {errorCode === 'ACTIVATION_REQUIRED'
-                            ? 'One-Time Form Activation Required'
-                            : errorCode === 'NOT_CONFIGURED'
-                            ? 'Email Service Setup Required'
+                          {errorCode === 'NOT_CONFIGURED'
+                            ? 'Email Service Setup Required (EmailJS)'
                             : 'Message Delivery Failed'}
                         </span>
                       </div>
                       <div className="form-alert-error-body">
-                        {errorCode === 'ACTIVATION_REQUIRED' ? (
+                        {errorCode === 'NOT_CONFIGURED' ? (
                           <>
                             <p style={{ marginBottom: '0.45rem' }}>
-                              A confirmation email from <strong>FormSubmit</strong> was sent to <strong>{personalInfo.email}</strong>.
-                            </p>
-                            <p style={{ marginBottom: '0.45rem', fontSize: '0.84rem' }}>
-                              👉 Please open your Gmail inbox (<strong>{personalInfo.email}</strong>) and click <strong>"Activate Form"</strong> once.
-                              After that single click, all submissions will automatically arrive in your inbox!
-                            </p>
-                            <p style={{ fontSize: '0.84rem' }}>
-                              You can also send your message directly via your email app right now without losing what you typed.
-                            </p>
-                          </>
-                        ) : errorCode === 'NOT_CONFIGURED' ? (
-                          <>
-                            <p style={{ marginBottom: '0.45rem' }}>
-                              Direct sending requires configuring your EmailJS environment variables in <code>.env</code>:
+                              To enable live transmission directly through this form to <strong>{personalInfo.email}</strong>, configure your EmailJS credentials in a <code>.env</code> file:
                             </p>
                             <pre className="env-guide-code">
 {`VITE_EMAILJS_SERVICE_ID=your_service_id
 VITE_EMAILJS_TEMPLATE_ID=your_template_id
 VITE_EMAILJS_PUBLIC_KEY=your_public_key`}
                             </pre>
-                            <p style={{ marginTop: '0.45rem' }}>
-                              In the meantime, you can send your message directly via your email client to <strong>{personalInfo.email}</strong> without losing what you typed.
+                            <p style={{ marginTop: '0.45rem', fontSize: '0.84rem' }}>
+                              Your message is safely preserved below. You can also click below to open your mail client and send it directly to <strong>{personalInfo.email}</strong> right now.
                             </p>
                           </>
                         ) : (
@@ -410,23 +395,12 @@ VITE_EMAILJS_PUBLIC_KEY=your_public_key`}
                         )}
                       </div>
                       <div className="form-alert-actions">
-                        {errorCode === 'ACTIVATION_REQUIRED' && (
-                          <a
-                            href="https://mail.google.com/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="btn btn-sm btn-primary"
-                          >
-                            <Mail size={14} />
-                            <span>Check Gmail Inbox</span>
-                          </a>
-                        )}
                         <a
                           href={buildMailtoFallback(formState)}
-                          className={`btn btn-sm ${errorCode === 'ACTIVATION_REQUIRED' ? 'btn-secondary' : 'btn-primary'}`}
+                          className="btn btn-sm btn-primary"
                         >
                           <Mail size={14} />
-                          <span>Open Email Client</span>
+                          <span>Send via Email Client</span>
                         </a>
                         <button
                           type="button"
@@ -436,7 +410,7 @@ VITE_EMAILJS_PUBLIC_KEY=your_public_key`}
                           }}
                           className="btn btn-sm btn-secondary"
                         >
-                          Try Again
+                          Edit Form
                         </button>
                       </div>
                     </div>
