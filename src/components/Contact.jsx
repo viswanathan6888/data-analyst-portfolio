@@ -15,6 +15,12 @@ import {
   AlertCircle
 } from './Icons';
 import { GithubIcon, LinkedinIcon } from './Icons';
+import {
+  validateContactForm,
+  sendContactEmail,
+  buildMailtoFallback,
+  getEmailServiceConfig
+} from '../services/emailService';
 
 export default function Contact({ onOpenResume }) {
   const [copiedKey, setCopiedKey] = useState(null);
@@ -24,8 +30,12 @@ export default function Contact({ onOpenResume }) {
     subject: '',
     message: ''
   });
-  const [formSubmitted, setFormSubmitted] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState({});
+  const [touched, setTouched] = useState({});
+  const [status, setStatus] = useState('idle'); // 'idle' | 'sending' | 'success' | 'error'
+  const [errorMessage, setErrorMessage] = useState('');
+  const [errorCode, setErrorCode] = useState('');
+  const [sentDetails, setSentDetails] = useState(null);
 
   const hasConfiguredGithub =
     Boolean(personalInfo.github) &&
@@ -38,23 +48,61 @@ export default function Contact({ onOpenResume }) {
     setTimeout(() => setCopiedKey(null), 2500);
   };
 
-  const handleSubmit = (e) => {
+  const handleFieldChange = (field, value) => {
+    setFormState((prev) => ({ ...prev, [field]: value }));
+    if (fieldErrors[field]) {
+      setFieldErrors((prev) => {
+        const updated = { ...prev };
+        delete updated[field];
+        return updated;
+      });
+    }
+  };
+
+  const handleFieldBlur = (field) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+    const validation = validateContactForm(formState);
+    if (validation.errors[field]) {
+      setFieldErrors((prev) => ({ ...prev, [field]: validation.errors[field] }));
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    setTouched({ name: true, email: true, subject: true, message: true });
 
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setFormSubmitted(true);
+    // Validate inputs
+    const validation = validateContactForm(formState);
+    if (!validation.isValid) {
+      setFieldErrors(validation.errors);
+      return;
+    }
 
-      const mailtoUrl = `mailto:${personalInfo.email}?subject=${encodeURIComponent(
-        formState.subject || 'Data Analyst / AI Developer Inquiry'
-      )}&body=${encodeURIComponent(
-        `From: ${formState.name} (${formState.email})\n\n${formState.message}`
-      )}`;
-      setTimeout(() => {
-        window.location.href = mailtoUrl;
-      }, 600);
-    }, 500);
+    setStatus('sending');
+    setErrorMessage('');
+    setErrorCode('');
+
+    try {
+      await sendContactEmail(formState);
+      setSentDetails({
+        name: formState.name.trim(),
+        email: formState.email.trim(),
+        subject: formState.subject.trim()
+      });
+      setStatus('success');
+      // Reset form after verified successful transmission
+      setFormState({ name: '', email: '', subject: '', message: '' });
+      setFieldErrors({});
+      setTouched({});
+    } catch (err) {
+      console.error('Failed to send contact message:', err);
+      setStatus('error');
+      setErrorCode(err.code || 'SEND_ERROR');
+      setErrorMessage(
+        err.message ||
+          'Failed to send message. Please verify your connection or email directly.'
+      );
+    }
   };
 
   return (
@@ -276,17 +324,39 @@ export default function Contact({ onOpenResume }) {
                 Have an inquiry or role opportunity? Send a message directly to <code>{personalInfo.email}</code>.
               </p>
 
-              {formSubmitted ? (
-                <div className="form-success-card animate-pulse-subtle">
-                  <CheckCircle2 size={40} className="text-cyan success-icon" />
-                  <h4 className="success-title">Message Prepared!</h4>
+              {status === 'success' ? (
+                <div className="form-success-card animate-pulse-subtle" role="status" aria-live="polite">
+                  <div className="success-icon-badge">
+                    <CheckCircle2 size={36} />
+                  </div>
+                  <h4 className="success-title">Message Sent Successfully!</h4>
                   <p className="success-text">
-                    Opening your default email client with your message pre-addressed to <strong>{personalInfo.email}</strong>.
+                    Thank you, <strong>{sentDetails?.name}</strong>! Your message has been transmitted and delivered directly to{' '}
+                    <strong>{personalInfo.email}</strong>. I will review your note and respond shortly.
                   </p>
+
+                  {sentDetails && (
+                    <div className="success-summary-box">
+                      <div className="summary-item">
+                        <span className="summary-label">Subject:</span>{' '}
+                        <span className="summary-val">{sentDetails.subject}</span>
+                      </div>
+                      <div className="summary-item">
+                        <span className="summary-label">Your Email:</span>{' '}
+                        <span className="summary-val">{sentDetails.email}</span>
+                      </div>
+                      <div className="summary-item">
+                        <span className="summary-label">Delivered to:</span>{' '}
+                        <span className="summary-val">{personalInfo.email}</span>
+                      </div>
+                    </div>
+                  )}
+
                   <button
+                    type="button"
                     onClick={() => {
-                      setFormSubmitted(false);
-                      setFormState({ name: '', email: '', subject: '', message: '' });
+                      setStatus('idle');
+                      setSentDetails(null);
                     }}
                     className="btn btn-secondary btn-sm"
                   >
@@ -294,83 +364,175 @@ export default function Contact({ onOpenResume }) {
                   </button>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} className="contact-form" noValidate={false}>
+                <form onSubmit={handleSubmit} className="contact-form" noValidate>
+                  {status === 'error' && (
+                    <div className="form-alert-error" role="alert">
+                      <div className="form-alert-error-header">
+                        <AlertCircle size={18} className="flex-shrink-0" />
+                        <span>
+                          {errorCode === 'NOT_CONFIGURED'
+                            ? 'Email Service Setup Required'
+                            : 'Message Delivery Failed'}
+                        </span>
+                      </div>
+                      <div className="form-alert-error-body">
+                        {errorCode === 'NOT_CONFIGURED' ? (
+                          <>
+                            <p style={{ marginBottom: '0.45rem' }}>
+                              Direct sending requires configuring your EmailJS environment variables in <code>.env</code>:
+                            </p>
+                            <pre className="env-guide-code">
+{`VITE_EMAILJS_SERVICE_ID=your_service_id
+VITE_EMAILJS_TEMPLATE_ID=your_template_id
+VITE_EMAILJS_PUBLIC_KEY=your_public_key`}
+                            </pre>
+                            <p style={{ marginTop: '0.45rem' }}>
+                              In the meantime, you can send your message directly via your email client to <strong>{personalInfo.email}</strong> without losing what you typed.
+                            </p>
+                          </>
+                        ) : (
+                          <p>{errorMessage}</p>
+                        )}
+                      </div>
+                      <div className="form-alert-actions">
+                        <a
+                          href={buildMailtoFallback(formState)}
+                          className="btn btn-sm btn-primary"
+                        >
+                          <Mail size={14} />
+                          <span>Open Email Client</span>
+                        </a>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setStatus('idle');
+                            setErrorMessage('');
+                          }}
+                          className="btn btn-sm btn-secondary"
+                        >
+                          Try Again
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="form-group-row">
                     <div className="form-group">
                       <label htmlFor="contact-name" className="form-label">
-                        Your Name *
+                        Your Name <span className="text-pink">*</span>
                       </label>
                       <input
                         id="contact-name"
+                        name="name"
                         type="text"
                         required
                         placeholder="e.g. Hiring Manager / Team Lead"
                         value={formState.name}
-                        onChange={(e) =>
-                          setFormState({ ...formState, name: e.target.value })
-                        }
-                        className="form-input"
+                        onChange={(e) => handleFieldChange('name', e.target.value)}
+                        onBlur={() => handleFieldBlur('name')}
+                        className={`form-input ${fieldErrors.name ? 'is-invalid' : ''}`}
+                        aria-invalid={Boolean(fieldErrors.name)}
+                        aria-describedby={fieldErrors.name ? 'name-error' : undefined}
+                        disabled={status === 'sending'}
                       />
+                      {fieldErrors.name && (
+                        <div id="name-error" className="form-field-error">
+                          <AlertCircle size={13} />
+                          <span>{fieldErrors.name}</span>
+                        </div>
+                      )}
                     </div>
 
                     <div className="form-group">
                       <label htmlFor="contact-email" className="form-label">
-                        Your Email *
+                        Your Email <span className="text-pink">*</span>
                       </label>
                       <input
                         id="contact-email"
+                        name="email"
                         type="email"
                         required
                         placeholder="e.g. recruiter@company.com"
                         value={formState.email}
-                        onChange={(e) =>
-                          setFormState({ ...formState, email: e.target.value })
-                        }
-                        className="form-input"
+                        onChange={(e) => handleFieldChange('email', e.target.value)}
+                        onBlur={() => handleFieldBlur('email')}
+                        className={`form-input ${fieldErrors.email ? 'is-invalid' : ''}`}
+                        aria-invalid={Boolean(fieldErrors.email)}
+                        aria-describedby={fieldErrors.email ? 'email-error' : undefined}
+                        disabled={status === 'sending'}
                       />
+                      {fieldErrors.email && (
+                        <div id="email-error" className="form-field-error">
+                          <AlertCircle size={13} />
+                          <span>{fieldErrors.email}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
 
                   <div className="form-group">
                     <label htmlFor="contact-subject" className="form-label">
-                      Subject
+                      Subject <span className="text-pink">*</span>
                     </label>
                     <input
                       id="contact-subject"
+                      name="subject"
                       type="text"
+                      required
                       placeholder="e.g. Opportunity: Data Analyst / AI Developer"
                       value={formState.subject}
-                      onChange={(e) =>
-                        setFormState({ ...formState, subject: e.target.value })
-                      }
-                      className="form-input"
+                      onChange={(e) => handleFieldChange('subject', e.target.value)}
+                      onBlur={() => handleFieldBlur('subject')}
+                      className={`form-input ${fieldErrors.subject ? 'is-invalid' : ''}`}
+                      aria-invalid={Boolean(fieldErrors.subject)}
+                      aria-describedby={fieldErrors.subject ? 'subject-error' : undefined}
+                      disabled={status === 'sending'}
                     />
+                    {fieldErrors.subject && (
+                      <div id="subject-error" className="form-field-error">
+                        <AlertCircle size={13} />
+                        <span>{fieldErrors.subject}</span>
+                      </div>
+                    )}
                   </div>
 
                   <div className="form-group">
                     <label htmlFor="contact-message" className="form-label">
-                      Message *
+                      Message <span className="text-pink">*</span>
                     </label>
                     <textarea
                       id="contact-message"
+                      name="message"
                       rows="5"
                       required
-                      placeholder="Share details regarding the role, tech stack, or project..."
+                      placeholder="Share details regarding the role, tech stack, timeline, or schedule a discussion..."
                       value={formState.message}
-                      onChange={(e) =>
-                        setFormState({ ...formState, message: e.target.value })
-                      }
-                      className="form-input form-textarea"
+                      onChange={(e) => handleFieldChange('message', e.target.value)}
+                      onBlur={() => handleFieldBlur('message')}
+                      className={`form-input form-textarea ${fieldErrors.message ? 'is-invalid' : ''}`}
+                      aria-invalid={Boolean(fieldErrors.message)}
+                      aria-describedby={fieldErrors.message ? 'message-error' : undefined}
+                      disabled={status === 'sending'}
                     ></textarea>
+                    {fieldErrors.message && (
+                      <div id="message-error" className="form-field-error">
+                        <AlertCircle size={13} />
+                        <span>{fieldErrors.message}</span>
+                      </div>
+                    )}
                   </div>
 
                   <button
                     type="submit"
-                    disabled={isSubmitting}
+                    disabled={status === 'sending'}
                     className="btn btn-primary form-submit-btn"
+                    aria-label="Send message to Viswanathan M"
                   >
-                    {isSubmitting ? (
-                      <span>Sending...</span>
+                    {status === 'sending' ? (
+                      <>
+                        <span className="form-spinner" aria-hidden="true" />
+                        <span>Sending Message...</span>
+                      </>
                     ) : (
                       <>
                         <span>Send Message</span>
@@ -378,6 +540,11 @@ export default function Contact({ onOpenResume }) {
                       </>
                     )}
                   </button>
+
+                  <div className="form-recipient-note">
+                    <Sparkles size={14} className="text-cyan" />
+                    <span>Delivers directly to <strong>{personalInfo.email}</strong></span>
+                  </div>
                 </form>
               )}
             </div>
