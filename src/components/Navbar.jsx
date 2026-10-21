@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { personalInfo } from '../data/portfolioData';
+import { personalInfo, resumeData } from '../data/portfolioData';
 import { Menu, X, Download, Terminal, ChevronRight } from './Icons';
 
 export default function Navbar({ onOpenResume }) {
@@ -93,14 +93,15 @@ export default function Navbar({ onOpenResume }) {
 
         {/* Action Button & Mobile Toggle */}
         <div className="navbar-actions">
-          <button
-            onClick={onOpenResume}
+          <a
+            href={personalInfo.resumePdfUrl}
+            download={resumeData.fileName}
             className="btn btn-sm btn-secondary resume-nav-btn"
-            aria-label="View or download resume"
+            aria-label="Download Official Resume PDF"
           >
             <Download size={14} />
             <span>Resume</span>
-          </button>
+          </a>
 
           <button
             className="mobile-toggle"
@@ -130,17 +131,16 @@ export default function Navbar({ onOpenResume }) {
               </li>
             ))}
             <li className="mobile-nav-item mobile-cta-item">
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  onOpenResume();
-                }}
+              <a
+                href={personalInfo.resumePdfUrl}
+                download={resumeData.fileName}
                 className="btn btn-primary"
                 style={{ width: '100%' }}
+                onClick={() => setMobileMenuOpen(false)}
               >
                 <Download size={16} />
-                <span>View & Download Resume</span>
-              </button>
+                <span>Download Resume PDF</span>
+              </a>
             </li>
           </ul>
         </div>

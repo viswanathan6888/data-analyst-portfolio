@@ -1,5 +1,5 @@
 import React from 'react';
-import { personalInfo } from '../data/portfolioData';
+import { personalInfo, resumeData } from '../data/portfolioData';
 import {
   Download,
   ArrowRight,
@@ -79,14 +79,15 @@ export default function Hero({ onOpenResume }) {
                 <ArrowRight size={16} />
               </button>
 
-              <button
-                onClick={onOpenResume}
+              <a
+                href={personalInfo.resumePdfUrl}
+                download={resumeData.fileName}
                 className="btn btn-secondary"
-                aria-label="Download Resume"
+                aria-label="Download Official Resume PDF"
               >
                 <Download size={16} />
                 <span>Download Resume</span>
-              </button>
+              </a>
 
               <a
                 href={personalInfo.linkedin}

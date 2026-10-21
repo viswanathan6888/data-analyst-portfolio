@@ -244,14 +244,15 @@ export default function Contact({ onOpenResume }) {
                   <span className="channel-label">Curriculum Vitae</span>
                   <span className="channel-value">{resumeData.fileName}</span>
                 </div>
-                <button
-                  onClick={onOpenResume}
+                <a
+                  href={personalInfo.resumePdfUrl}
+                  download={resumeData.fileName}
                   className="btn btn-sm btn-primary copy-btn"
-                  aria-label="View or download official resume"
+                  aria-label="Download official resume PDF"
                 >
                   <Download size={14} />
                   <span>Resume</span>
-                </button>
+                </a>
               </div>
             </div>
 

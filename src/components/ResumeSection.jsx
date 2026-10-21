@@ -80,7 +80,7 @@ export default function ResumeSection({ isModal = false, onClose = null }) {
         <div className="glass-card download-toast animate-pulse-subtle">
           <CheckCircle2 size={16} className="text-cyan" />
           <span>
-            Resume download triggered ({resumeData.fileName}). To use your latest PDF file, overwrite <code>public/resume.pdf</code>.
+            Official resume downloaded successfully ({resumeData.fileName}).
           </span>
         </div>
       )}
