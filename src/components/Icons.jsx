@@ -38,7 +38,8 @@ import {
   Workflow,
   Info,
   Building,
-  Printer
+  Printer,
+  AlertCircle
 } from 'lucide-react';
 
 // Custom precision SVG icons for brand links
@@ -161,5 +162,6 @@ export {
   Workflow,
   Info,
   Building,
-  Printer
+  Printer,
+  AlertCircle
 };

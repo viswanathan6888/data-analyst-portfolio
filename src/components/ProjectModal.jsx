@@ -9,7 +9,7 @@ import {
   Layers,
   Sparkles,
   ArrowRight,
-  Terminal
+  Info
 } from './Icons';
 import { GithubIcon } from './Icons';
 
@@ -29,13 +29,27 @@ export default function ProjectModal({ project, onClose }) {
   if (!project) return null;
 
   return (
-    <div className="modal-backdrop" onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="modal-project-title">
-      <div className="glass-card modal-container" onClick={(e) => e.stopPropagation()}>
+    <div
+      className="modal-backdrop"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-project-title"
+    >
+      <div
+        className="glass-card modal-container"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Modal Header */}
         <div className="modal-header">
           <div className="modal-header-info">
-            <span className="chip chip-violet">{project.badge}</span>
-            <h3 id="modal-project-title" className="modal-title">{project.title}</h3>
+            <div className="modal-badge-row">
+              <span className="chip chip-violet">{project.badge}</span>
+              <span className="chip chip-cyan">{project.demoTag}</span>
+            </div>
+            <h3 id="modal-project-title" className="modal-title">
+              {project.title}
+            </h3>
             <span className="modal-category">{project.category}</span>
           </div>
           <button
@@ -49,38 +63,23 @@ export default function ProjectModal({ project, onClose }) {
 
         {/* Modal Body */}
         <div className="modal-body">
-          {/* Executive Summary */}
+          {/* Executive Overview */}
           <div className="modal-section">
-            <h4 className="modal-section-title">Overview & Impact</h4>
+            <h4 className="modal-section-title">Overview & Objectives</h4>
             <p className="modal-text">{project.description}</p>
           </div>
 
-          {/* Problem Solved */}
+          {/* Problem Statement & Solution */}
           <div className="modal-section">
-            <h4 className="modal-section-title">Problem Statement & Resolution</h4>
+            <h4 className="modal-section-title">Problem Statement & Approach</h4>
             <div className="modal-callout-card">
               <p className="modal-callout-text">{project.problemSolved}</p>
             </div>
           </div>
 
-          {/* Key Metrics / Highlights */}
-          {project.metricsPreview && (
-            <div className="modal-section">
-              <h4 className="modal-section-title">Key Performance Indicators</h4>
-              <div className="modal-metrics-grid">
-                {project.metricsPreview.map((m, idx) => (
-                  <div key={idx} className="modal-metric-card">
-                    <span className="metric-val text-gradient-cyan">{m.value}</span>
-                    <span className="metric-label">{m.label}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Core Architectural Features */}
+          {/* Key Engineering Features */}
           <div className="modal-section">
-            <h4 className="modal-section-title">Engineering & Analytical Highlights</h4>
+            <h4 className="modal-section-title">Key Architectural Features</h4>
             <ul className="modal-feature-list">
               {project.keyFeatures.map((feat, idx) => (
                 <li key={idx} className="modal-feature-item">
@@ -91,7 +90,7 @@ export default function ProjectModal({ project, onClose }) {
             </ul>
           </div>
 
-          {/* Technology Stack */}
+          {/* Technology & Toolchain */}
           <div className="modal-section">
             <h4 className="modal-section-title">Technology & Toolchain</h4>
             <div className="modal-stack-tags">
@@ -102,20 +101,35 @@ export default function ProjectModal({ project, onClose }) {
               ))}
             </div>
           </div>
+
+          {/* Transparent Demo Notice */}
+          <div className="modal-notice-box">
+            <Info size={16} className="text-cyan" />
+            <span>
+              <strong>Project Status:</strong> This card reflects architecture, analytical modeling, and technical design. Replace repository link in <code>portfolioData.js</code> once published.
+            </span>
+          </div>
         </div>
 
         {/* Modal Footer */}
         <div className="modal-footer">
-          <a
-            href={project.githubLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn btn-secondary btn-sm"
-          >
-            <GithubIcon size={16} />
-            <span>Repository (Placeholder)</span>
-            <ExternalLink size={13} />
-          </a>
+          {project.isConfigured ? (
+            <a
+              href={project.githubLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-secondary btn-sm"
+            >
+              <GithubIcon size={16} />
+              <span>View Source Code</span>
+              <ExternalLink size={13} />
+            </a>
+          ) : (
+            <div className="modal-link-placeholder">
+              <GithubIcon size={16} className="text-muted" />
+              <span>Link ready to configure in <code>portfolioData.js</code></span>
+            </div>
+          )}
           <button onClick={onClose} className="btn btn-primary btn-sm">
             Close Case Study
           </button>

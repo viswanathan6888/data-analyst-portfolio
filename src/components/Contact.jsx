@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { personalInfo } from '../data/portfolioData';
+import { personalInfo, resumeData } from '../data/portfolioData';
 import {
   Mail,
   Send,
@@ -8,11 +8,14 @@ import {
   ExternalLink,
   Sparkles,
   MapPin,
-  CheckCircle2
+  CheckCircle2,
+  Download,
+  Info,
+  AlertCircle
 } from './Icons';
 import { GithubIcon, LinkedinIcon } from './Icons';
 
-export default function Contact() {
+export default function Contact({ onOpenResume }) {
   const [copiedKey, setCopiedKey] = useState(null);
   const [formState, setFormState] = useState({
     name: '',
@@ -20,8 +23,14 @@ export default function Contact() {
     subject: '',
     message: ''
   });
+  const [emailStatusMessage, setEmailStatusMessage] = useState('');
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const isEmailConfigured =
+    personalInfo.email &&
+    !personalInfo.email.includes('your.email') &&
+    !personalInfo.email.includes('example.com');
 
   const handleCopy = (text, key) => {
     navigator.clipboard.writeText(text);
@@ -29,66 +38,152 @@ export default function Contact() {
     setTimeout(() => setCopiedKey(null), 2500);
   };
 
+  const handleEmailButtonClick = (e) => {
+    if (!isEmailConfigured) {
+      e.preventDefault();
+      setEmailStatusMessage(
+        'Placeholder detected: Please update your real Gmail address in src/data/portfolioData.js to activate the live mailto link.'
+      );
+      setTimeout(() => setEmailStatusMessage(''), 6000);
+      return;
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate submission delay
     setTimeout(() => {
       setIsSubmitting(false);
       setFormSubmitted(true);
-      // Construct mailto link fallback
-      const mailtoUrl = `mailto:${personalInfo.email}?subject=${encodeURIComponent(
-        formState.subject || 'Portfolio Inquiry'
-      )}&body=${encodeURIComponent(
-        `From: ${formState.name} (${formState.email})\n\n${formState.message}`
-      )}`;
-      
-      // Reset form after short delay
-      setTimeout(() => {
-        window.location.href = mailtoUrl;
-      }, 800);
+
+      if (isEmailConfigured) {
+        const mailtoUrl = `mailto:${personalInfo.email}?subject=${encodeURIComponent(
+          formState.subject || 'Data Analyst / AI Developer Inquiry'
+        )}&body=${encodeURIComponent(
+          `From: ${formState.name} (${formState.email})\n\n${formState.message}`
+        )}`;
+        setTimeout(() => {
+          window.location.href = mailtoUrl;
+        }, 800);
+      }
     }, 600);
   };
 
   return (
-    <section id="contact" className="section contact-section">
+    <section id="contact" className="section contact-section" aria-label="Contact & Social Links">
       <div className="container">
         {/* Section Header */}
         <div className="section-header">
           <div className="section-tag section-tag-cyan">
             <Mail size={14} />
-            <span>Get In Touch</span>
+            <span>Connect & Collaborate</span>
           </div>
           <h2 className="section-title">
-            Let's <span className="text-gradient">Connect</span>
+            Get in <span className="text-gradient">Touch</span>
           </h2>
           <p className="section-subtitle">
-            Whether you have a data analytics project, need local AI automation, 
-            or want to explore full-time/contract roles, feel free to reach out.
+            Open to discussing Data Analyst, Business Intelligence, and AI Developer opportunities. 
+            Connect directly through the verified channels below.
           </p>
         </div>
 
+        {/* Email configuration helper toast if placeholder clicked */}
+        {emailStatusMessage && (
+          <div className="glass-card email-warning-toast animate-pulse-subtle">
+            <AlertCircle size={18} className="text-cyan" />
+            <span>{emailStatusMessage}</span>
+          </div>
+        )}
+
         <div className="contact-grid">
-          {/* Left Column: Direct Editable Links & Cards */}
+          {/* Left Column: Direct Channels */}
           <div className="contact-info-column">
             <h3 className="contact-column-title">Direct Channels</h3>
             <p className="contact-column-desc">
-              All links below use standard editable placeholders. Replace them with your actual profiles in <code>src/data/portfolioData.js</code>.
+              LinkedIn is directly linked to my verified profile. GitHub and Gmail can be customized in <code>src/data/portfolioData.js</code>.
             </p>
 
             <div className="contact-cards-list">
-              {/* Email Card */}
+              {/* Verified LinkedIn Card */}
+              <div className="glass-card contact-channel-card glass-card-cyan">
+                <div className="channel-icon-wrap bg-cyan-soft">
+                  <LinkedinIcon size={22} className="text-cyan" />
+                </div>
+                <div className="channel-details">
+                  <div className="channel-meta-badge">
+                    <span className="channel-label">LinkedIn Profile</span>
+                    <span className="chip chip-cyan" style={{ fontSize: '0.65rem' }}>Verified</span>
+                  </div>
+                  <a
+                    href={personalInfo.linkedin}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="channel-value"
+                    aria-label="Open Viswanathan M LinkedIn Profile in a new tab"
+                  >
+                    linkedin.com/in/viswanathan-m
+                  </a>
+                </div>
+                <a
+                  href={personalInfo.linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-sm btn-primary copy-btn"
+                  aria-label="Visit LinkedIn Profile"
+                >
+                  <ExternalLink size={14} />
+                  <span>Connect</span>
+                </a>
+              </div>
+
+              {/* GitHub Card */}
+              <div className="glass-card contact-channel-card">
+                <div className="channel-icon-wrap bg-violet-soft">
+                  <GithubIcon size={22} className="text-violet" />
+                </div>
+                <div className="channel-details">
+                  <div className="channel-meta-badge">
+                    <span className="channel-label">GitHub Repository</span>
+                    <span className="chip chip-violet" style={{ fontSize: '0.65rem' }}>Portfolio Source</span>
+                  </div>
+                  <a
+                    href={personalInfo.github}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="channel-value"
+                    aria-label="Open GitHub Profile"
+                  >
+                    {personalInfo.github.replace('https://', '')}
+                  </a>
+                </div>
+                <a
+                  href={personalInfo.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-sm btn-secondary copy-btn"
+                  aria-label="Visit GitHub Profile"
+                >
+                  <ExternalLink size={14} />
+                  <span>View</span>
+                </a>
+              </div>
+
+              {/* Gmail Contact Card */}
               <div className="glass-card contact-channel-card">
                 <div className="channel-icon-wrap bg-violet-soft">
                   <Mail size={22} className="text-violet" />
                 </div>
                 <div className="channel-details">
-                  <span className="channel-label">Email Address</span>
+                  <div className="channel-meta-badge">
+                    <span className="channel-label">Gmail Address</span>
+                    <span className="channel-hint">{isEmailConfigured ? 'Live' : 'Placeholder'}</span>
+                  </div>
                   <a
-                    href={`mailto:${personalInfo.email}`}
+                    href={isEmailConfigured ? `mailto:${personalInfo.email}` : '#contact'}
+                    onClick={handleEmailButtonClick}
                     className="channel-value"
-                    title="Send Email"
+                    title={isEmailConfigured ? 'Send Email' : 'Configure email in portfolioData.js'}
                   >
                     {personalInfo.email}
                   </a>
@@ -113,89 +208,54 @@ export default function Contact() {
                 </button>
               </div>
 
-              {/* LinkedIn Card */}
-              <div className="glass-card contact-channel-card glass-card-cyan">
-                <div className="channel-icon-wrap bg-cyan-soft">
-                  <LinkedinIcon size={22} className="text-cyan" />
-                </div>
-                <div className="channel-details">
-                  <span className="channel-label">LinkedIn Profile</span>
-                  <a
-                    href={personalInfo.linkedin}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="channel-value"
-                  >
-                    {personalInfo.linkedin.replace('https://', '')}
-                  </a>
-                </div>
-                <a
-                  href={personalInfo.linkedin}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn btn-sm btn-secondary copy-btn"
-                  aria-label="Open LinkedIn profile"
-                >
-                  <ExternalLink size={14} />
-                  <span>Visit</span>
-                </a>
-              </div>
-
-              {/* GitHub Card */}
+              {/* Direct Resume Download Card */}
               <div className="glass-card contact-channel-card">
-                <div className="channel-icon-wrap bg-violet-soft">
-                  <GithubIcon size={22} className="text-violet" />
+                <div className="channel-icon-wrap bg-cyan-soft">
+                  <Download size={22} className="text-cyan" />
                 </div>
                 <div className="channel-details">
-                  <span className="channel-label">GitHub Repository</span>
-                  <a
-                    href={personalInfo.github}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="channel-value"
-                  >
-                    {personalInfo.github.replace('https://', '')}
-                  </a>
+                  <span className="channel-label">Curriculum Vitae</span>
+                  <span className="channel-value">{resumeData.fileName}</span>
                 </div>
-                <a
-                  href={personalInfo.github}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  onClick={onOpenResume}
                   className="btn btn-sm btn-secondary copy-btn"
-                  aria-label="Open GitHub profile"
+                  aria-label="View or download resume file"
                 >
-                  <ExternalLink size={14} />
-                  <span>Visit</span>
-                </a>
+                  <Download size={14} />
+                  <span>Resume</span>
+                </button>
               </div>
             </div>
 
-            {/* Quick Availability Card */}
+            {/* Availability Notice */}
             <div className="glass-card availability-badge-card">
               <div className="avail-header">
                 <span className="avail-pulse-dot" />
                 <span className="avail-status">{personalInfo.status}</span>
               </div>
               <p className="avail-note">
-                Available for Data Analyst, BI Developer, and AI Engineer roles. Fast response time within 24 hours.
+                Actively seeking Data Analyst and AI Developer opportunities. Prompt response time.
               </p>
             </div>
           </div>
 
-          {/* Right Column: Interactive Contact Form */}
+          {/* Right Column: Inquiry Form */}
           <div className="contact-form-column">
             <div className="glass-card contact-form-card">
-              <h3 className="form-title">Send a Message</h3>
+              <h3 className="form-title">Send a Direct Message</h3>
               <p className="form-subtitle">
-                Fill out the form below to send an inquiry directly to <code>{personalInfo.email}</code>.
+                Have an inquiry or role opening? Reach out directly via the form below.
               </p>
 
               {formSubmitted ? (
                 <div className="form-success-card animate-pulse-subtle">
                   <CheckCircle2 size={40} className="text-cyan success-icon" />
-                  <h4 className="success-title">Message Prepared!</h4>
+                  <h4 className="success-title">Message Received!</h4>
                   <p className="success-text">
-                    Opening your default email client with your prefilled message addressed to <code>{personalInfo.email}</code>.
+                    {isEmailConfigured
+                      ? `Opening your default email client addressed to ${personalInfo.email}.`
+                      : `Message prepared! Update your Gmail in src/data/portfolioData.js to connect automatic mailto transmission.`}
                   </p>
                   <button
                     onClick={() => {
@@ -218,7 +278,7 @@ export default function Contact() {
                         id="contact-name"
                         type="text"
                         required
-                        placeholder="e.g. Sarah Connor"
+                        placeholder="e.g. Hiring Manager / Team Lead"
                         value={formState.name}
                         onChange={(e) =>
                           setFormState({ ...formState, name: e.target.value })
@@ -235,7 +295,7 @@ export default function Contact() {
                         id="contact-email"
                         type="email"
                         required
-                        placeholder="e.g. sarah@example.com"
+                        placeholder="e.g. recruiter@company.com"
                         value={formState.email}
                         onChange={(e) =>
                           setFormState({ ...formState, email: e.target.value })
@@ -252,7 +312,7 @@ export default function Contact() {
                     <input
                       id="contact-subject"
                       type="text"
-                      placeholder="e.g. Data Analytics / AI Developer Role"
+                      placeholder="e.g. Data Analyst Opportunity"
                       value={formState.subject}
                       onChange={(e) =>
                         setFormState({ ...formState, subject: e.target.value })
@@ -269,7 +329,7 @@ export default function Contact() {
                       id="contact-message"
                       rows="5"
                       required
-                      placeholder="Tell me about your project, team, or opportunity..."
+                      placeholder="Share details about the position, team, or project..."
                       value={formState.message}
                       onChange={(e) =>
                         setFormState({ ...formState, message: e.target.value })

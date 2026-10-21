@@ -8,6 +8,7 @@ import Projects from './components/Projects';
 import ResumeSection from './components/ResumeSection';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
+import BackToTop from './components/BackToTop';
 
 export default function App() {
   const [resumeModalOpen, setResumeModalOpen] = useState(false);
@@ -42,17 +43,17 @@ export default function App() {
         {/* Section 5: Projects */}
         <Projects />
 
-        {/* Section 6: Resume download */}
-        <ResumeSection />
-
-        {/* Section 7: Contact section */}
-        <Contact />
+        {/* Section 6: Contact section */}
+        <Contact onOpenResume={() => setResumeModalOpen(true)} />
       </main>
 
       {/* Footer */}
       <Footer />
 
-      {/* Modal View for Resume if triggered via Navbar / Hero */}
+      {/* Floating Back to Top Control */}
+      <BackToTop />
+
+      {/* Modal View for Resume if triggered via Navbar / Hero / Contact */}
       {resumeModalOpen && (
         <ResumeSection
           isModal={true}

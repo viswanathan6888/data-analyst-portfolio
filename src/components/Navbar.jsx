@@ -13,7 +13,6 @@ export default function Navbar({ onOpenResume }) {
     { label: 'Skills', href: '#skills', id: 'skills' },
     { label: 'Experience', href: '#experience', id: 'experience' },
     { label: 'Projects', href: '#projects', id: 'projects' },
-    { label: 'Resume', href: '#resume', id: 'resume' },
     { label: 'Contact', href: '#contact', id: 'contact' },
   ];
 
@@ -21,9 +20,8 @@ export default function Navbar({ onOpenResume }) {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
 
-      // Simple active link detector
-      const sections = navLinks.map(l => document.getElementById(l.id));
-      const scrollPos = window.scrollY + 200;
+      const sections = navLinks.map((l) => document.getElementById(l.id));
+      const scrollPos = window.scrollY + 180;
 
       for (let i = sections.length - 1; i >= 0; i--) {
         const sec = sections[i];
@@ -58,14 +56,14 @@ export default function Navbar({ onOpenResume }) {
           href="#home"
           onClick={(e) => handleLinkClick(e, '#home')}
           className="brand-logo"
-          aria-label="Back to top"
+          aria-label="Back to home top"
         >
           <div className="brand-icon">
             <Terminal size={18} className="brand-terminal-icon" />
           </div>
           <div className="brand-text">
             <span className="brand-name">{personalInfo.name}</span>
-            <span className="brand-badge">Data & AI</span>
+            <span className="brand-badge">Data Analyst &bull; AI Dev</span>
           </div>
         </a>
 

@@ -9,73 +9,17 @@ import {
   Terminal,
   Code2,
   FileSpreadsheet,
-  CheckCircle2
+  CheckCircle2,
+  ExternalLink,
+  Mail,
+  Share2,
+  Monitor
 } from './Icons';
+import { LinkedinIcon, GithubIcon } from './Icons';
 
 export default function Hero({ onOpenResume }) {
-  const [activeTab, setActiveTab] = useState('sql');
-
-  const codeSnippets = {
-    sql: {
-      title: 'lead_conversion_analytics.sql',
-      badge: 'SQL & BI',
-      code: `-- Aggregating lead conversion cohorts & velocity
-WITH lead_cohorts AS (
-  SELECT 
-    DATE_TRUNC('month', created_at) AS cohort_month,
-    lead_source,
-    COUNT(lead_id) AS total_leads,
-    COUNT(CASE WHEN status = 'WON' THEN 1 END) AS converted_leads,
-    ROUND(AVG(sales_cycle_days), 1) AS avg_velocity
-  FROM marketing_leads
-  GROUP BY 1, 2
-)
-SELECT 
-  cohort_month,
-  lead_source,
-  total_leads,
-  converted_leads,
-  ROUND((converted_leads::NUMERIC / total_leads) * 100, 2) AS conversion_rate_pct
-FROM lead_cohorts
-ORDER BY cohort_month DESC;`
-    },
-    ai: {
-      title: 'ollama_qwen_analyst.py',
-      badge: 'Local LLM / Qwen',
-      code: `import ollama
-from sqlalchemy import create_engine
-
-# Initialize private local inference with Qwen
-def analyze_telemetry_insights(prompt: str, schema_context: str):
-    response = ollama.chat(
-        model="qwen2.5-coder:7b",
-        messages=[
-            {"role": "system", "content": "You are a private Data Analyst AI agent. Generate safe SQL and brief insights."},
-            {"role": "user", "content": f"Context: {schema_context}\\nQuery: {prompt}"}
-        ],
-        options={"temperature": 0.1}
-    )
-    return response['message']['content']
-
-# Zero external cloud latency, 100% data confidentiality`
-    },
-    meta: {
-      title: 'meta_api_pipeline.py',
-      badge: 'Meta Graph API',
-      code: `import requests
-
-def fetch_campaign_roas(ad_account_id: str, access_token: str):
-    url = f"https://graph.facebook.com/v21.0/{ad_account_id}/insights"
-    params = {
-        "fields": "campaign_name,spend,impressions,clicks,purchase_roas",
-        "date_preset": "last_30d",
-        "access_token": access_token
-    }
-    response = requests.get(url, params=params).json()
-    # Normalize nested payloads into analytical star schema
-    return [parse_ad_row(item) for item in response.get("data", [])]`
-    }
-  };
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   const scrollToSection = (id) => {
     const el = document.getElementById(id);
@@ -83,20 +27,23 @@ def fetch_campaign_roas(ad_account_id: str, access_token: str):
   };
 
   return (
-    <section id="home" className="hero-section">
+    <section id="home" className="hero-section" aria-label="Hero Section">
       <div className="container">
         <div className="hero-grid">
-          {/* Left Column: Hero Text Content */}
+          {/* Left Column: Hero Text Content & Actions */}
           <div className="hero-content">
-            <div className="hero-status-pill animate-pulse-subtle">
+            {/* Status Pill */}
+            <div className="hero-status-pill">
               <span className="status-indicator"></span>
               <span className="status-text">{personalInfo.status}</span>
             </div>
 
+            {/* Name */}
             <h1 className="hero-title">
               Hi, I'm <span className="text-gradient">{personalInfo.name}</span>
             </h1>
 
+            {/* Headline */}
             <div className="hero-subtitle-wrapper">
               <h2 className="hero-subtitle">
                 <span className="text-gradient-cyan">Data Analyst</span>
@@ -105,147 +52,131 @@ def fetch_campaign_roas(ad_account_id: str, access_token: str):
               </h2>
             </div>
 
+            {/* Concise Introduction */}
             <p className="hero-description">
-              {personalInfo.tagline} Experienced in building high-clarity business intelligence 
-              dashboards, advanced SQL pipelines, and autonomous AI agents powered by local LLMs (Ollama & Qwen).
+              {personalInfo.tagline} Experienced in building business intelligence dashboards 
+              with <strong>Power BI & Tableau</strong>, writing optimized <strong>SQL</strong> and <strong>Power Query</strong> pipelines, 
+              and deploying private, on-premise AI assistants using <strong>Ollama & Qwen</strong>.
             </p>
 
-            {/* Quick Meta Stats / Highlights */}
-            <div className="hero-meta-list">
-              <div className="hero-meta-item">
-                <CheckCircle2 size={16} className="hero-check-icon" />
-                <span>3 Professional Internships</span>
-              </div>
-              <div className="hero-meta-item">
-                <CheckCircle2 size={16} className="hero-check-icon" />
-                <span>Local AI + Cloud Analytics</span>
-              </div>
-              <div className="hero-meta-item">
-                <CheckCircle2 size={16} className="hero-check-icon" />
-                <span>BI Dashboards & Meta API</span>
-              </div>
-            </div>
-
-            {/* Call to Actions */}
+            {/* 4 Action Buttons as requested */}
             <div className="hero-actions">
               <button
                 onClick={() => scrollToSection('projects')}
                 className="btn btn-primary"
+                aria-label="View Projects Section"
               >
-                <span>Explore Projects</span>
+                <span>View Projects</span>
                 <ArrowRight size={16} />
               </button>
 
               <button
                 onClick={onOpenResume}
                 className="btn btn-secondary"
+                aria-label="View or Download Resume"
               >
                 <Download size={16} />
-                <span>Resume</span>
+                <span>Download Resume</span>
               </button>
+
+              <a
+                href={personalInfo.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn btn-secondary hero-linkedin-btn"
+                aria-label="Visit LinkedIn Profile"
+              >
+                <LinkedinIcon size={16} />
+                <span>LinkedIn</span>
+                <ExternalLink size={13} className="hero-btn-external-icon" />
+              </a>
 
               <button
                 onClick={() => scrollToSection('contact')}
                 className="btn btn-secondary"
+                aria-label="Scroll to Contact Section"
               >
-                <span>Get in Touch</span>
+                <Mail size={16} />
+                <span>Contact Me</span>
               </button>
             </div>
 
-            {/* Stack Micro Pills */}
+            {/* Core Domain Badges */}
             <div className="hero-stack-row">
-              <span className="stack-label">Core Ecosystem:</span>
+              <span className="stack-label">Core Domains:</span>
               <div className="stack-pills">
-                <span className="chip chip-violet">SQL & Python</span>
-                <span className="chip chip-cyan">Power BI & Tableau</span>
-                <span className="chip chip-violet">Ollama & Qwen</span>
-                <span className="chip chip-cyan">Meta API & ETL</span>
+                <span className="chip chip-cyan">Data Analytics & SQL</span>
+                <span className="chip chip-violet">Power BI & Tableau</span>
+                <span className="chip chip-cyan">Local AI (Ollama + Qwen)</span>
+                <span className="chip chip-violet">Meta API Integration</span>
               </div>
             </div>
           </div>
 
-          {/* Right Column: Interactive Code & Pipeline Simulator */}
-          <div className="hero-interactive-column">
-            <div className="glass-card hero-terminal-card">
-              {/* Terminal Window Header */}
-              <div className="terminal-header">
-                <div className="terminal-dots">
-                  <span className="dot dot-red" />
-                  <span className="dot dot-yellow" />
-                  <span className="dot dot-green" />
+          {/* Right Column: Prominent Profile Photo with Polished Frame */}
+          <div className="hero-portrait-column">
+            <div className="portrait-frame-container">
+              {/* Animated Halo Shimmer Ring */}
+              <div className="portrait-halo-ring" aria-hidden="true" />
+              
+              {/* Glass Frame Card */}
+              <div className="glass-card portrait-glass-card">
+                <div className="portrait-img-wrapper">
+                  {!imageError ? (
+                    <img
+                      src={personalInfo.profileImage}
+                      alt={`${personalInfo.name} - ${personalInfo.title}`}
+                      className={`portrait-image ${imageLoaded ? 'portrait-image-loaded' : ''}`}
+                      onLoad={() => setImageLoaded(true)}
+                      onError={() => setImageError(true)}
+                      loading="eager"
+                      width="380"
+                      height="480"
+                    />
+                  ) : (
+                    <div className="portrait-fallback">
+                      <div className="fallback-initials">
+                        {personalInfo.name
+                          .split(' ')
+                          .map((n) => n[0])
+                          .join('')
+                          .slice(0, 2)}
+                      </div>
+                      <span className="fallback-hint">Add photo to public/profile.jpg</span>
+                    </div>
+                  )}
+
+                  {/* Gradient Overlay for subtle glass edge integration */}
+                  <div className="portrait-gradient-overlay" />
                 </div>
-                <div className="terminal-title">
-                  <Terminal size={14} />
-                  <span>{codeSnippets[activeTab].title}</span>
+
+                {/* Floating Micro-Badge Top: Analytics */}
+                <div className="portrait-badge badge-top-right animate-float-subtle">
+                  <div className="p-badge-icon bg-cyan">
+                    <Database size={14} className="text-cyan" />
+                  </div>
+                  <div className="p-badge-text">
+                    <span className="p-badge-title">SQL & Power BI</span>
+                    <span className="p-badge-sub">Business Intelligence</span>
+                  </div>
                 </div>
-                <span className="chip chip-cyan" style={{ fontSize: '0.7rem' }}>
-                  {codeSnippets[activeTab].badge}
-                </span>
+
+                {/* Floating Micro-Badge Bottom: AI Engineering */}
+                <div className="portrait-badge badge-bottom-left animate-float-subtle-delay">
+                  <div className="p-badge-icon bg-violet">
+                    <Bot size={14} className="text-violet" />
+                  </div>
+                  <div className="p-badge-text">
+                    <span className="p-badge-title">Ollama + Qwen</span>
+                    <span className="p-badge-sub">Local LLM Analytics</span>
+                  </div>
+                </div>
               </div>
 
-              {/* Terminal Navigation Tabs */}
-              <div className="terminal-tabs" role="tablist">
-                <button
-                  role="tab"
-                  aria-selected={activeTab === 'sql'}
-                  onClick={() => setActiveTab('sql')}
-                  className={`terminal-tab ${activeTab === 'sql' ? 'terminal-tab-active' : ''}`}
-                >
-                  <Database size={14} />
-                  <span>SQL Analytics</span>
-                </button>
-                <button
-                  role="tab"
-                  aria-selected={activeTab === 'ai'}
-                  onClick={() => setActiveTab('ai')}
-                  className={`terminal-tab ${activeTab === 'ai' ? 'terminal-tab-active' : ''}`}
-                >
-                  <Bot size={14} />
-                  <span>Ollama + Qwen</span>
-                </button>
-                <button
-                  role="tab"
-                  aria-selected={activeTab === 'meta'}
-                  onClick={() => setActiveTab('meta')}
-                  className={`terminal-tab ${activeTab === 'meta' ? 'terminal-tab-active' : ''}`}
-                >
-                  <Code2 size={14} />
-                  <span>Meta Graph API</span>
-                </button>
-              </div>
-
-              {/* Code Display */}
-              <div className="terminal-body">
-                <pre className="terminal-code">
-                  <code>{codeSnippets[activeTab].code}</code>
-                </pre>
-              </div>
-
-              {/* Terminal Footer with Live Analytical Feed */}
-              <div className="terminal-footer">
-                <div className="terminal-stat">
-                  <span className="terminal-stat-label">STATUS</span>
-                  <span className="terminal-stat-val text-green">READY // OPTIMIZED</span>
-                </div>
-                <div className="terminal-stat">
-                  <span className="terminal-stat-label">RUNTIME</span>
-                  <span className="terminal-stat-val text-cyan">LOCAL / IN-MEMORY</span>
-                </div>
-                <div className="terminal-stat">
-                  <span className="terminal-stat-label">SECURITY</span>
-                  <span className="terminal-stat-val text-violet">ZERO DATA LEAKAGE</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Float Highlight Badge */}
-            <div className="glass-card hero-floating-badge animate-pulse-subtle">
-              <div className="floating-badge-icon">
-                <Sparkles size={20} className="text-cyan" />
-              </div>
-              <div className="floating-badge-text">
-                <span className="floating-badge-title">Empirical + Generative</span>
-                <span className="floating-badge-sub">Data Analyst + AI Developer</span>
+              {/* Recruiter Ready Tagline underneath photo */}
+              <div className="portrait-caption">
+                <span className="caption-dot" />
+                <span className="caption-text">Recruiter-Ready Profile &bull; Updated October 2026</span>
               </div>
             </div>
           </div>
