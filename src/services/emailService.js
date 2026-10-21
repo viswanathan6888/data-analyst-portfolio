@@ -120,6 +120,7 @@ export async function sendContactEmail(formData) {
 
   // Step 3: Dispatch via EmailJS SDK
   const templateParams = {
+    // Primary variables
     from_name: formData.name.trim(),
     from_email: formData.email.trim(),
     reply_to: formData.email.trim(),
@@ -127,16 +128,21 @@ export async function sendContactEmail(formData) {
     message: formData.message.trim(),
     to_email: recipientEmail,
     to_name: personalInfo.name || 'Viswanathan M',
+
+    // Aliases to support all template naming conventions
+    name: formData.name.trim(),
+    email: formData.email.trim(),
+    user_name: formData.name.trim(),
+    user_email: formData.email.trim()
   };
 
   try {
+    emailjs.init({ publicKey: config.publicKey });
     const response = await emailjs.send(
       config.serviceId,
       config.templateId,
       templateParams,
-      {
-        publicKey: config.publicKey
-      }
+      config.publicKey
     );
 
     if (response.status === 200 || response.text === 'OK') {
