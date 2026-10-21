@@ -52,60 +52,44 @@ export function validateContactForm(data) {
 }
 
 /**
- * Detect available email service configuration from Vite environment variables.
- * Never hardcodes or exposes secrets.
+ * Safely inspect and read EmailJS configuration.
+ * Uses direct static access for Vite compile-time substitution.
  */
 export function getEmailServiceConfig() {
-  const env =
-    typeof import.meta !== 'undefined' && import.meta.env
-      ? import.meta.env
-      : typeof process !== 'undefined' && process.env
-      ? process.env
-      : {};
+  const serviceId =
+    (typeof import.meta !== 'undefined' && import.meta.env?.VITE_EMAILJS_SERVICE_ID) ||
+    (typeof process !== 'undefined' && process.env?.VITE_EMAILJS_SERVICE_ID) ||
+    '';
 
-  const emailjsServiceId = env.VITE_EMAILJS_SERVICE_ID || '';
-  const emailjsTemplateId = env.VITE_EMAILJS_TEMPLATE_ID || '';
-  const emailjsPublicKey = env.VITE_EMAILJS_PUBLIC_KEY || '';
-  const web3formsAccessKey = env.VITE_WEB3FORMS_ACCESS_KEY || '';
+  const templateId =
+    (typeof import.meta !== 'undefined' && import.meta.env?.VITE_EMAILJS_TEMPLATE_ID) ||
+    (typeof process !== 'undefined' && process.env?.VITE_EMAILJS_TEMPLATE_ID) ||
+    '';
 
-  const isEmailjsValid =
-    Boolean(emailjsServiceId) &&
-    Boolean(emailjsTemplateId) &&
-    Boolean(emailjsPublicKey) &&
-    !emailjsServiceId.includes('your_') &&
-    !emailjsTemplateId.includes('your_') &&
-    !emailjsPublicKey.includes('your_');
+  const publicKey =
+    (typeof import.meta !== 'undefined' && import.meta.env?.VITE_EMAILJS_PUBLIC_KEY) ||
+    (typeof process !== 'undefined' && process.env?.VITE_EMAILJS_PUBLIC_KEY) ||
+    '';
 
-  const isWeb3formsValid =
-    Boolean(web3formsAccessKey) &&
-    !web3formsAccessKey.includes('your_');
+  const missing = [];
+  if (!serviceId || serviceId.includes('your_')) missing.push('VITE_EMAILJS_SERVICE_ID');
+  if (!templateId || templateId.includes('your_')) missing.push('VITE_EMAILJS_TEMPLATE_ID');
+  if (!publicKey || publicKey.includes('your_')) missing.push('VITE_EMAILJS_PUBLIC_KEY');
 
-  if (isEmailjsValid) {
-    return {
-      provider: 'emailjs',
-      isConfigured: true,
-      serviceId: emailjsServiceId,
-      templateId: emailjsTemplateId,
-      publicKey: emailjsPublicKey
-    };
-  }
-
-  if (isWeb3formsValid) {
-    return {
-      provider: 'web3forms',
-      isConfigured: true,
-      accessKey: web3formsAccessKey
-    };
-  }
+  const isConfigured = missing.length === 0;
 
   return {
-    provider: 'none',
-    isConfigured: false
+    provider: isConfigured ? 'emailjs' : 'none',
+    isConfigured,
+    serviceId: isConfigured ? serviceId : '',
+    templateId: isConfigured ? templateId : '',
+    publicKey: isConfigured ? publicKey : '',
+    missing
   };
 }
 
 /**
- * Send contact email message to recipient: viswanathan23ad060@gmail.com
+ * Send contact email message directly through EmailJS to: viswanathan23ad060@gmail.com
  *
  * @param {Object} formData { name, email, subject, message }
  * @returns {Promise<{ success: boolean, message: string }>}
@@ -121,115 +105,57 @@ export async function sendContactEmail(formData) {
     throw err;
   }
 
-  // Step 2: Check service configuration
+  // Step 2: Check EmailJS configuration
   const config = getEmailServiceConfig();
   const recipientEmail = personalInfo.email || 'viswanathan23ad060@gmail.com';
 
   if (!config.isConfigured) {
     const err = new Error(
-      'Email service credentials are not yet configured. Please set your EmailJS keys in the .env file (see .env.example) to enable direct sending.'
+      `EmailJS is not configured. Missing in .env: ${config.missing.join(', ')}`
     );
     err.code = 'NOT_CONFIGURED';
+    err.missing = config.missing;
     throw err;
   }
 
-  // Step 3: Dispatch via configured provider
+  // Step 3: Dispatch via EmailJS SDK
+  const templateParams = {
+    from_name: formData.name.trim(),
+    from_email: formData.email.trim(),
+    reply_to: formData.email.trim(),
+    subject: formData.subject.trim(),
+    message: formData.message.trim(),
+    to_email: recipientEmail,
+    to_name: personalInfo.name || 'Viswanathan M',
+  };
 
-  // Primary: EmailJS
-  if (config.provider === 'emailjs') {
-    const templateParams = {
-      from_name: formData.name.trim(),
-      from_email: formData.email.trim(),
-      reply_to: formData.email.trim(),
-      subject: formData.subject.trim(),
-      message: formData.message.trim(),
-      to_email: recipientEmail,
-      to_name: personalInfo.name || 'Viswanathan M',
-    };
-
-    try {
-      const response = await emailjs.send(
-        config.serviceId,
-        config.templateId,
-        templateParams,
-        {
-          publicKey: config.publicKey
-        }
-      );
-
-      if (response.status === 200 || response.text === 'OK') {
-        return {
-          success: true,
-          message: `Your message has been delivered to ${recipientEmail}.`
-        };
-      } else {
-        throw new Error(response.text || 'EmailJS returned a non-200 status code.');
+  try {
+    const response = await emailjs.send(
+      config.serviceId,
+      config.templateId,
+      templateParams,
+      {
+        publicKey: config.publicKey
       }
-    } catch (err) {
-      console.error('EmailJS Send Error:', err);
-      const detailedMessage =
-        err?.text ||
-        err?.message ||
-        'Failed to deliver message via EmailJS. Please verify your EmailJS service ID, template ID, and public key.';
-      const sendError = new Error(detailedMessage);
-      sendError.code = 'EMAILJS_ERROR';
-      sendError.originalError = err;
-      throw sendError;
+    );
+
+    if (response.status === 200 || response.text === 'OK') {
+      return {
+        success: true,
+        message: `Your message has been delivered to ${recipientEmail}.`
+      };
+    } else {
+      throw new Error(response.text || 'EmailJS returned a non-200 status code.');
     }
+  } catch (err) {
+    console.error('EmailJS Send Error:', err);
+    const detailedMessage =
+      err?.text ||
+      err?.message ||
+      'Failed to deliver message via EmailJS. Please verify your EmailJS service ID, template ID, and public key.';
+    const sendError = new Error(detailedMessage);
+    sendError.code = 'EMAILJS_ERROR';
+    sendError.originalError = err;
+    throw sendError;
   }
-
-  // Optional: Web3Forms
-  if (config.provider === 'web3forms') {
-    try {
-      const response = await fetch('https://api.web3forms.com/submit', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json'
-        },
-        body: JSON.stringify({
-          access_key: config.accessKey,
-          name: formData.name.trim(),
-          email: formData.email.trim(),
-          subject: formData.subject.trim(),
-          message: formData.message.trim(),
-          from_name: `${formData.name.trim()} (Portfolio)`,
-          to_email: recipientEmail
-        })
-      });
-
-      const result = await response.json();
-      if (result.success) {
-        return {
-          success: true,
-          message: `Your message has been delivered to ${recipientEmail}.`
-        };
-      } else {
-        throw new Error(result.message || 'Web3Forms service reported an error.');
-      }
-    } catch (err) {
-      console.error('Web3Forms Send Error:', err);
-      const sendError = new Error(err.message || 'Failed to deliver message via Web3Forms.');
-      sendError.code = 'WEB3FORMS_ERROR';
-      throw sendError;
-    }
-  }
-
-  throw new Error('No valid email provider found.');
-}
-
-/**
- * Generate fallback mailto link for direct sending if service is unconfigured or fails
- */
-export function buildMailtoFallback(formData) {
-  const recipient = personalInfo.email || 'viswanathan23ad060@gmail.com';
-  const subject = encodeURIComponent(
-    formData.subject || 'Portfolio Inquiry - Data Analyst / AI Developer'
-  );
-  const body = encodeURIComponent(
-    `Name: ${formData.name || ''}\n` +
-    `Email: ${formData.email || ''}\n\n` +
-    `Message:\n${formData.message || ''}\n`
-  );
-  return `mailto:${recipient}?subject=${subject}&body=${body}`;
 }
