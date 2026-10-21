@@ -17,9 +17,7 @@ import {
 import { GithubIcon, LinkedinIcon } from './Icons';
 import {
   validateContactForm,
-  sendContactEmail,
-  buildMailtoFallback,
-  getEmailServiceConfig
+  sendContactEmail
 } from '../services/emailService';
 
 export default function Contact({ onOpenResume }) {
@@ -369,39 +367,12 @@ export default function Contact({ onOpenResume }) {
                     <div className="form-alert-error" role="alert">
                       <div className="form-alert-error-header">
                         <AlertCircle size={18} className="flex-shrink-0" />
-                        <span>
-                          {errorCode === 'NOT_CONFIGURED'
-                            ? 'Email Service Setup Required (EmailJS)'
-                            : 'Message Delivery Failed'}
-                        </span>
+                        <span>Message Delivery Failed</span>
                       </div>
                       <div className="form-alert-error-body">
-                        {errorCode === 'NOT_CONFIGURED' ? (
-                          <>
-                            <p style={{ marginBottom: '0.45rem' }}>
-                              To enable live transmission directly through this form to <strong>{personalInfo.email}</strong>, configure your EmailJS credentials in a <code>.env</code> file:
-                            </p>
-                            <pre className="env-guide-code">
-{`VITE_EMAILJS_SERVICE_ID=your_service_id
-VITE_EMAILJS_TEMPLATE_ID=your_template_id
-VITE_EMAILJS_PUBLIC_KEY=your_public_key`}
-                            </pre>
-                            <p style={{ marginTop: '0.45rem', fontSize: '0.84rem' }}>
-                              Your message is safely preserved below. You can also click below to open your mail client and send it directly to <strong>{personalInfo.email}</strong> right now.
-                            </p>
-                          </>
-                        ) : (
-                          <p>{errorMessage}</p>
-                        )}
+                        <p>{errorMessage}</p>
                       </div>
                       <div className="form-alert-actions">
-                        <a
-                          href={buildMailtoFallback(formState)}
-                          className="btn btn-sm btn-primary"
-                        >
-                          <Mail size={14} />
-                          <span>Send via Email Client</span>
-                        </a>
                         <button
                           type="button"
                           onClick={() => {
@@ -410,7 +381,7 @@ VITE_EMAILJS_PUBLIC_KEY=your_public_key`}
                           }}
                           className="btn btn-sm btn-secondary"
                         >
-                          Edit Form
+                          Try Again
                         </button>
                       </div>
                     </div>
