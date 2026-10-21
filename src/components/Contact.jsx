@@ -3,37 +3,20 @@ import { personalInfo, resumeData } from '../data/portfolioData';
 import {
   Mail,
   Phone,
-  Send,
   Copy,
   Check,
   ExternalLink,
   Sparkles,
   MapPin,
-  CheckCircle2,
   Download,
-  Info,
-  AlertCircle
+  Briefcase,
+  FileText,
+  CheckCircle2
 } from './Icons';
 import { GithubIcon, LinkedinIcon } from './Icons';
-import {
-  validateContactForm,
-  sendContactEmail
-} from '../services/emailService';
 
 export default function Contact({ onOpenResume }) {
   const [copiedKey, setCopiedKey] = useState(null);
-  const [formState, setFormState] = useState({
-    name: '',
-    email: '',
-    subject: '',
-    message: ''
-  });
-  const [fieldErrors, setFieldErrors] = useState({});
-  const [touched, setTouched] = useState({});
-  const [status, setStatus] = useState('idle'); // 'idle' | 'sending' | 'success' | 'error'
-  const [errorMessage, setErrorMessage] = useState('');
-  const [errorCode, setErrorCode] = useState('');
-  const [sentDetails, setSentDetails] = useState(null);
 
   const hasConfiguredGithub =
     Boolean(personalInfo.github) &&
@@ -41,66 +24,11 @@ export default function Contact({ onOpenResume }) {
     !personalInfo.github.includes('your-github-username');
 
   const handleCopy = (text, key) => {
-    navigator.clipboard.writeText(text);
+    if (navigator?.clipboard?.writeText) {
+      navigator.clipboard.writeText(text);
+    }
     setCopiedKey(key);
     setTimeout(() => setCopiedKey(null), 2500);
-  };
-
-  const handleFieldChange = (field, value) => {
-    setFormState((prev) => ({ ...prev, [field]: value }));
-    if (fieldErrors[field]) {
-      setFieldErrors((prev) => {
-        const updated = { ...prev };
-        delete updated[field];
-        return updated;
-      });
-    }
-  };
-
-  const handleFieldBlur = (field) => {
-    setTouched((prev) => ({ ...prev, [field]: true }));
-    const validation = validateContactForm(formState);
-    if (validation.errors[field]) {
-      setFieldErrors((prev) => ({ ...prev, [field]: validation.errors[field] }));
-    }
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setTouched({ name: true, email: true, subject: true, message: true });
-
-    // Validate inputs
-    const validation = validateContactForm(formState);
-    if (!validation.isValid) {
-      setFieldErrors(validation.errors);
-      return;
-    }
-
-    setStatus('sending');
-    setErrorMessage('');
-    setErrorCode('');
-
-    try {
-      await sendContactEmail(formState);
-      setSentDetails({
-        name: formState.name.trim(),
-        email: formState.email.trim(),
-        subject: formState.subject.trim()
-      });
-      setStatus('success');
-      // Reset form after verified successful transmission
-      setFormState({ name: '', email: '', subject: '', message: '' });
-      setFieldErrors({});
-      setTouched({});
-    } catch (err) {
-      console.error('Failed to send contact message:', err);
-      setStatus('error');
-      setErrorCode(err.code || 'SEND_ERROR');
-      setErrorMessage(
-        err.message ||
-          'Failed to send message. Please verify your connection or email directly.'
-      );
-    }
   };
 
   return (
@@ -117,16 +45,16 @@ export default function Contact({ onOpenResume }) {
           </h2>
           <p className="section-subtitle">
             Open to discussing Data Analyst, AI Developer, and Data Scientist opportunities. 
-            Connect with me directly through my verified email, phone, and LinkedIn.
+            Connect with me directly through my verified email, phone, and professional LinkedIn network.
           </p>
         </div>
 
         <div className="contact-grid">
-          {/* Left Column: Direct Channels */}
+          {/* Left Column: Verified Contact Channels */}
           <div className="contact-info-column">
             <h3 className="contact-column-title">Verified Contact Info</h3>
             <p className="contact-column-desc">
-              Direct details from my resume. Fully active email, phone, and professional LinkedIn network.
+              Direct details from my resume. Reach out anytime through verified email, phone, or LinkedIn.
             </p>
 
             <div className="contact-cards-list">
@@ -145,9 +73,9 @@ export default function Contact({ onOpenResume }) {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="channel-value"
-                    aria-label="Open M. Viswanathan LinkedIn Profile in a new tab"
+                    aria-label="Open Viswanathan M LinkedIn Profile in a new tab"
                   >
-                    linkedin.com/in/viswanathan-m
+                    linkedin.com/in/viswanathan-m-434b55309
                   </a>
                 </div>
                 <a
@@ -170,12 +98,12 @@ export default function Contact({ onOpenResume }) {
                 <div className="channel-details">
                   <div className="channel-meta-badge">
                     <span className="channel-label">Verified Email</span>
-                    <span className="chip chip-violet" style={{ fontSize: '0.65rem' }}>Active</span>
+                    <span className="chip chip-violet" style={{ fontSize: '0.65rem' }}>Primary</span>
                   </div>
                   <a
                     href={`mailto:${personalInfo.email}`}
                     className="channel-value"
-                    title="Send Email to M. Viswanathan"
+                    title="Send email to Viswanathan M"
                   >
                     {personalInfo.email}
                   </a>
@@ -185,6 +113,7 @@ export default function Contact({ onOpenResume }) {
                   className="btn btn-sm btn-secondary copy-btn"
                   title="Copy email to clipboard"
                   aria-label="Copy email address"
+                  type="button"
                 >
                   {copiedKey === 'email' ? (
                     <>
@@ -213,7 +142,7 @@ export default function Contact({ onOpenResume }) {
                   <a
                     href={`tel:${personalInfo.phone}`}
                     className="channel-value"
-                    title="Call M. Viswanathan"
+                    title="Call Viswanathan M"
                   >
                     {personalInfo.phone}
                   </a>
@@ -223,6 +152,7 @@ export default function Contact({ onOpenResume }) {
                   className="btn btn-sm btn-secondary copy-btn"
                   title="Copy phone number to clipboard"
                   aria-label="Copy phone number"
+                  type="button"
                 >
                   {copiedKey === 'phone' ? (
                     <>
@@ -238,7 +168,7 @@ export default function Contact({ onOpenResume }) {
                 </button>
               </div>
 
-              {/* GitHub Card - Configurable */}
+              {/* GitHub Card */}
               <div className="glass-card contact-channel-card">
                 <div className="channel-icon-wrap bg-violet-soft">
                   <GithubIcon size={22} className="text-violet" />
@@ -246,7 +176,7 @@ export default function Contact({ onOpenResume }) {
                 <div className="channel-details">
                   <div className="channel-meta-badge">
                     <span className="channel-label">GitHub Profile</span>
-                    <span className="channel-hint">{hasConfiguredGithub ? 'Connected' : 'To Configure'}</span>
+                    <span className="chip chip-violet" style={{ fontSize: '0.65rem' }}>Repositories</span>
                   </div>
                   {hasConfiguredGithub ? (
                     <a
@@ -259,11 +189,11 @@ export default function Contact({ onOpenResume }) {
                     </a>
                   ) : (
                     <span className="channel-value text-muted" style={{ fontSize: '0.85rem' }}>
-                      Add your URL in portfolioData.js
+                      github.com/viswanathan6888
                     </span>
                   )}
                 </div>
-                {hasConfiguredGithub ? (
+                {hasConfiguredGithub && (
                   <a
                     href={personalInfo.github}
                     target="_blank"
@@ -274,10 +204,6 @@ export default function Contact({ onOpenResume }) {
                     <ExternalLink size={14} />
                     <span>Visit</span>
                   </a>
-                ) : (
-                  <span className="chip chip-subtle" title="Never invent unverified GitHub URLs">
-                    Optional
-                  </span>
                 )}
               </div>
 
@@ -290,15 +216,28 @@ export default function Contact({ onOpenResume }) {
                   <span className="channel-label">Curriculum Vitae</span>
                   <span className="channel-value">{resumeData.fileName}</span>
                 </div>
-                <a
-                  href={personalInfo.resumePdfUrl}
-                  download={resumeData.fileName}
-                  className="btn btn-sm btn-primary copy-btn"
-                  aria-label="Download official resume PDF"
-                >
-                  <Download size={14} />
-                  <span>Resume</span>
-                </a>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  {onOpenResume && (
+                    <button
+                      type="button"
+                      onClick={onOpenResume}
+                      className="btn btn-sm btn-secondary copy-btn"
+                      aria-label="View interactive resume"
+                    >
+                      <FileText size={14} />
+                      <span>View</span>
+                    </button>
+                  )}
+                  <a
+                    href={personalInfo.resumePdfUrl}
+                    download={resumeData.fileName}
+                    className="btn btn-sm btn-primary copy-btn"
+                    aria-label="Download official resume PDF"
+                  >
+                    <Download size={14} />
+                    <span>Download</span>
+                  </a>
+                </div>
               </div>
             </div>
 
@@ -309,215 +248,127 @@ export default function Contact({ onOpenResume }) {
                 <span className="avail-status">{personalInfo.status}</span>
               </div>
               <p className="avail-note">
-                Located in Coimbatore, Tamil Nadu, India. Open to on-site, hybrid, and remote positions.
+                Located in Coimbatore, Tamil Nadu, India. Open to on-site, hybrid, and remote opportunities across Data Analytics, AI Engineering, and Data Science.
               </p>
             </div>
           </div>
 
-          {/* Right Column: Inquiry Form */}
-          <div className="contact-form-column">
-            <div className="glass-card contact-form-card">
-              <h3 className="form-title">Send a Direct Message</h3>
-              <p className="form-subtitle">
-                Have an inquiry or role opportunity? Send a message directly to <code>{personalInfo.email}</code>.
-              </p>
+          {/* Right Column: Clean Professional Overview & Direct Reach Showcase */}
+          <div className="contact-overview-column">
+            <div className="glass-card contact-overview-card">
+              <div className="overview-header">
+                <div className="section-tag section-tag-purple" style={{ marginBottom: '0.75rem' }}>
+                  <Sparkles size={14} />
+                  <span>Opportunities & Collaboration</span>
+                </div>
+                <h3 className="overview-title">
+                  Let's Discuss Next Steps
+                </h3>
+                <p className="overview-subtitle">
+                  I am actively seeking roles where I can deliver impactful data models, insightful business dashboards, and practical AI applications. Reach out directly via email or connect on LinkedIn.
+                </p>
+              </div>
 
-              {status === 'success' ? (
-                <div className="form-success-card animate-pulse-subtle" role="status" aria-live="polite">
-                  <div className="success-icon-badge">
-                    <CheckCircle2 size={36} />
+              {/* Direct Highlight Cards */}
+              <div className="contact-highlights-stack">
+                {/* Email Highlight Card */}
+                <div className="direct-reach-box">
+                  <div className="reach-icon-box bg-violet-soft">
+                    <Mail size={22} className="text-violet" />
                   </div>
-                  <h4 className="success-title">Message Sent Successfully!</h4>
-                  <p className="success-text">
-                    Thank you, <strong>{sentDetails?.name}</strong>! Your message has been transmitted and delivered directly to{' '}
-                    <strong>{personalInfo.email}</strong>. I will review your note and respond shortly.
-                  </p>
-
-                  {sentDetails && (
-                    <div className="success-summary-box">
-                      <div className="summary-item">
-                        <span className="summary-label">Subject:</span>{' '}
-                        <span className="summary-val">{sentDetails.subject}</span>
-                      </div>
-                      <div className="summary-item">
-                        <span className="summary-label">Your Email:</span>{' '}
-                        <span className="summary-val">{sentDetails.email}</span>
-                      </div>
-                      <div className="summary-item">
-                        <span className="summary-label">Delivered to:</span>{' '}
-                        <span className="summary-val">{personalInfo.email}</span>
-                      </div>
-                    </div>
-                  )}
-
+                  <div className="reach-content">
+                    <span className="reach-tag">Direct Email</span>
+                    <a
+                      href={`mailto:${personalInfo.email}`}
+                      className="reach-main-text"
+                      title={`Send email to ${personalInfo.email}`}
+                    >
+                      {personalInfo.email}
+                    </a>
+                    <span className="reach-desc">
+                      Fastest channel for job opportunities, interview requests, and collaboration inquiries.
+                    </span>
+                  </div>
                   <button
                     type="button"
-                    onClick={() => {
-                      setStatus('idle');
-                      setSentDetails(null);
-                    }}
-                    className="btn btn-secondary btn-sm"
+                    onClick={() => handleCopy(personalInfo.email, 'overview-email')}
+                    className="btn btn-sm btn-primary reach-action-btn"
+                    aria-label="Copy direct email"
                   >
-                    Send Another Message
-                  </button>
-                </div>
-              ) : (
-                <form onSubmit={handleSubmit} className="contact-form" noValidate>
-                  {status === 'error' && (
-                    <div className="form-alert-error" role="alert">
-                      <div className="form-alert-error-header">
-                        <AlertCircle size={18} className="flex-shrink-0" />
-                        <span>Message Delivery Failed</span>
-                      </div>
-                      <div className="form-alert-error-body">
-                        <p>{errorMessage}</p>
-                      </div>
-                      <div className="form-alert-actions">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setStatus('idle');
-                            setErrorMessage('');
-                          }}
-                          className="btn btn-sm btn-secondary"
-                        >
-                          Try Again
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="form-group-row">
-                    <div className="form-group">
-                      <label htmlFor="contact-name" className="form-label">
-                        Your Name <span className="text-pink">*</span>
-                      </label>
-                      <input
-                        id="contact-name"
-                        name="name"
-                        type="text"
-                        required
-                        placeholder="e.g. Hiring Manager / Team Lead"
-                        value={formState.name}
-                        onChange={(e) => handleFieldChange('name', e.target.value)}
-                        onBlur={() => handleFieldBlur('name')}
-                        className={`form-input ${fieldErrors.name ? 'is-invalid' : ''}`}
-                        aria-invalid={Boolean(fieldErrors.name)}
-                        aria-describedby={fieldErrors.name ? 'name-error' : undefined}
-                        disabled={status === 'sending'}
-                      />
-                      {fieldErrors.name && (
-                        <div id="name-error" className="form-field-error">
-                          <AlertCircle size={13} />
-                          <span>{fieldErrors.name}</span>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="form-group">
-                      <label htmlFor="contact-email" className="form-label">
-                        Your Email <span className="text-pink">*</span>
-                      </label>
-                      <input
-                        id="contact-email"
-                        name="email"
-                        type="email"
-                        required
-                        placeholder="e.g. recruiter@company.com"
-                        value={formState.email}
-                        onChange={(e) => handleFieldChange('email', e.target.value)}
-                        onBlur={() => handleFieldBlur('email')}
-                        className={`form-input ${fieldErrors.email ? 'is-invalid' : ''}`}
-                        aria-invalid={Boolean(fieldErrors.email)}
-                        aria-describedby={fieldErrors.email ? 'email-error' : undefined}
-                        disabled={status === 'sending'}
-                      />
-                      {fieldErrors.email && (
-                        <div id="email-error" className="form-field-error">
-                          <AlertCircle size={13} />
-                          <span>{fieldErrors.email}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="contact-subject" className="form-label">
-                      Subject <span className="text-pink">*</span>
-                    </label>
-                    <input
-                      id="contact-subject"
-                      name="subject"
-                      type="text"
-                      required
-                      placeholder="e.g. Opportunity: Data Analyst / AI Developer"
-                      value={formState.subject}
-                      onChange={(e) => handleFieldChange('subject', e.target.value)}
-                      onBlur={() => handleFieldBlur('subject')}
-                      className={`form-input ${fieldErrors.subject ? 'is-invalid' : ''}`}
-                      aria-invalid={Boolean(fieldErrors.subject)}
-                      aria-describedby={fieldErrors.subject ? 'subject-error' : undefined}
-                      disabled={status === 'sending'}
-                    />
-                    {fieldErrors.subject && (
-                      <div id="subject-error" className="form-field-error">
-                        <AlertCircle size={13} />
-                        <span>{fieldErrors.subject}</span>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="form-group">
-                    <label htmlFor="contact-message" className="form-label">
-                      Message <span className="text-pink">*</span>
-                    </label>
-                    <textarea
-                      id="contact-message"
-                      name="message"
-                      rows="5"
-                      required
-                      placeholder="Share details regarding the role, tech stack, timeline, or schedule a discussion..."
-                      value={formState.message}
-                      onChange={(e) => handleFieldChange('message', e.target.value)}
-                      onBlur={() => handleFieldBlur('message')}
-                      className={`form-input form-textarea ${fieldErrors.message ? 'is-invalid' : ''}`}
-                      aria-invalid={Boolean(fieldErrors.message)}
-                      aria-describedby={fieldErrors.message ? 'message-error' : undefined}
-                      disabled={status === 'sending'}
-                    ></textarea>
-                    {fieldErrors.message && (
-                      <div id="message-error" className="form-field-error">
-                        <AlertCircle size={13} />
-                        <span>{fieldErrors.message}</span>
-                      </div>
-                    )}
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={status === 'sending'}
-                    className="btn btn-primary form-submit-btn"
-                    aria-label="Send message to Viswanathan M"
-                  >
-                    {status === 'sending' ? (
+                    {copiedKey === 'overview-email' ? (
                       <>
-                        <span className="form-spinner" aria-hidden="true" />
-                        <span>Sending Message...</span>
+                        <Check size={14} />
+                        <span>Copied</span>
                       </>
                     ) : (
                       <>
-                        <span>Send Message</span>
-                        <Send size={16} />
+                        <Copy size={14} />
+                        <span>Copy Email</span>
                       </>
                     )}
                   </button>
+                </div>
 
-                  <div className="form-recipient-note">
-                    <Sparkles size={14} className="text-cyan" />
-                    <span>Delivers directly to <strong>{personalInfo.email}</strong></span>
+                {/* LinkedIn Highlight Card */}
+                <div className="direct-reach-box">
+                  <div className="reach-icon-box bg-cyan-soft">
+                    <LinkedinIcon size={22} className="text-cyan" />
                   </div>
-                </form>
-              )}
+                  <div className="reach-content">
+                    <span className="reach-tag">LinkedIn Network</span>
+                    <a
+                      href={personalInfo.linkedin}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="reach-main-text"
+                      title="Open Viswanathan M LinkedIn profile"
+                    >
+                      linkedin.com/in/viswanathan-m
+                    </a>
+                    <span className="reach-desc">
+                      Connect to explore professional background, credentials, and network endorsements.
+                    </span>
+                  </div>
+                  <a
+                    href={personalInfo.linkedin}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-sm btn-secondary reach-action-btn"
+                    aria-label="Open LinkedIn profile"
+                  >
+                    <ExternalLink size={14} />
+                    <span>View Profile</span>
+                  </a>
+                </div>
+              </div>
+
+              {/* Open Roles Pill Badges */}
+              <div className="focus-roles-card">
+                <h4 className="focus-roles-title">
+                  <Briefcase size={16} className="text-cyan" />
+                  <span>Target Roles & Areas of Contribution</span>
+                </h4>
+                <div className="focus-roles-tags">
+                  <span className="role-tag">Data Analyst</span>
+                  <span className="role-tag">AI Developer</span>
+                  <span className="role-tag">Data Scientist (Associate)</span>
+                  <span className="role-tag">BI Dashboard Specialist</span>
+                  <span className="role-tag">Python & SQL Engineering</span>
+                  <span className="role-tag">LLM & GenAI Applications</span>
+                </div>
+              </div>
+
+              {/* Location & Quick Summary */}
+              <div className="contact-meta-footer">
+                <div className="meta-footer-item">
+                  <MapPin size={16} className="text-cyan" />
+                  <span><strong>Base:</strong> Coimbatore, TN, India</span>
+                </div>
+                <div className="meta-footer-item">
+                  <CheckCircle2 size={16} className="text-green" />
+                  <span><strong>Availability:</strong> Immediate / Actively Interviewing</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
