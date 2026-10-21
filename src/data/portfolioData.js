@@ -25,7 +25,7 @@ export const personalInfo = {
   phone: "+91-9566578560", // Verified from resume
   linkedin: "https://www.linkedin.com/in/viswanathan-m-434b55309/", // Verified from resume
   github: "https://github.com/viswanathan6888", // Verified from repository origin
-  profileImage: "/profile.jpg", // Real photo from public/profile.jpg
+  profileImage: null, // Profile photo removed per user request
   resumePdfUrl: "/resume.pdf", // Real resume PDF in public/resume.pdf
   about: {
     lead:

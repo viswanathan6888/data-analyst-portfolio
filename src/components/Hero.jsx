@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { personalInfo } from '../data/portfolioData';
 import {
   Download,
@@ -16,12 +16,9 @@ import {
   Award
 } from './Icons';
 import { LinkedinIcon } from './Icons';
-import { OrganicProfileFrame } from './AbstractDecorations';
+import { AbstractArtCover } from './AbstractDecorations';
 
 export default function Hero({ onOpenResume }) {
-  const [imageLoaded, setImageLoaded] = useState(false);
-  const [imageError, setImageError] = useState(false);
-
   const scrollToSection = (id) => {
     const el = document.getElementById(id);
     if (el) el.scrollIntoView({ behavior: 'smooth' });
@@ -124,16 +121,9 @@ export default function Hero({ onOpenResume }) {
             </div>
           </div>
 
-          {/* Right Column: Prominent Profile Photo with Multicolored Organic Frame */}
+          {/* Right Column: Colorful Abstract Art Poster (Matching Reference Artwork, No Photo) */}
           <div className="hero-portrait-column">
-            <OrganicProfileFrame
-              imageSrc={personalInfo.profileImage}
-              altText={`${personalInfo.name} - ${personalInfo.title}`}
-              imageLoaded={imageLoaded}
-              onImageLoad={() => setImageLoaded(true)}
-              imageError={imageError}
-              onImageError={() => setImageError(true)}
-            />
+            <AbstractArtCover />
           </div>
         </div>
       </div>

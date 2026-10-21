@@ -87,11 +87,11 @@ export const FooterWaveDivider = () => {
   );
 };
 
-// Abstract Organic Profile Portrait Frame
-// Features overlapping lobes in hot pink, gold yellow, ocean blue, lime green, and deep navy
-export const OrganicProfileFrame = ({ imageSrc, altText, imageLoaded, onImageLoad, imageError, onImageError }) => {
+// Abstract Organic Art Poster Cover (Matching Reference Artwork, No Photo)
+// Features the colorful fluid organic topography, Matisse paper-cut style lobes, and editorial badges
+export const AbstractArtCover = () => {
   return (
-    <div className="abstract-portrait-wrapper">
+    <div className="abstract-portrait-wrapper" aria-label="Colorful Abstract Portfolio Artwork">
       {/* Background Decorative Abstract Shapes matching reference artwork */}
       <div className="blob-bg-layer blob-pink" />
       <div className="blob-bg-layer blob-orange" />
@@ -101,27 +101,126 @@ export const OrganicProfileFrame = ({ imageSrc, altText, imageLoaded, onImageLoa
       <div className="blob-bg-layer blob-purple" />
       <div className="blob-bg-layer blob-navy" />
 
-      {/* Main Organic Photo Contour */}
-      <div className="organic-photo-frame">
-        {!imageError ? (
-          <img
-            src={imageSrc}
-            alt={altText}
-            className={`organic-portrait-img ${imageLoaded ? 'loaded' : ''}`}
-            onLoad={onImageLoad}
-            onError={onImageError}
-            loading="eager"
-            width="380"
-            height="460"
-          />
-        ) : (
-          <div className="organic-portrait-fallback">
-            <span className="fallback-initials">MV</span>
-            <span className="fallback-text">Photo at public/profile.jpg</span>
-          </div>
-        )}
+      {/* Main Abstract Art Poster Canvas */}
+      <div className="abstract-art-canvas">
+        <svg
+          viewBox="0 0 400 520"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="abstract-art-svg"
+          preserveAspectRatio="xMidYMid slice"
+        >
+          <defs>
+            <clipPath id="posterClip">
+              <rect width="400" height="520" rx="32" />
+            </clipPath>
+          </defs>
 
-        {/* Inner Colorful Rim Glow */}
+          <g clipPath="url(#posterClip)">
+            {/* 1. Base soft blush pink background */}
+            <rect width="400" height="520" fill="#f8b6c8" />
+
+            {/* 2. Top Hot Pink Wave */}
+            <path
+              d="M0,0 L400,0 L400,160 C360,180 340,140 280,140 C230,140 210,120 180,120 C120,120 80,160 0,130 Z"
+              fill="#ec4899"
+            />
+
+            {/* 3. Orange Upper Flowing Blob */}
+            <path
+              d="M110,60 C140,25 210,30 230,70 C245,100 240,150 200,175 C160,200 120,185 105,150 C90,115 90,80 110,60 Z"
+              fill="#f97316"
+            />
+
+            {/* 4. Yellow Inner Lobe */}
+            <path
+              d="M125,75 C150,55 195,65 205,95 C215,125 200,150 170,160 C140,170 120,145 115,120 C110,95 115,85 125,75 Z"
+              fill="#fbbf24"
+            />
+
+            {/* 5. Sky Blue Lake */}
+            <path
+              d="M135,115 C165,100 195,120 190,155 C185,190 145,215 125,190 C105,165 115,130 135,115 Z"
+              fill="#0284c7"
+            />
+
+            {/* 6. Dark Royal Navy Serpentine Ribbon */}
+            <path
+              d="M255,30 C300,30 350,50 400,60 L400,320 C380,310 370,270 350,260 C325,245 320,190 340,160 C355,135 340,90 300,70 C270,55 255,45 255,30 Z"
+              fill="#1e3a8a"
+            />
+
+            {/* 7. Center Spring Green Lobe */}
+            <path
+              d="M150,210 C210,210 265,195 270,250 C275,295 240,325 180,335 C120,345 80,300 90,260 C100,220 120,210 150,210 Z"
+              fill="#10b981"
+            />
+
+            {/* 8. Winding White Fluid River Ribbon */}
+            <path
+              d="M0,170 C40,170 70,195 90,230 C120,285 160,340 230,360 C290,380 310,340 330,280 C345,230 365,160 400,110 L400,180 C370,220 355,290 340,340 C320,400 270,410 210,385 C140,355 105,300 75,250 C55,220 30,200 0,200 Z"
+              fill="#ffffff"
+            />
+
+            {/* 9. Lower Electric Purple Wave */}
+            <path
+              d="M0,370 C40,370 70,330 110,340 C160,355 180,410 220,420 C270,430 300,380 340,390 C370,395 385,420 400,430 L400,520 L0,520 Z"
+              fill="#8b5cf6"
+            />
+
+            {/* 10. Lower Deep Purple Puddle */}
+            <path
+              d="M140,360 C190,360 210,400 200,440 C190,470 150,475 130,450 C110,425 115,385 140,360 Z"
+              fill="#6d28d9"
+            />
+
+            {/* 11. Lower Left Coral-Red Corner */}
+            <path
+              d="M0,390 C30,390 60,430 50,470 C40,510 10,520 0,520 Z"
+              fill="#f43f5e"
+            />
+
+            {/* 12. Lower Right Teal Corner */}
+            <path
+              d="M300,520 C320,480 350,450 400,460 L400,520 Z"
+              fill="#0d9488"
+            />
+
+            {/* 13. Lower Right Coral Droplet */}
+            <path
+              d="M340,430 C360,410 380,430 380,460 C380,490 360,500 345,485 C330,470 330,445 340,430 Z"
+              fill="#f97316"
+            />
+
+            {/* 14. Editorial Typography Cutout directly matching reference image cover layout */}
+            <g transform="translate(32, 240)">
+              <text
+                x="0"
+                y="0"
+                fontFamily="system-ui, -apple-system, sans-serif"
+                fontSize="18"
+                fontWeight="900"
+                letterSpacing="0.08em"
+                fill="#0f172a"
+              >
+                PORTFOLIO
+              </text>
+              <text
+                x="0"
+                y="22"
+                fontFamily="system-ui, -apple-system, sans-serif"
+                fontSize="18"
+                fontWeight="900"
+                letterSpacing="0.08em"
+                fill="#0f172a"
+              >
+                DATA &amp; AI
+              </text>
+            </g>
+          </g>
+        </svg>
+
+        {/* Glossy Overlay Rim */}
         <div className="organic-rim-overlay" />
       </div>
 
@@ -137,6 +236,8 @@ export const OrganicProfileFrame = ({ imageSrc, altText, imageLoaded, onImageLoa
     </div>
   );
 };
+
+export const OrganicProfileFrame = AbstractArtCover;
 
 // Page Corner & Background Floating Blobs
 export const BackgroundOrganicBlobs = () => {
