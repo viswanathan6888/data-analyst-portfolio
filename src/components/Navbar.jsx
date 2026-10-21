@@ -65,7 +65,7 @@ export default function Navbar({ onOpenResume }) {
           </div>
           <div className="brand-text">
             <span className="brand-name">{personalInfo.name}</span>
-            <span className="brand-badge">Data Analyst &bull; AI Dev</span>
+            <span className="brand-badge">Data Analyst &bull; AI &amp; Data Science</span>
           </div>
         </a>
 

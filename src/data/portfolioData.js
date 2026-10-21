@@ -5,9 +5,9 @@
  */
 
 export const personalInfo = {
-  name: "M. Viswanathan",
-  title: "Data Analyst | AI Developer | Aspiring Data Scientist",
-  headline: "Data Analyst | AI Developer | Aspiring Data Scientist",
+  name: "Viswanathan M",
+  title: "Data Analyst | AI & Data Science Professional",
+  headline: "Data Analyst | AI & Data Science Professional",
   education: {
     degree: "Bachelor of Technology in Artificial Intelligence & Data Science",
     institution: "Kathir College Of Engineering, Coimbatore, India",
@@ -16,9 +16,11 @@ export const personalInfo = {
     cgpaNote: "Current CGPA listed as 8.5% on resume (editable in portfolioData.js)"
   },
   bioSummary:
-    "B.Tech in Artificial Intelligence & Data Science at Kathir College of Engineering, Coimbatore (Current CGPA: 8.5). Detail-oriented professional with a strong foundation in data analysis, machine learning, business intelligence, and full-stack development, passionate about building intelligent data-driven systems.",
+    "I am an AI & Data Science professional focused on transforming complex data into actionable insights and developing intelligent, data-driven solutions. My work spans data analytics, business intelligence, AI-powered applications, and interactive dashboard development.",
   tagline:
-    "Transforming complex multi-source data into actionable business intelligence, predictive models, and autonomous AI agents.",
+    "I leverage technologies such as Python, SQL, Power BI, Tableau, Power Query, APIs, and Large Language Models (LLMs) to analyze data, streamline reporting, and support informed decision-making.",
+  objective:
+    "To build practical AI and analytics solutions that turn data into meaningful business insights.",
   status: "Available for Data Analyst, AI Developer & Data Scientist Roles",
   location: "Coimbatore, Tamil Nadu, India",
   email: "viswanathan23ad060@gmail.com", // Verified from resume
@@ -27,33 +29,41 @@ export const personalInfo = {
   github: "https://github.com/viswanathan6888", // Verified from repository origin
   profileImage: null, // Profile photo removed per user request
   resumePdfUrl: "/resume.pdf", // Real resume PDF in public/resume.pdf
+  coreExpertise: [
+    "Data Analytics & Business Intelligence",
+    "Python, SQL & Excel",
+    "Power BI, Tableau & Power Query",
+    "AI Applications, LLMs, Ollama & Qwen",
+    "API Integration & Dashboard Development"
+  ],
   about: {
     lead:
-      "Dynamic and detail-oriented individual with a strong foundation in data analysis, artificial intelligence, data visualization, and full stack web development.",
+      "I am an AI & Data Science professional focused on transforming complex data into actionable insights and developing intelligent, data-driven solutions.",
     paragraphs: [
-      "Pursuing a Bachelor of Technology in Artificial Intelligence & Data Science at Kathir College Of Engineering, Coimbatore (Current CGPA: 8.5). Skilled in transforming raw data into meaningful insights using robust analytical and visualization techniques, backed by strong problem-solving abilities and presentation skills.",
-      "Hands-on experience spans across business intelligence (Power BI, Tableau, Power Query, Excel, SQL), applied machine learning (Python, TensorFlow, PyTorch, Scikit-learn), private local LLMs (Ollama, Qwen 2.5), big data systems (Google BigQuery, Apache Hadoop), and marketing API integrations (Meta Graph API, Windsor.ai)."
+      "I am an AI & Data Science professional focused on transforming complex data into actionable insights and developing intelligent, data-driven solutions. My work spans data analytics, business intelligence, AI-powered applications, and interactive dashboard development.",
+      "I leverage technologies such as Python, SQL, Power BI, Tableau, Power Query, APIs, and Large Language Models (LLMs) to analyze data, streamline reporting, and support informed decision-making."
     ],
+    objective: "To build practical AI and analytics solutions that turn data into meaningful business insights.",
     highlights: [
       {
-        label: "Academic Rigor",
-        title: "B.Tech in AI & Data Science",
-        description: "Kathir College of Engineering, Coimbatore. Current CGPA: 8.5."
+        label: "Data Analytics & BI",
+        title: "Business Intelligence",
+        description: "Power BI, Tableau, Power Query, Excel, and SQL for actionable reporting."
       },
       {
-        label: "Analytics & BI",
-        title: "Enterprise Dashboards",
-        description: "Power BI, Tableau, Power Query, DAX, Excel, and SQL dimensional data modeling."
+        label: "Programming & Queries",
+        title: "Python, SQL & Excel",
+        description: "Data modeling, statistical analysis, automated scripting, and query optimization."
       },
       {
-        label: "AI & ML",
-        title: "Predictive & Local GenAI",
-        description: "TensorFlow, PyTorch, Scikit-learn, LangChain, and private local LLMs (Ollama + Qwen 2.5)."
+        label: "AI & GenAI",
+        title: "LLMs, Ollama & Qwen",
+        description: "Developing intelligent AI-powered applications and private on-premise LLM workflows."
       },
       {
-        label: "API & Big Data",
-        title: "Data Pipelines & Ingestion",
-        description: "Meta Marketing API, Windsor.ai, BigQuery, Hadoop, and MERN stack dashboard engineering."
+        label: "Integration & Web",
+        title: "APIs & Dashboards",
+        description: "Meta API, Windsor.ai, real-time ingestion, and interactive dashboard development."
       }
     ]
   }
@@ -245,23 +255,45 @@ export const internshipExperience = [
  */
 export const companyProjectExperience = [
   {
-    title: "AI-Powered Marketing Analytics Dashboard",
-    company: "Aram Pvt. Ltd, Eagle Eye SafDrive Pvt. Ltd, AR4 Tech Pvt. Ltd",
-    technologies: ["Meta API", "Power Query", "Power BI", "Windsor.ai", "Claude", "AI Chatbot Integration"],
-    badge: "Marketing Analytics & AI",
+    title: "Marketing Analytics & Business Intelligence",
+    company: "Aram Pvt Ltd",
+    technologies: ["Meta Data Integration", "Power Query", "Power BI", "Windsor.ai", "AI Analytics", "Campaign Reporting"],
+    badge: "Marketing Analytics & BI",
     summary:
-      "Integrated marketing data sources to retrieve campaign and advertising performance data through APIs. Extracted and analyzed marketing metrics, including ad spend, leads, cost per lead (CPL), and campaign performance.",
+      "Developed AI-powered marketing analytics and dashboard solutions. Worked with Meta data integration, Power Query, Power BI, and Windsor.ai, focusing on campaign performance, lead analytics, and reporting workflows.",
     bulletPoints: [
-      "Integrated multi-channel marketing data sources via APIs to pull live ad spend, impressions, clicks, and lead records.",
-      "Extracted and evaluated key performance indicators including Cost Per Lead (CPL) and conversion velocity.",
-      "Utilized Power Query for automated data cleansing, schema standardization, and dataset preparation.",
-      "Integrated AI chatbot capabilities using Claude and Windsor.ai to support natural-language querying of campaign metrics.",
-      "Developed interactive Power BI dashboards and executive reports to support data-driven marketing decisions."
+      "Developed AI-powered marketing analytics and dashboard solutions.",
+      "Worked with Meta data integration, Power Query, Power BI, and Windsor.ai.",
+      "Focused on campaign performance, lead analytics, and reporting workflows."
+    ]
+  },
+  {
+    title: "Data Analytics & Performance Insights",
+    company: "Eagle Eye SafDrive Pvt Ltd",
+    technologies: ["Data Analytics", "Performance Tracking", "Data Visualization", "Structured Reporting", "Dashboards"],
+    badge: "Analytics & Performance",
+    summary:
+      "Contributed to analytics and performance-tracking initiatives. Focused on data visualization, structured reporting, and dashboard-based insights.",
+    bulletPoints: [
+      "Contributed to analytics and performance-tracking initiatives.",
+      "Focused on data visualization, structured reporting, and dashboard-based insights."
+    ]
+  },
+  {
+    title: "AI Solutions & Data Analytics",
+    company: "AR4 Tech Pvt Ltd",
+    technologies: ["AI Tools", "API Integration", "Data Processing", "Interactive Dashboards", "Data Analytics"],
+    badge: "AI Solutions & Dashboards",
+    summary:
+      "Worked on AI and data analytics initiatives involving modern AI tools. Explored API integration, data processing, and interactive dashboard development.",
+    bulletPoints: [
+      "Worked on AI and data analytics initiatives involving modern AI tools.",
+      "Explored API integration, data processing, and interactive dashboard development."
     ]
   },
   {
     title: "Local LLM-Based AI Data Analyst",
-    company: "Aram Pvt. Ltd, Eagle Eye SafDrive Pvt. Ltd, AR4 Tech Pvt. Ltd",
+    company: "Enterprise AI Initiative",
     technologies: ["Ollama", "Qwen 2.5", "LLMs", "Python", "Data Analytics"],
     badge: "Private Local GenAI",
     summary:
@@ -275,7 +307,7 @@ export const companyProjectExperience = [
   },
   {
     title: "Interactive 3D Analytics Dashboard",
-    company: "Aram Pvt. Ltd, Eagle Eye SafDrive Pvt. Ltd, AR4 Tech Pvt. Ltd",
+    company: "Visual Telemetry Project",
     technologies: ["Antigravity IDE", "AI Tools", "Dashboard Development", "Data Visualization"],
     badge: "3D Visual Telemetry",
     summary:
@@ -284,32 +316,6 @@ export const companyProjectExperience = [
       "Engineered futuristic, glassmorphic analytics dashboard interfaces incorporating 3D visual elements.",
       "Explored AI-assisted rapid layout generation and spatial visual hierarchy in the Antigravity IDE.",
       "Designed responsive visual concepts for presenting mission-critical KPIs in an intuitive format."
-    ]
-  },
-  {
-    title: "Business Intelligence & Big Data Analytics",
-    company: "Aram Pvt. Ltd, Eagle Eye SafDrive Pvt. Ltd, AR4 Tech Pvt. Ltd",
-    technologies: ["Power BI", "Tableau", "Power Query", "Google BigQuery", "Apache Hadoop"],
-    badge: "Enterprise BI & Big Data",
-    summary:
-      "Worked with BI tools to analyze data and present business insights through visual reports. Explored cloud-based data querying and big-data processing workflows.",
-    bulletPoints: [
-      "Constructed normalized star-schema data models connecting multi-source operational tables.",
-      "Explored cloud-based SQL querying on Google BigQuery and distributed data processing with Apache Hadoop.",
-      "Built automated Power Query transformation routines ensuring reliable scheduled data refreshes."
-    ]
-  },
-  {
-    title: "API-Based Data Analytics & Website Development",
-    company: "Aram Pvt. Ltd, Eagle Eye SafDrive Pvt. Ltd, AR4 Tech Pvt. Ltd",
-    technologies: ["APIs", "Meta Platform Integration", "AI Tools", "Website Development"],
-    badge: "API Data Ingestion",
-    summary:
-      "Worked on retrieving platform data using API credentials and connected data sources. Used extracted datasets for analysis, reporting, and dashboard visualization.",
-    bulletPoints: [
-      "Retrieved and normalized live platform datasets using secure API credentials and automated query paging.",
-      "Integrated extracted datasets into analysis tables and interactive web-based dashboard views.",
-      "Developed responsive web interfaces that embed data-driven analytics directly into user-facing workflows."
     ]
   }
 ];

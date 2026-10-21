@@ -38,7 +38,7 @@ export default function Hero({ onOpenResume }) {
 
             {/* Name */}
             <h1 className="hero-title">
-              Hi, I'm <span className="text-gradient">{personalInfo.name}</span>
+              Hi, I'm <span className="text-gradient">Viswanathan M</span>
             </h1>
 
             {/* Target Roles Headline */}
@@ -46,24 +46,25 @@ export default function Hero({ onOpenResume }) {
               <h2 className="hero-subtitle">
                 <span className="text-gradient-cyan">Data Analyst</span>
                 <span className="hero-divider">|</span>
-                <span className="text-gradient">AI Developer</span>
-                <span className="hero-divider">|</span>
-                <span className="text-gradient-cyan">Aspiring Data Scientist</span>
+                <span className="text-gradient">AI &amp; Data Science Professional</span>
               </h2>
             </div>
 
-            {/* Concise Resume-Grounded Introduction */}
-            <p className="hero-description">
-              Pursuing <strong>B.Tech in Artificial Intelligence & Data Science</strong> at <strong>Kathir College Of Engineering, Coimbatore</strong> (Current CGPA: <strong>8.5</strong>). 
-              Specializing in transforming complex multi-source data into enterprise <strong>Power BI & Tableau</strong> dashboards, 
-              building machine learning pipelines, and deploying private on-premise AI assistants using <strong>Ollama & Qwen 2.5</strong>.
-            </p>
+            {/* Exact Introduction Provided by User */}
+            <div className="hero-description-group">
+              <p className="hero-description">
+                I am an <strong>AI &amp; Data Science professional</strong> focused on transforming complex data into actionable insights and developing intelligent, data-driven solutions. My work spans <strong>data analytics</strong>, <strong>business intelligence</strong>, <strong>AI-powered applications</strong>, and <strong>interactive dashboard development</strong>.
+              </p>
+              <p className="hero-description hero-sub-description">
+                I leverage technologies such as <strong>Python</strong>, <strong>SQL</strong>, <strong>Power BI</strong>, <strong>Tableau</strong>, <strong>Power Query</strong>, <strong>APIs</strong>, and <strong>Large Language Models (LLMs)</strong> to analyze data, streamline reporting, and support informed decision-making.
+              </p>
+            </div>
 
-            {/* Verification Note for CGPA per user instructions */}
-            <div className="hero-verification-callout">
-              <GraduationCap size={15} className="text-cyan flex-shrink-0" />
+            {/* My Objective Callout */}
+            <div className="hero-verification-callout hero-objective-callout">
+              <Sparkles size={16} className="text-cyan flex-shrink-0" />
               <span>
-                <strong>Academic Standing:</strong> Current CGPA: <strong>{personalInfo.education.cgpa}</strong> ({personalInfo.education.institution}) &bull; <em className="text-dim">Note: formatted as 8.5 CGPA per resume entry &quot;8.5%&quot;.</em>
+                <strong>My Objective:</strong> To build practical AI and analytics solutions that turn data into meaningful business insights.
               </span>
             </div>
 
@@ -109,14 +110,15 @@ export default function Hero({ onOpenResume }) {
               </button>
             </div>
 
-            {/* Core Domain Badges */}
+            {/* Core Expertise Badges */}
             <div className="hero-stack-row">
-              <span className="stack-label">Core Focus:</span>
+              <span className="stack-label">Core Expertise:</span>
               <div className="stack-pills">
-                <span className="chip chip-cyan">Power BI & SQL</span>
-                <span className="chip chip-violet">Python & Scikit-learn</span>
-                <span className="chip chip-cyan">Ollama & Qwen 2.5</span>
-                <span className="chip chip-violet">Meta API Integration</span>
+                <span className="chip chip-cyan">Data Analytics &amp; BI</span>
+                <span className="chip chip-violet">Python, SQL &amp; Excel</span>
+                <span className="chip chip-cyan">Power BI, Tableau &amp; Power Query</span>
+                <span className="chip chip-pink">AI Applications, LLMs, Ollama &amp; Qwen</span>
+                <span className="chip chip-violet">API Integration &amp; Dashboards</span>
               </div>
             </div>
           </div>

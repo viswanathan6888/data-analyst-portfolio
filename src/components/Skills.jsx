@@ -61,6 +61,33 @@ export default function Skills() {
           </p>
         </div>
 
+        {/* Core Expertise Banner */}
+        <div className="glass-card core-expertise-banner" style={{ marginBottom: '2.5rem', padding: '1.75rem 2rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1rem' }}>
+            <Sparkles size={18} className="text-cyan" />
+            <h3 style={{ fontSize: '1.15rem', fontWeight: 800, margin: 0, color: 'var(--text-main)' }}>
+              Core Expertise
+            </h3>
+          </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
+            <span className="chip chip-cyan" style={{ fontSize: '0.875rem', padding: '0.4rem 0.9rem', fontWeight: 700 }}>
+              Data Analytics &amp; Business Intelligence
+            </span>
+            <span className="chip chip-violet" style={{ fontSize: '0.875rem', padding: '0.4rem 0.9rem', fontWeight: 700 }}>
+              Python, SQL &amp; Excel
+            </span>
+            <span className="chip chip-cyan" style={{ fontSize: '0.875rem', padding: '0.4rem 0.9rem', fontWeight: 700 }}>
+              Power BI, Tableau &amp; Power Query
+            </span>
+            <span className="chip chip-pink" style={{ fontSize: '0.875rem', padding: '0.4rem 0.9rem', fontWeight: 700 }}>
+              AI Applications, LLMs, Ollama &amp; Qwen
+            </span>
+            <span className="chip chip-violet" style={{ fontSize: '0.875rem', padding: '0.4rem 0.9rem', fontWeight: 700 }}>
+              API Integration &amp; Dashboard Development
+            </span>
+          </div>
+        </div>
+
         {/* Category Filter Pills */}
         <div className="skills-filter-container">
           <div className="skills-filter-pill-group" role="tablist" aria-label="Skill categories">

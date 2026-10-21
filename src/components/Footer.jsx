@@ -28,8 +28,7 @@ export default function Footer() {
               <span className="brand-name">{personalInfo.name}</span>
             </div>
             <p className="footer-tagline">
-              B.Tech in Artificial Intelligence & Data Science &bull; Kathir College of Engineering, Coimbatore. 
-              Targeting Data Analyst, AI Developer, and Data Scientist roles.
+              {personalInfo.title}. {personalInfo.objective}
             </p>
           </div>
 

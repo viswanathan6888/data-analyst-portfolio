@@ -54,32 +54,32 @@ export default function About() {
                 ))}
               </div>
 
-              {/* Three Pillars Checklist directly from Resume */}
+              {/* Core Expertise Checklist */}
               <div className="about-checklist">
                 <div className="checklist-item">
                   <CheckCircle2 size={18} className="check-icon" />
                   <div>
-                    <span className="checklist-title">Data Analytics & BI:</span>
+                    <span className="checklist-title">Data Analytics &amp; Business Intelligence:</span>
                     <span className="checklist-desc">
-                      {' '}Crafting dimensional models, interactive Power BI / Tableau dashboards, and automated Power Query ETL.
+                      {' '}Power BI, Tableau, Power Query, Excel, and SQL for actionable reporting and informed decision-making.
                     </span>
                   </div>
                 </div>
                 <div className="checklist-item">
                   <CheckCircle2 size={18} className="check-icon" />
                   <div>
-                    <span className="checklist-title">AI & Machine Learning:</span>
+                    <span className="checklist-title">AI Applications &amp; LLMs:</span>
                     <span className="checklist-desc">
-                      {' '}Building supervised/deep learning pipelines (Scikit-learn, TensorFlow, PyTorch) and deploying private local LLMs (Ollama, Qwen 2.5).
+                      {' '}Building practical AI applications with Large Language Models, Ollama, Qwen, and custom data workflows.
                     </span>
                   </div>
                 </div>
                 <div className="checklist-item">
                   <CheckCircle2 size={18} className="check-icon" />
                   <div>
-                    <span className="checklist-title">Data Engineering & APIs:</span>
+                    <span className="checklist-title">API Integration &amp; Dashboard Development:</span>
                     <span className="checklist-desc">
-                      {' '}Connecting Meta Marketing API and Windsor.ai pipelines, querying Google BigQuery, and working with Apache Hadoop.
+                      {' '}Meta API data integration, Windsor.ai, automated pipelines, and interactive dashboard solutions.
                     </span>
                   </div>
                 </div>
@@ -121,14 +121,14 @@ export default function About() {
               ))}
             </div>
 
-            {/* Synergistic Workflow Card */}
+            {/* My Objective Card */}
             <div className="glass-card synergy-banner">
               <div className="synergy-header">
                 <Workflow size={20} className="text-cyan" />
-                <h4 className="synergy-title">Career Objective</h4>
+                <h4 className="synergy-title">My Objective</h4>
               </div>
               <p className="synergy-text">
-                Passionate about pursuing a high-impact career as a <strong>Data Analyst</strong>, <strong>AI Developer</strong>, or <strong>Data Scientist</strong>, contributing to intelligent, reliable, and impactful decision systems.
+                To build practical AI and analytics solutions that turn data into meaningful business insights.
               </p>
             </div>
           </div>
