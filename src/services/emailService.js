@@ -56,20 +56,9 @@ export function validateContactForm(data) {
  * Uses direct static access for Vite compile-time substitution.
  */
 export function getEmailServiceConfig() {
-  const serviceId =
-    (typeof import.meta !== 'undefined' && import.meta.env?.VITE_EMAILJS_SERVICE_ID) ||
-    (typeof process !== 'undefined' && process.env?.VITE_EMAILJS_SERVICE_ID) ||
-    '';
-
-  const templateId =
-    (typeof import.meta !== 'undefined' && import.meta.env?.VITE_EMAILJS_TEMPLATE_ID) ||
-    (typeof process !== 'undefined' && process.env?.VITE_EMAILJS_TEMPLATE_ID) ||
-    '';
-
-  const publicKey =
-    (typeof import.meta !== 'undefined' && import.meta.env?.VITE_EMAILJS_PUBLIC_KEY) ||
-    (typeof process !== 'undefined' && process.env?.VITE_EMAILJS_PUBLIC_KEY) ||
-    '';
+  const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID || '';
+  const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || '';
+  const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || '';
 
   const missing = [];
   if (!serviceId || serviceId.includes('your_')) missing.push('VITE_EMAILJS_SERVICE_ID');
