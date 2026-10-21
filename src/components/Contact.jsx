@@ -370,13 +370,28 @@ export default function Contact({ onOpenResume }) {
                       <div className="form-alert-error-header">
                         <AlertCircle size={18} className="flex-shrink-0" />
                         <span>
-                          {errorCode === 'NOT_CONFIGURED'
+                          {errorCode === 'ACTIVATION_REQUIRED'
+                            ? 'One-Time Form Activation Required'
+                            : errorCode === 'NOT_CONFIGURED'
                             ? 'Email Service Setup Required'
                             : 'Message Delivery Failed'}
                         </span>
                       </div>
                       <div className="form-alert-error-body">
-                        {errorCode === 'NOT_CONFIGURED' ? (
+                        {errorCode === 'ACTIVATION_REQUIRED' ? (
+                          <>
+                            <p style={{ marginBottom: '0.45rem' }}>
+                              A confirmation email from <strong>FormSubmit</strong> was sent to <strong>{personalInfo.email}</strong>.
+                            </p>
+                            <p style={{ marginBottom: '0.45rem', fontSize: '0.84rem' }}>
+                              👉 Please open your Gmail inbox (<strong>{personalInfo.email}</strong>) and click <strong>"Activate Form"</strong> once.
+                              After that single click, all submissions will automatically arrive in your inbox!
+                            </p>
+                            <p style={{ fontSize: '0.84rem' }}>
+                              You can also send your message directly via your email app right now without losing what you typed.
+                            </p>
+                          </>
+                        ) : errorCode === 'NOT_CONFIGURED' ? (
                           <>
                             <p style={{ marginBottom: '0.45rem' }}>
                               Direct sending requires configuring your EmailJS environment variables in <code>.env</code>:
@@ -395,9 +410,20 @@ VITE_EMAILJS_PUBLIC_KEY=your_public_key`}
                         )}
                       </div>
                       <div className="form-alert-actions">
+                        {errorCode === 'ACTIVATION_REQUIRED' && (
+                          <a
+                            href="https://mail.google.com/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="btn btn-sm btn-primary"
+                          >
+                            <Mail size={14} />
+                            <span>Check Gmail Inbox</span>
+                          </a>
+                        )}
                         <a
                           href={buildMailtoFallback(formState)}
-                          className="btn btn-sm btn-primary"
+                          className={`btn btn-sm ${errorCode === 'ACTIVATION_REQUIRED' ? 'btn-secondary' : 'btn-primary'}`}
                         >
                           <Mail size={14} />
                           <span>Open Email Client</span>

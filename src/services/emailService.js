@@ -53,7 +53,8 @@ export function validateContactForm(data) {
 
 /**
  * Detect available email service configuration from Vite environment variables.
- * Never hardcodes or exposes secrets.
+ * Prioritizes custom EmailJS / Web3Forms keys if configured,
+ * and falls back to built-in FormSubmit for zero-setup direct delivery.
  */
 export function getEmailServiceConfig() {
   const env =
@@ -98,9 +99,11 @@ export function getEmailServiceConfig() {
     };
   }
 
+  // Built-in zero-setup direct delivery to viswanathan23ad060@gmail.com
   return {
-    provider: 'none',
-    isConfigured: false
+    provider: 'formsubmit',
+    isConfigured: true,
+    recipientEmail: personalInfo.email || 'viswanathan23ad060@gmail.com'
   };
 }
 
@@ -125,15 +128,9 @@ export async function sendContactEmail(formData) {
   const config = getEmailServiceConfig();
   const recipientEmail = personalInfo.email || 'viswanathan23ad060@gmail.com';
 
-  if (!config.isConfigured) {
-    const err = new Error(
-      'Email service credentials are not yet configured. Please set VITE_EMAILJS_SERVICE_ID, VITE_EMAILJS_TEMPLATE_ID, and VITE_EMAILJS_PUBLIC_KEY in your .env file or hosting environment variables.'
-    );
-    err.code = 'NOT_CONFIGURED';
-    throw err;
-  }
-
   // Step 3: Dispatch via configured provider
+
+  // Option A: EmailJS (if user configured .env with EmailJS keys)
   if (config.provider === 'emailjs') {
     const templateParams = {
       from_name: formData.name.trim(),
@@ -176,6 +173,7 @@ export async function sendContactEmail(formData) {
     }
   }
 
+  // Option B: Web3Forms (if user configured VITE_WEB3FORMS_ACCESS_KEY)
   if (config.provider === 'web3forms') {
     try {
       const response = await fetch('https://api.web3forms.com/submit', {
@@ -208,6 +206,58 @@ export async function sendContactEmail(formData) {
       console.error('Web3Forms Send Error:', err);
       const sendError = new Error(err.message || 'Failed to deliver message via Web3Forms.');
       sendError.code = 'WEB3FORMS_ERROR';
+      throw sendError;
+    }
+  }
+
+  // Option C: Built-in FormSubmit (zero setup direct delivery to viswanathan23ad060@gmail.com)
+  if (config.provider === 'formsubmit') {
+    try {
+      const response = await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(recipientEmail)}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json'
+        },
+        body: JSON.stringify({
+          name: formData.name.trim(),
+          email: formData.email.trim(),
+          _replyto: formData.email.trim(),
+          _subject: `[Portfolio Inquiry] ${formData.subject.trim()}`,
+          message: formData.message.trim(),
+          _template: 'table',
+          _captcha: 'false'
+        })
+      });
+
+      const data = await response.json();
+      const isSuccess = String(data.success) === 'true';
+
+      if (isSuccess) {
+        return {
+          success: true,
+          message: `Your message has been delivered to ${recipientEmail}.`
+        };
+      }
+
+      // Check if first-time FormSubmit email activation is required
+      if (data.message && data.message.toLowerCase().includes('activation')) {
+        const activationErr = new Error(
+          `FormSubmit sent a one-time activation link to ${recipientEmail}. Please check your inbox and click "Activate Form" once to complete setup.`
+        );
+        activationErr.code = 'ACTIVATION_REQUIRED';
+        activationErr.recipientEmail = recipientEmail;
+        throw activationErr;
+      }
+
+      throw new Error(data.message || 'Unable to deliver message via FormSubmit service.');
+    } catch (err) {
+      if (err.code === 'ACTIVATION_REQUIRED') throw err;
+      console.error('FormSubmit Send Error:', err);
+      const sendError = new Error(
+        err.message || 'Failed to deliver message. Please try again or use the email link below.'
+      );
+      sendError.code = 'FORMSUBMIT_ERROR';
       throw sendError;
     }
   }
