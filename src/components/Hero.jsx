@@ -16,6 +16,7 @@ import {
   Award
 } from './Icons';
 import { LinkedinIcon } from './Icons';
+import { OrganicProfileFrame } from './AbstractDecorations';
 
 export default function Hero({ onOpenResume }) {
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -123,66 +124,16 @@ export default function Hero({ onOpenResume }) {
             </div>
           </div>
 
-          {/* Right Column: Prominent Profile Photo with Polished Frame */}
+          {/* Right Column: Prominent Profile Photo with Multicolored Organic Frame */}
           <div className="hero-portrait-column">
-            <div className="portrait-frame-container">
-              {/* Animated Halo Shimmer Ring */}
-              <div className="portrait-halo-ring" aria-hidden="true" />
-
-              {/* Glass Frame Card */}
-              <div className="glass-card portrait-glass-card">
-                <div className="portrait-img-wrapper">
-                  {!imageError ? (
-                    <img
-                      src={personalInfo.profileImage}
-                      alt={`${personalInfo.name} - ${personalInfo.title}`}
-                      className={`portrait-image ${imageLoaded ? 'portrait-image-loaded' : ''}`}
-                      onLoad={() => setImageLoaded(true)}
-                      onError={() => setImageError(true)}
-                      loading="eager"
-                      width="380"
-                      height="480"
-                    />
-                  ) : (
-                    <div className="portrait-fallback">
-                      <div className="fallback-initials">MV</div>
-                      <span className="fallback-hint">Photo at public/profile.jpg</span>
-                    </div>
-                  )}
-
-                  {/* Gradient Overlay for subtle glass edge integration */}
-                  <div className="portrait-gradient-overlay" />
-                </div>
-
-                {/* Floating Micro-Badge Top: Analytics */}
-                <div className="portrait-badge badge-top-right animate-float-subtle">
-                  <div className="p-badge-icon bg-cyan">
-                    <Database size={14} className="text-cyan" />
-                  </div>
-                  <div className="p-badge-text">
-                    <span className="p-badge-title">Power BI & Tableau</span>
-                    <span className="p-badge-sub">Business Intelligence</span>
-                  </div>
-                </div>
-
-                {/* Floating Micro-Badge Bottom: AI Engineering */}
-                <div className="portrait-badge badge-bottom-left animate-float-subtle-delay">
-                  <div className="p-badge-icon bg-violet">
-                    <Bot size={14} className="text-violet" />
-                  </div>
-                  <div className="p-badge-text">
-                    <span className="p-badge-title">Ollama + Qwen 2.5</span>
-                    <span className="p-badge-sub">Local LLMs & ML</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Recruiter Ready Tagline */}
-              <div className="portrait-caption">
-                <span className="caption-dot" />
-                <span className="caption-text">Kathir College of Engineering &bull; B.Tech AI & DS</span>
-              </div>
-            </div>
+            <OrganicProfileFrame
+              imageSrc={personalInfo.profileImage}
+              altText={`${personalInfo.name} - ${personalInfo.title}`}
+              imageLoaded={imageLoaded}
+              onImageLoad={() => setImageLoaded(true)}
+              imageError={imageError}
+              onImageError={() => setImageError(true)}
+            />
           </div>
         </div>
       </div>
