@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { personalInfo, resumeData } from '../data/portfolioData';
 import {
   Mail,
+  Phone,
   Send,
   Copy,
   Check,
@@ -23,30 +24,18 @@ export default function Contact({ onOpenResume }) {
     subject: '',
     message: ''
   });
-  const [emailStatusMessage, setEmailStatusMessage] = useState('');
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const isEmailConfigured =
-    personalInfo.email &&
-    !personalInfo.email.includes('your.email') &&
-    !personalInfo.email.includes('example.com');
+  const hasConfiguredGithub =
+    Boolean(personalInfo.github) &&
+    personalInfo.github.trim() !== '' &&
+    !personalInfo.github.includes('your-github-username');
 
   const handleCopy = (text, key) => {
     navigator.clipboard.writeText(text);
     setCopiedKey(key);
     setTimeout(() => setCopiedKey(null), 2500);
-  };
-
-  const handleEmailButtonClick = (e) => {
-    if (!isEmailConfigured) {
-      e.preventDefault();
-      setEmailStatusMessage(
-        'Placeholder detected: Please update your real Gmail address in src/data/portfolioData.js to activate the live mailto link.'
-      );
-      setTimeout(() => setEmailStatusMessage(''), 6000);
-      return;
-    }
   };
 
   const handleSubmit = (e) => {
@@ -57,17 +46,15 @@ export default function Contact({ onOpenResume }) {
       setIsSubmitting(false);
       setFormSubmitted(true);
 
-      if (isEmailConfigured) {
-        const mailtoUrl = `mailto:${personalInfo.email}?subject=${encodeURIComponent(
-          formState.subject || 'Data Analyst / AI Developer Inquiry'
-        )}&body=${encodeURIComponent(
-          `From: ${formState.name} (${formState.email})\n\n${formState.message}`
-        )}`;
-        setTimeout(() => {
-          window.location.href = mailtoUrl;
-        }, 800);
-      }
-    }, 600);
+      const mailtoUrl = `mailto:${personalInfo.email}?subject=${encodeURIComponent(
+        formState.subject || 'Data Analyst / AI Developer Inquiry'
+      )}&body=${encodeURIComponent(
+        `From: ${formState.name} (${formState.email})\n\n${formState.message}`
+      )}`;
+      setTimeout(() => {
+        window.location.href = mailtoUrl;
+      }, 600);
+    }, 500);
   };
 
   return (
@@ -77,31 +64,23 @@ export default function Contact({ onOpenResume }) {
         <div className="section-header">
           <div className="section-tag section-tag-cyan">
             <Mail size={14} />
-            <span>Connect & Collaborate</span>
+            <span>Direct Channels</span>
           </div>
           <h2 className="section-title">
-            Get in <span className="text-gradient">Touch</span>
+            Contact & <span className="text-gradient">Connect</span>
           </h2>
           <p className="section-subtitle">
-            Open to discussing Data Analyst, Business Intelligence, and AI Developer opportunities. 
-            Connect directly through the verified channels below.
+            Open to discussing Data Analyst, AI Developer, and Data Scientist opportunities. 
+            Connect with me directly through my verified email, phone, and LinkedIn.
           </p>
         </div>
-
-        {/* Email configuration helper toast if placeholder clicked */}
-        {emailStatusMessage && (
-          <div className="glass-card email-warning-toast animate-pulse-subtle">
-            <AlertCircle size={18} className="text-cyan" />
-            <span>{emailStatusMessage}</span>
-          </div>
-        )}
 
         <div className="contact-grid">
           {/* Left Column: Direct Channels */}
           <div className="contact-info-column">
-            <h3 className="contact-column-title">Direct Channels</h3>
+            <h3 className="contact-column-title">Verified Contact Info</h3>
             <p className="contact-column-desc">
-              LinkedIn is directly linked to my verified profile. GitHub and Gmail can be customized in <code>src/data/portfolioData.js</code>.
+              Direct details from my resume. Fully active email, phone, and professional LinkedIn network.
             </p>
 
             <div className="contact-cards-list">
@@ -120,7 +99,7 @@ export default function Contact({ onOpenResume }) {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="channel-value"
-                    aria-label="Open Viswanathan M LinkedIn Profile in a new tab"
+                    aria-label="Open M. Viswanathan LinkedIn Profile in a new tab"
                   >
                     linkedin.com/in/viswanathan-m
                   </a>
@@ -137,53 +116,20 @@ export default function Contact({ onOpenResume }) {
                 </a>
               </div>
 
-              {/* GitHub Card */}
-              <div className="glass-card contact-channel-card">
-                <div className="channel-icon-wrap bg-violet-soft">
-                  <GithubIcon size={22} className="text-violet" />
-                </div>
-                <div className="channel-details">
-                  <div className="channel-meta-badge">
-                    <span className="channel-label">GitHub Repository</span>
-                    <span className="chip chip-violet" style={{ fontSize: '0.65rem' }}>Portfolio Source</span>
-                  </div>
-                  <a
-                    href={personalInfo.github}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="channel-value"
-                    aria-label="Open GitHub Profile"
-                  >
-                    {personalInfo.github.replace('https://', '')}
-                  </a>
-                </div>
-                <a
-                  href={personalInfo.github}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn btn-sm btn-secondary copy-btn"
-                  aria-label="Visit GitHub Profile"
-                >
-                  <ExternalLink size={14} />
-                  <span>View</span>
-                </a>
-              </div>
-
-              {/* Gmail Contact Card */}
+              {/* Verified Gmail Address */}
               <div className="glass-card contact-channel-card">
                 <div className="channel-icon-wrap bg-violet-soft">
                   <Mail size={22} className="text-violet" />
                 </div>
                 <div className="channel-details">
                   <div className="channel-meta-badge">
-                    <span className="channel-label">Gmail Address</span>
-                    <span className="channel-hint">{isEmailConfigured ? 'Live' : 'Placeholder'}</span>
+                    <span className="channel-label">Verified Email</span>
+                    <span className="chip chip-violet" style={{ fontSize: '0.65rem' }}>Active</span>
                   </div>
                   <a
-                    href={isEmailConfigured ? `mailto:${personalInfo.email}` : '#contact'}
-                    onClick={handleEmailButtonClick}
+                    href={`mailto:${personalInfo.email}`}
                     className="channel-value"
-                    title={isEmailConfigured ? 'Send Email' : 'Configure email in portfolioData.js'}
+                    title="Send Email to M. Viswanathan"
                   >
                     {personalInfo.email}
                   </a>
@@ -208,7 +154,88 @@ export default function Contact({ onOpenResume }) {
                 </button>
               </div>
 
-              {/* Direct Resume Download Card */}
+              {/* Verified Phone Number */}
+              <div className="glass-card contact-channel-card">
+                <div className="channel-icon-wrap bg-cyan-soft">
+                  <Phone size={22} className="text-cyan" />
+                </div>
+                <div className="channel-details">
+                  <div className="channel-meta-badge">
+                    <span className="channel-label">Direct Phone</span>
+                    <span className="chip chip-cyan" style={{ fontSize: '0.65rem' }}>Resume</span>
+                  </div>
+                  <a
+                    href={`tel:${personalInfo.phone}`}
+                    className="channel-value"
+                    title="Call M. Viswanathan"
+                  >
+                    {personalInfo.phone}
+                  </a>
+                </div>
+                <button
+                  onClick={() => handleCopy(personalInfo.phone, 'phone')}
+                  className="btn btn-sm btn-secondary copy-btn"
+                  title="Copy phone number to clipboard"
+                  aria-label="Copy phone number"
+                >
+                  {copiedKey === 'phone' ? (
+                    <>
+                      <Check size={14} className="text-cyan" />
+                      <span>Copied</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy size={14} />
+                      <span>Copy</span>
+                    </>
+                  )}
+                </button>
+              </div>
+
+              {/* GitHub Card - Configurable */}
+              <div className="glass-card contact-channel-card">
+                <div className="channel-icon-wrap bg-violet-soft">
+                  <GithubIcon size={22} className="text-violet" />
+                </div>
+                <div className="channel-details">
+                  <div className="channel-meta-badge">
+                    <span className="channel-label">GitHub Profile</span>
+                    <span className="channel-hint">{hasConfiguredGithub ? 'Connected' : 'To Configure'}</span>
+                  </div>
+                  {hasConfiguredGithub ? (
+                    <a
+                      href={personalInfo.github}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="channel-value"
+                    >
+                      {personalInfo.github.replace('https://', '')}
+                    </a>
+                  ) : (
+                    <span className="channel-value text-muted" style={{ fontSize: '0.85rem' }}>
+                      Add your URL in portfolioData.js
+                    </span>
+                  )}
+                </div>
+                {hasConfiguredGithub ? (
+                  <a
+                    href={personalInfo.github}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn btn-sm btn-secondary copy-btn"
+                    aria-label="Open GitHub profile"
+                  >
+                    <ExternalLink size={14} />
+                    <span>Visit</span>
+                  </a>
+                ) : (
+                  <span className="chip chip-subtle" title="Never invent unverified GitHub URLs">
+                    Optional
+                  </span>
+                )}
+              </div>
+
+              {/* Resume Quick Action */}
               <div className="glass-card contact-channel-card">
                 <div className="channel-icon-wrap bg-cyan-soft">
                   <Download size={22} className="text-cyan" />
@@ -219,8 +246,8 @@ export default function Contact({ onOpenResume }) {
                 </div>
                 <button
                   onClick={onOpenResume}
-                  className="btn btn-sm btn-secondary copy-btn"
-                  aria-label="View or download resume file"
+                  className="btn btn-sm btn-primary copy-btn"
+                  aria-label="View or download official resume"
                 >
                   <Download size={14} />
                   <span>Resume</span>
@@ -235,7 +262,7 @@ export default function Contact({ onOpenResume }) {
                 <span className="avail-status">{personalInfo.status}</span>
               </div>
               <p className="avail-note">
-                Actively seeking Data Analyst and AI Developer opportunities. Prompt response time.
+                Located in Coimbatore, Tamil Nadu, India. Open to on-site, hybrid, and remote positions.
               </p>
             </div>
           </div>
@@ -245,17 +272,15 @@ export default function Contact({ onOpenResume }) {
             <div className="glass-card contact-form-card">
               <h3 className="form-title">Send a Direct Message</h3>
               <p className="form-subtitle">
-                Have an inquiry or role opening? Reach out directly via the form below.
+                Have an inquiry or role opportunity? Send a message directly to <code>{personalInfo.email}</code>.
               </p>
 
               {formSubmitted ? (
                 <div className="form-success-card animate-pulse-subtle">
                   <CheckCircle2 size={40} className="text-cyan success-icon" />
-                  <h4 className="success-title">Message Received!</h4>
+                  <h4 className="success-title">Message Prepared!</h4>
                   <p className="success-text">
-                    {isEmailConfigured
-                      ? `Opening your default email client addressed to ${personalInfo.email}.`
-                      : `Message prepared! Update your Gmail in src/data/portfolioData.js to connect automatic mailto transmission.`}
+                    Opening your default email client with your message pre-addressed to <strong>{personalInfo.email}</strong>.
                   </p>
                   <button
                     onClick={() => {
@@ -312,7 +337,7 @@ export default function Contact({ onOpenResume }) {
                     <input
                       id="contact-subject"
                       type="text"
-                      placeholder="e.g. Data Analyst Opportunity"
+                      placeholder="e.g. Opportunity: Data Analyst / AI Developer"
                       value={formState.subject}
                       onChange={(e) =>
                         setFormState({ ...formState, subject: e.target.value })
@@ -329,7 +354,7 @@ export default function Contact({ onOpenResume }) {
                       id="contact-message"
                       rows="5"
                       required
-                      placeholder="Share details about the position, team, or project..."
+                      placeholder="Share details regarding the role, tech stack, or project..."
                       value={formState.message}
                       onChange={(e) =>
                         setFormState({ ...formState, message: e.target.value })

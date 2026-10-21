@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
-import { personalInfo, resumeData, skillsData, experienceData } from '../data/portfolioData';
+import {
+  personalInfo,
+  resumeData,
+  internshipExperience,
+  companyProjectExperience,
+  certificationsData
+} from '../data/portfolioData';
 import {
   Download,
   FileText,
@@ -9,14 +15,14 @@ import {
   ExternalLink,
   Printer,
   Sparkles,
-  Info
+  Info,
+  Award
 } from './Icons';
 
 export default function ResumeSection({ isModal = false, onClose = null }) {
   const [downloadSuccess, setDownloadSuccess] = useState(false);
 
   const handleDownload = () => {
-    // Trigger download of resume
     const link = document.createElement('a');
     link.href = personalInfo.resumePdfUrl;
     link.download = resumeData.fileName;
@@ -38,14 +44,15 @@ export default function ResumeSection({ isModal = false, onClose = null }) {
       <div className="glass-card resume-action-banner">
         <div className="resume-banner-text">
           <div className="resume-badge-row">
-            <span className="chip chip-violet">Curriculum Vitae</span>
-            <span className="chip chip-cyan">Updated: {resumeData.lastUpdated}</span>
+            <span className="chip chip-violet">Verified Resume</span>
+            <span className="chip chip-cyan">B.Tech AI &amp; DS &bull; 8.5 CGPA</span>
           </div>
           <h3 className="resume-banner-title">
-            Professional Resume & Competency Sheet
+            Curriculum Vitae &mdash; M. Viswanathan
           </h3>
           <p className="resume-banner-sub">
-            Optimized for Data Analyst and AI Developer positions. Includes enterprise BI, SQL modeling, and local LLM engineering experience.
+            Targeting Data Analyst, AI Developer, and Data Scientist opportunities. 
+            Grounding across Power BI, SQL, Python, machine learning, local LLMs, and Meta API integration.
           </p>
         </div>
 
@@ -53,6 +60,7 @@ export default function ResumeSection({ isModal = false, onClose = null }) {
           <button
             onClick={handleDownload}
             className="btn btn-primary resume-action-btn"
+            aria-label="Download Official Resume PDF"
           >
             <Download size={16} />
             <span>Download PDF</span>
@@ -71,7 +79,9 @@ export default function ResumeSection({ isModal = false, onClose = null }) {
       {downloadSuccess && (
         <div className="glass-card download-toast animate-pulse-subtle">
           <CheckCircle2 size={16} className="text-cyan" />
-          <span>Resume download triggered ({resumeData.fileName}). To use your custom PDF, replace <code>public/resume.pdf</code>.</span>
+          <span>
+            Resume download triggered ({resumeData.fileName}). To use your latest PDF file, overwrite <code>public/resume.pdf</code>.
+          </span>
         </div>
       )}
 
@@ -85,51 +95,47 @@ export default function ResumeSection({ isModal = false, onClose = null }) {
           </div>
           <div className="doc-header-contacts">
             <div className="doc-contact-item">
+              <span>Phone:</span> {personalInfo.phone}
+            </div>
+            <div className="doc-contact-item">
               <span>Email:</span> {personalInfo.email}
             </div>
             <div className="doc-contact-item">
-              <span>Location:</span> {personalInfo.location}
-            </div>
-            <div className="doc-contact-item">
-              <span>Portfolio:</span> Modern React + Vite App
+              <span>LinkedIn:</span> {personalInfo.linkedin.replace('https://www.', '')}
             </div>
           </div>
         </div>
 
         <div className="doc-divider" />
 
-        {/* Executive Summary */}
+        {/* Education Section */}
         <div className="doc-section">
-          <h4 className="doc-section-title">PROFESSIONAL SUMMARY</h4>
-          <p className="doc-text">
-            {personalInfo.about.lead} Proficient in SQL query optimization, data warehouse modeling, 
-            interactive reporting in Power BI and Tableau, alongside building local AI solutions using Ollama and Qwen models.
-          </p>
-        </div>
-
-        {/* Core Skills */}
-        <div className="doc-section">
-          <h4 className="doc-section-title">CORE SKILLS & TECHNOLOGIES</h4>
-          <div className="doc-skills-list">
-            <div className="doc-skill-category">
-              <strong>Data Analytics & BI:</strong> SQL, Excel, Power BI, Tableau, Power Query, Data Modeling, DAX
+          <h4 className="doc-section-title">EDUCATION</h4>
+          <div className="doc-edu-item">
+            <div className="doc-exp-heading">
+              <span className="doc-exp-role">{personalInfo.education.degree}</span>
+              <span className="doc-exp-period">Current CGPA: {personalInfo.education.cgpa}</span>
             </div>
-            <div className="doc-skill-category">
-              <strong>AI & Development:</strong> Python, Ollama, Qwen, LLMs, Meta API integration, REST APIs, JSON
-            </div>
+            <p className="doc-text">{personalInfo.education.institution}</p>
           </div>
         </div>
 
-        {/* Experience Section */}
+        {/* Professional Summary */}
         <div className="doc-section">
-          <h4 className="doc-section-title">PROFESSIONAL EXPERIENCE</h4>
+          <h4 className="doc-section-title">PROFILE</h4>
+          <p className="doc-text">{personalInfo.about.lead}</p>
+        </div>
+
+        {/* Professional Internships */}
+        <div className="doc-section">
+          <h4 className="doc-section-title">PROFESSIONAL INTERNSHIP EXPERIENCE</h4>
           <div className="doc-experience-list">
-            {experienceData.map((exp, idx) => (
+            {internshipExperience.map((exp, idx) => (
               <div key={idx} className="doc-exp-item">
                 <div className="doc-exp-heading">
                   <div className="doc-exp-left">
                     <span className="doc-exp-role">{exp.role}</span>
-                    <span className="doc-exp-company"> | {exp.company}</span>
+                    <span className="doc-exp-company"> &bull; {exp.company}</span>
                   </div>
                   <span className="doc-exp-period">{exp.period}</span>
                 </div>
@@ -143,22 +149,41 @@ export default function ResumeSection({ isModal = false, onClose = null }) {
           </div>
         </div>
 
-        {/* Education & Certifications (Placeholders) */}
+        {/* Company Projects */}
         <div className="doc-section">
-          <h4 className="doc-section-title">EDUCATION & CREDENTIALS</h4>
-          <div className="doc-edu-item">
-            <div className="doc-exp-heading">
-              <span className="doc-exp-role">[Bachelor's Degree in Computer Science / Analytics / Relevant Field]</span>
-              <span className="doc-exp-period">[Graduation Year]</span>
-            </div>
-            <p className="doc-text">[University Name / Institute Location]</p>
+          <h4 className="doc-section-title">COMPANY PROJECT INITIATIVES</h4>
+          <div className="doc-experience-list">
+            {companyProjectExperience.map((cp, idx) => (
+              <div key={idx} className="doc-exp-item">
+                <div className="doc-exp-heading">
+                  <div className="doc-exp-left">
+                    <span className="doc-exp-role">{cp.title}</span>
+                    <span className="doc-exp-company"> &bull; {cp.company}</span>
+                  </div>
+                </div>
+                <p className="doc-text" style={{ fontSize: '0.85rem', marginBottom: '0.35rem' }}>{cp.summary}</p>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Customization Tip */}
+        {/* Certifications */}
+        <div className="doc-section">
+          <h4 className="doc-section-title">VERIFIED CERTIFICATIONS</h4>
+          <div className="doc-experience-list">
+            {certificationsData.map((cert) => (
+              <div key={cert.id} className="doc-exp-item">
+                <span className="doc-exp-role" style={{ fontSize: '0.875rem' }}>{cert.title}</span>
+                <p className="doc-text" style={{ fontSize: '0.8125rem' }}>{cert.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Footer Hint */}
         <div className="doc-footer-hint">
           <Info size={14} className="text-cyan" />
-          <span>This interactive preview reflects live updates from <code>src/data/portfolioData.js</code>.</span>
+          <span>Resume details directly mirror the uploaded resume of M. Viswanathan.</span>
         </div>
       </div>
     </div>
@@ -166,11 +191,26 @@ export default function ResumeSection({ isModal = false, onClose = null }) {
 
   if (isModal) {
     return (
-      <div className="modal-backdrop" onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="resume-modal-title">
-        <div className="glass-card resume-modal-container" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="modal-backdrop"
+        onClick={onClose}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="resume-modal-title"
+      >
+        <div
+          className="glass-card resume-modal-container"
+          onClick={(e) => e.stopPropagation()}
+        >
           <div className="modal-header">
-            <h3 id="resume-modal-title" className="modal-title">Resume & Credentials</h3>
-            <button onClick={onClose} className="modal-close-btn" aria-label="Close resume preview">
+            <h3 id="resume-modal-title" className="modal-title">
+              Curriculum Vitae &mdash; M. Viswanathan
+            </h3>
+            <button
+              onClick={onClose}
+              className="modal-close-btn"
+              aria-label="Close resume preview"
+            >
               &times;
             </button>
           </div>
@@ -183,18 +223,18 @@ export default function ResumeSection({ isModal = false, onClose = null }) {
   }
 
   return (
-    <section id="resume" className="section resume-section">
+    <section id="resume" className="section resume-section" aria-label="Resume">
       <div className="container">
         <div className="section-header">
           <div className="section-tag section-tag-violet">
             <FileText size={14} />
-            <span>Credentials & CV</span>
+            <span>Credentials &amp; CV</span>
           </div>
           <h2 className="section-title">
-            Resume & <span className="text-gradient">Credentials</span>
+            Curriculum <span className="text-gradient">Vitae</span>
           </h2>
           <p className="section-subtitle">
-            Download a copy of my curriculum vitae or review the live interactive preview below.
+            Download my official resume or review the formatted curriculum vitae below.
           </p>
         </div>
 

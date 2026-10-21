@@ -39,7 +39,13 @@ import {
   Info,
   Building,
   Printer,
-  AlertCircle
+  AlertCircle,
+  Award,
+  Trophy,
+  GraduationCap,
+  TrendingUp,
+  Activity,
+  ShieldCheck
 } from 'lucide-react';
 
 // Custom precision SVG icons for brand links
@@ -163,5 +169,11 @@ export {
   Info,
   Building,
   Printer,
-  AlertCircle
+  AlertCircle,
+  Award,
+  Trophy,
+  GraduationCap,
+  TrendingUp,
+  Activity,
+  ShieldCheck
 };

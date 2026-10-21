@@ -15,7 +15,10 @@ import {
   CheckCircle2,
   Share2,
   Monitor,
-  Info
+  Info,
+  TrendingUp,
+  Activity,
+  Eye
 } from './Icons';
 import { GithubIcon } from './Icons';
 
@@ -27,10 +30,10 @@ export default function Projects() {
   const filteredProjects = projectsData.filter((project) => {
     const matchesFilter =
       activeFilter === 'all' ||
-      (activeFilter === 'analytics' && project.category === 'Data Analytics') ||
-      (activeFilter === 'ai' && project.category === 'AI') ||
-      (activeFilter === 'integration' && project.category === 'Data Integration') ||
-      (activeFilter === 'dev' && project.category === 'Development');
+      (activeFilter === 'ai-ml' && project.category.includes('AI')) ||
+      (activeFilter === 'analytics' && project.category.includes('Analytics')) ||
+      (activeFilter === 'data-eng' && project.category.includes('Engineering')) ||
+      (activeFilter === 'dev' && project.category.includes('Development'));
 
     const matchesSearch =
       project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -42,36 +45,135 @@ export default function Projects() {
     return matchesFilter && matchesSearch;
   });
 
-  // Render rich CSS/vector dashboard mockup preview for each project
   const renderVisualPreview = (project) => {
     switch (project.previewType) {
+      case 'stock-chart':
+        return (
+          <div className="preview-canvas stock-canvas">
+            <div className="preview-top-bar">
+              <span className="preview-dot green-dot" />
+              <span className="preview-title">Stock Prediction Model</span>
+              <span className="preview-tag">[Concept UI]</span>
+            </div>
+            <div className="stock-visual-lines">
+              <div className="stock-metric-row">
+                <span className="stock-ticker">TICKER: HISTORICAL &bull; SMA-50</span>
+                <span className="stock-change text-green">+Predicted Trend</span>
+              </div>
+              <div className="stock-wave-container">
+                <svg viewBox="0 0 300 60" className="stock-svg" preserveAspectRatio="none">
+                  <path
+                    d="M0,45 Q40,55 80,30 T160,20 T240,35 T300,10"
+                    fill="none"
+                    stroke="#06b6d4"
+                    strokeWidth="2.5"
+                  />
+                  <path
+                    d="M0,50 Q40,40 80,45 T160,25 T240,20 T300,5"
+                    fill="none"
+                    stroke="#a855f7"
+                    strokeWidth="2"
+                    strokeDasharray="4 4"
+                  />
+                </svg>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'forecast-chart':
+        return (
+          <div className="preview-canvas forecast-canvas">
+            <div className="preview-top-bar">
+              <span className="preview-dot purple-dot" />
+              <span className="preview-title">Sales Forecasting Model</span>
+              <span className="preview-tag">[Concept UI]</span>
+            </div>
+            <div className="forecast-bars-container">
+              <div className="f-bar-col">
+                <div className="f-bar" style={{ height: '45%' }} />
+                <span className="f-lbl">Q1</span>
+              </div>
+              <div className="f-bar-col">
+                <div className="f-bar" style={{ height: '60%' }} />
+                <span className="f-lbl">Q2</span>
+              </div>
+              <div className="f-bar-col">
+                <div className="f-bar" style={{ height: '52%' }} />
+                <span className="f-lbl">Q3</span>
+              </div>
+              <div className="f-bar-col">
+                <div className="f-bar active" style={{ height: '82%' }} />
+                <span className="f-lbl">Q4 (F)</span>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'medical-vision':
+        return (
+          <div className="preview-canvas medical-canvas">
+            <div className="preview-top-bar">
+              <span className="preview-dot cyan-dot" />
+              <span className="preview-title">Eye Pathology Classifier</span>
+              <span className="preview-tag">[Deep Learning]</span>
+            </div>
+            <div className="medical-scan-box">
+              <div className="scan-crosshair">
+                <Eye size={22} className="text-cyan" />
+              </div>
+              <div className="scan-info">
+                <span className="scan-status text-cyan">CNN Ingestion &bull; Augmentation Active</span>
+                <span className="scan-sub">Multi-Class Ocular Triage</span>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'offline-chat':
+        return (
+          <div className="preview-canvas offline-canvas">
+            <div className="preview-top-bar">
+              <span className="preview-dot green-dot" />
+              <span className="preview-title">Offline Question-Answering</span>
+              <span className="preview-tag">[Local NLP]</span>
+            </div>
+            <div className="terminal-preview-code">
+              <div className="terminal-line user-line">
+                <span className="prompt-sym">&gt;</span> &quot;Query local dataset insights&quot;
+              </div>
+              <div className="terminal-line qwen-line">
+                <span className="model-sym">[NLP System]</span> Parsing intent &bull; Zero Network
+              </div>
+              <div className="terminal-line sql-line">
+                <code>Output: Extracted contextual response</code>
+              </div>
+            </div>
+          </div>
+        );
+
       case 'dashboard-funnel':
         return (
           <div className="preview-canvas funnel-canvas">
             <div className="preview-top-bar">
               <span className="preview-dot" />
-              <span className="preview-title">Lead Conversion Funnel UI</span>
-              <span className="preview-tag">[Demo Mockup]</span>
+              <span className="preview-title">Campaign Performance Tracker</span>
+              <span className="preview-tag">[Concept UI]</span>
             </div>
             <div className="funnel-bars">
               <div className="funnel-step">
                 <div className="funnel-bar bar-1" style={{ width: '100%' }}>
-                  <span className="bar-label">Total Inbound</span>
+                  <span className="bar-label">Impressions & Traffic</span>
                 </div>
               </div>
               <div className="funnel-step">
-                <div className="funnel-bar bar-2" style={{ width: '74%' }}>
-                  <span className="bar-label">MQL Qualified</span>
+                <div className="funnel-bar bar-2" style={{ width: '70%' }}>
+                  <span className="bar-label">Engagement Clicks</span>
                 </div>
               </div>
               <div className="funnel-step">
-                <div className="funnel-bar bar-3" style={{ width: '48%' }}>
-                  <span className="bar-label">SQL Pipeline</span>
-                </div>
-              </div>
-              <div className="funnel-step">
-                <div className="funnel-bar bar-4" style={{ width: '28%' }}>
-                  <span className="bar-label">Closed Won</span>
+                <div className="funnel-bar bar-3" style={{ width: '40%' }}>
+                  <span className="bar-label">Conversions & Leads</span>
                 </div>
               </div>
             </div>
@@ -83,26 +185,24 @@ export default function Projects() {
           <div className="preview-canvas bi-canvas">
             <div className="preview-top-bar">
               <span className="preview-dot" />
-              <span className="preview-title">Power BI / Tableau Matrix</span>
-              <span className="preview-tag">[Demo Mockup]</span>
+              <span className="preview-title">Power BI & Tableau Matrix</span>
+              <span className="preview-tag">[Concept UI]</span>
             </div>
             <div className="bi-mini-grid">
               <div className="bi-mini-kpi">
-                <span className="bi-kpi-title">YoY Trend</span>
-                <span className="bi-kpi-val text-cyan">Tracked</span>
+                <span className="bi-kpi-title">Warehouse</span>
+                <span className="bi-kpi-val text-cyan">BigQuery</span>
               </div>
               <div className="bi-mini-kpi">
-                <span className="bi-kpi-title">Data Schema</span>
-                <span className="bi-kpi-val text-violet">Star Model</span>
+                <span className="bi-kpi-title">Processing</span>
+                <span className="bi-kpi-val text-violet">Hadoop</span>
               </div>
             </div>
             <div className="bi-sparklines">
               <div className="spark-bar" style={{ height: '40%' }} />
               <div className="spark-bar" style={{ height: '65%' }} />
-              <div className="spark-bar" style={{ height: '55%' }} />
-              <div className="spark-bar active" style={{ height: '85%' }} />
-              <div className="spark-bar" style={{ height: '70%' }} />
-              <div className="spark-bar" style={{ height: '95%' }} />
+              <div className="spark-bar active" style={{ height: '90%' }} />
+              <div className="spark-bar" style={{ height: '75%' }} />
             </div>
           </div>
         );
@@ -112,38 +212,18 @@ export default function Projects() {
           <div className="preview-canvas terminal-canvas">
             <div className="preview-top-bar">
               <span className="preview-dot green-dot" />
-              <span className="preview-title">Ollama & Qwen 2.5 Agent</span>
-              <span className="preview-tag">[Local Terminal]</span>
+              <span className="preview-title">Ollama + Qwen 2.5 Agent</span>
+              <span className="preview-tag">[Private LLM]</span>
             </div>
             <div className="terminal-preview-code">
               <div className="terminal-line user-line">
-                <span className="prompt-sym">&gt;</span> &quot;Query top cohorts by retention&quot;
+                <span className="prompt-sym">&gt;</span> &quot;Analyze CPL by campaign tier&quot;
               </div>
               <div className="terminal-line qwen-line">
-                <span className="model-sym">[Qwen2.5]</span> Generating safe SQL CTE...
+                <span className="model-sym">[Qwen 2.5]</span> Translating into safe SQL CTE...
               </div>
               <div className="terminal-line sql-line">
-                <code>SELECT cohort, rate FROM metrics...</code>
-              </div>
-            </div>
-          </div>
-        );
-
-      case 'code-pipeline':
-        return (
-          <div className="preview-canvas api-canvas">
-            <div className="preview-top-bar">
-              <span className="preview-dot cyan-dot" />
-              <span className="preview-title">Meta Graph API Pipeline</span>
-              <span className="preview-tag">[ETL Stream]</span>
-            </div>
-            <div className="api-preview-lines">
-              <div className="api-route">
-                <span className="api-method">GET</span> /v21.0/act_.../insights
-              </div>
-              <div className="api-status-row">
-                <span className="api-badge-ok">200 OK</span>
-                <span className="api-meta">JSON &rarr; Relational Rows</span>
+                <code>SELECT campaign, cpl FROM ad_spend...</code>
               </div>
             </div>
           </div>
@@ -154,8 +234,8 @@ export default function Projects() {
           <div className="preview-canvas telemetry-canvas">
             <div className="preview-top-bar">
               <span className="preview-dot purple-dot" />
-              <span className="preview-title">Antigravity Telemetry View</span>
-              <span className="preview-tag">[UI Console]</span>
+              <span className="preview-title">Antigravity 3D Console</span>
+              <span className="preview-tag">[Spatial UI]</span>
             </div>
             <div className="telemetry-gauges">
               <div className="gauge-item">
@@ -174,20 +254,23 @@ export default function Projects() {
           </div>
         );
 
-      case 'etl-flow':
+      case 'code-pipeline':
       default:
         return (
-          <div className="preview-canvas pq-canvas">
+          <div className="preview-canvas api-canvas">
             <div className="preview-top-bar">
-              <span className="preview-dot" />
-              <span className="preview-title">Power Query M-Engine</span>
-              <span className="preview-tag">[Transformation]</span>
+              <span className="preview-dot cyan-dot" />
+              <span className="preview-title">Meta Graph API & Windsor.ai</span>
+              <span className="preview-tag">[Data Ingestion]</span>
             </div>
-            <div className="pq-steps-preview">
-              <span className="pq-chip">1. Promoted Headers</span>
-              <span className="pq-chip">2. Changed Types</span>
-              <span className="pq-chip">3. Deduplicated Keys</span>
-              <span className="pq-chip active">4. Normalized Schema</span>
+            <div className="api-preview-lines">
+              <div className="api-route">
+                <span className="api-method">GET</span> /v21.0/act_.../insights
+              </div>
+              <div className="api-status-row">
+                <span className="api-badge-ok">200 OK</span>
+                <span className="api-meta">JSON &rarr; Power Query &rarr; BI</span>
+              </div>
             </div>
           </div>
         );
@@ -207,14 +290,13 @@ export default function Projects() {
             Featured <span className="text-gradient">Projects</span>
           </h2>
           <p className="section-subtitle">
-            Recruiter-ready case studies highlighting business intelligence dashboards, local AI assistants, 
-            API ingestion pipelines, and automated transformation engines.
+            All 10 projects directly sourced from my verified resume, spanning machine learning models, 
+            deep learning image classification, BI dashboards, local AI assistants, and API pipelines.
           </p>
         </div>
 
         {/* Filter and Search Bar */}
         <div className="projects-controls-row">
-          {/* Category Tabs */}
           <div className="projects-filter-group" role="tablist" aria-label="Project filter tabs">
             <button
               role="tab"
@@ -223,7 +305,17 @@ export default function Projects() {
               className={`filter-btn ${activeFilter === 'all' ? 'filter-btn-active' : ''}`}
             >
               <span>All Projects</span>
-              <span className="filter-count">6</span>
+              <span className="filter-count">10</span>
+            </button>
+            <button
+              role="tab"
+              aria-selected={activeFilter === 'ai-ml'}
+              onClick={() => setActiveFilter('ai-ml')}
+              className={`filter-btn ${activeFilter === 'ai-ml' ? 'filter-btn-active' : ''}`}
+            >
+              <Bot size={14} />
+              <span>AI & ML</span>
+              <span className="filter-count">5</span>
             </button>
             <button
               role="tab"
@@ -232,27 +324,17 @@ export default function Projects() {
               className={`filter-btn ${activeFilter === 'analytics' ? 'filter-btn-active' : ''}`}
             >
               <Database size={14} />
-              <span>Data Analytics</span>
-              <span className="filter-count">3</span>
+              <span>Analytics & BI</span>
+              <span className="filter-count">2</span>
             </button>
             <button
               role="tab"
-              aria-selected={activeFilter === 'ai'}
-              onClick={() => setActiveFilter('ai')}
-              className={`filter-btn ${activeFilter === 'ai' ? 'filter-btn-active' : ''}`}
+              aria-selected={activeFilter === 'data-eng'}
+              onClick={() => setActiveFilter('data-eng')}
+              className={`filter-btn ${activeFilter === 'data-eng' ? 'filter-btn-active' : ''}`}
             >
-              <Bot size={14} />
-              <span>AI</span>
-              <span className="filter-count">1</span>
-            </button>
-            <button
-              role="tab"
-              aria-selected={activeFilter === 'integration'}
-              onClick={() => setActiveFilter('integration')}
-              className={`filter-btn ${activeFilter === 'integration' ? 'filter-btn-active' : ''}`}
-            >
-              <Share2 size={14} />
-              <span>Integration</span>
+              <Layers size={14} />
+              <span>Engineering & APIs</span>
               <span className="filter-count">1</span>
             </button>
             <button
@@ -263,16 +345,15 @@ export default function Projects() {
             >
               <Monitor size={14} />
               <span>Development</span>
-              <span className="filter-count">1</span>
+              <span className="filter-count">2</span>
             </button>
           </div>
 
-          {/* Quick Keyword Search */}
           <div className="projects-search-box">
             <Search size={16} className="search-icon text-muted" />
             <input
               type="text"
-              placeholder="Search tools (Power BI, SQL, Qwen, Meta)..."
+              placeholder="Search tools (Python, Power BI, Qwen, Meta)..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="search-input"
@@ -296,7 +377,7 @@ export default function Projects() {
               {/* Card Meta & Badges */}
               <div className="project-card-header">
                 <span className="chip chip-violet">{project.badge}</span>
-                <span className="project-category-label">{project.category}</span>
+                <span className="project-category-label">{project.category.split('&')[0].trim()}</span>
               </div>
 
               {/* Title & Summary */}
@@ -325,27 +406,14 @@ export default function Projects() {
                   <ArrowUpRight size={14} />
                 </button>
 
-                {project.isConfigured ? (
-                  <a
-                    href={project.githubLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn btn-sm btn-secondary icon-btn"
-                    title="View GitHub Repository"
-                    aria-label={`GitHub repository for ${project.title}`}
-                  >
-                    <GithubIcon size={16} />
-                  </a>
-                ) : (
-                  <button
-                    onClick={() => setSelectedProject(project)}
-                    className="btn btn-sm btn-secondary icon-btn"
-                    title="Architecture preview - Link editable in portfolioData.js"
-                    aria-label={`View details for ${project.title}`}
-                  >
-                    <Info size={16} className="text-cyan" />
-                  </button>
-                )}
+                <button
+                  onClick={() => setSelectedProject(project)}
+                  className="btn btn-sm btn-secondary icon-btn"
+                  title="Architecture details"
+                  aria-label={`View details for ${project.title}`}
+                >
+                  <Info size={16} className="text-cyan" />
+                </button>
               </div>
             </div>
           ))}
@@ -356,7 +424,7 @@ export default function Projects() {
           <div className="glass-card empty-results-card">
             <Filter size={24} className="text-muted" />
             <p>
-              No projects match your search criteria. Try clearing filters or searching for &quot;SQL&quot;, &quot;Power BI&quot;, or &quot;Qwen&quot;.
+              No projects match your search criteria. Try searching for &quot;Python&quot;, &quot;Power BI&quot;, &quot;Meta&quot;, or &quot;Qwen&quot;.
             </p>
             <button
               onClick={() => {

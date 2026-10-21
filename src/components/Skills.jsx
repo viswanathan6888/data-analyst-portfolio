@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { skillsData } from '../data/portfolioData';
+import { skillsCategories } from '../data/portfolioData';
 import {
   Code2,
   Database,
@@ -12,45 +12,36 @@ import {
   Bot,
   Share2,
   Monitor,
-  CheckCircle2
+  CheckCircle2,
+  Layers,
+  Workflow
 } from './Icons';
 
 export default function Skills() {
   const [activeCategory, setActiveCategory] = useState('all');
 
-  const getSkillIcon = (name) => {
-    switch (name) {
-      case 'SQL':
-        return <Database size={22} className="text-cyan" />;
-      case 'Python':
-        return <Terminal size={22} className="text-violet" />;
-      case 'Power BI':
-        return <BarChart3 size={22} className="text-cyan" />;
-      case 'Tableau':
-        return <PieChart size={22} className="text-violet" />;
-      case 'Excel':
-      case 'Power Query':
-        return <FileSpreadsheet size={22} className="text-cyan" />;
-      case 'Ollama':
-        return <Cpu size={22} className="text-violet" />;
-      case 'Qwen':
-        return <Sparkles size={22} className="text-cyan" />;
-      case 'LLMs':
-        return <Bot size={22} className="text-violet" />;
-      case 'Meta API':
-        return <Share2 size={22} className="text-cyan" />;
-      case 'Dashboard Development':
-        return <Monitor size={22} className="text-cyan" />;
-      case 'Website Development':
-        return <Code2 size={22} className="text-violet" />;
+  const filteredCategories =
+    activeCategory === 'all'
+      ? skillsCategories
+      : skillsCategories.filter((group) => group.slug === activeCategory);
+
+  const getCategoryIcon = (slug) => {
+    switch (slug) {
+      case 'analytics-bi':
+        return <Database size={18} className="text-cyan" />;
+      case 'ai-ml':
+        return <Bot size={18} className="text-violet" />;
+      case 'data-engineering':
+        return <Layers size={18} className="text-cyan" />;
+      case 'api-marketing':
+        return <Share2 size={18} className="text-violet" />;
+      case 'dev-design':
+        return <Monitor size={18} className="text-cyan" />;
+      case 'tools':
       default:
-        return <Code2 size={22} className="text-cyan" />;
+        return <Code2 size={18} className="text-violet" />;
     }
   };
-
-  const filteredGroups = activeCategory === 'all'
-    ? skillsData
-    : skillsData.filter((group) => group.categorySlug === activeCategory);
 
   return (
     <section id="skills" className="section skills-section" aria-label="Skills & Capabilities">
@@ -62,15 +53,15 @@ export default function Skills() {
             <span>Technical Capabilities</span>
           </div>
           <h2 className="section-title">
-            Skills & <span className="text-gradient">Expertise</span>
+            Skills & <span className="text-gradient">Competencies</span>
           </h2>
           <p className="section-subtitle">
-            Core analytical methodologies, business intelligence tools, private local AI runtimes, 
-            and modern web development frameworks.
+            Comprehensive skill set directly grounded in my resume across data analytics, business intelligence, 
+            machine learning, big data platforms, and API integrations.
           </p>
         </div>
 
-        {/* Category Filter Tabs */}
+        {/* Category Filter Pills */}
         <div className="skills-filter-container">
           <div className="skills-filter-pill-group" role="tablist" aria-label="Skill categories">
             <button
@@ -79,95 +70,53 @@ export default function Skills() {
               onClick={() => setActiveCategory('all')}
               className={`filter-btn ${activeCategory === 'all' ? 'filter-btn-active' : ''}`}
             >
-              <span>All Competencies</span>
-              <span className="filter-count">12</span>
-            </button>
-
-            <button
-              role="tab"
-              aria-selected={activeCategory === 'data-analytics'}
-              onClick={() => setActiveCategory('data-analytics')}
-              className={`filter-btn ${activeCategory === 'data-analytics' ? 'filter-btn-active' : ''}`}
-            >
-              <Database size={14} />
-              <span>Data Analytics</span>
+              <span>All Categories</span>
               <span className="filter-count">6</span>
             </button>
 
-            <button
-              role="tab"
-              aria-selected={activeCategory === 'ai'}
-              onClick={() => setActiveCategory('ai')}
-              className={`filter-btn ${activeCategory === 'ai' ? 'filter-btn-active' : ''}`}
-            >
-              <Bot size={14} />
-              <span>AI</span>
-              <span className="filter-count">3</span>
-            </button>
-
-            <button
-              role="tab"
-              aria-selected={activeCategory === 'data-integration'}
-              onClick={() => setActiveCategory('data-integration')}
-              className={`filter-btn ${activeCategory === 'data-integration' ? 'filter-btn-active' : ''}`}
-            >
-              <Share2 size={14} />
-              <span>Data Integration</span>
-              <span className="filter-count">1</span>
-            </button>
-
-            <button
-              role="tab"
-              aria-selected={activeCategory === 'development'}
-              onClick={() => setActiveCategory('development')}
-              className={`filter-btn ${activeCategory === 'development' ? 'filter-btn-active' : ''}`}
-            >
-              <Monitor size={14} />
-              <span>Development</span>
-              <span className="filter-count">2</span>
-            </button>
+            {skillsCategories.map((cat) => (
+              <button
+                key={cat.slug}
+                role="tab"
+                aria-selected={activeCategory === cat.slug}
+                onClick={() => setActiveCategory(cat.slug)}
+                className={`filter-btn ${activeCategory === cat.slug ? 'filter-btn-active' : ''}`}
+              >
+                {getCategoryIcon(cat.slug)}
+                <span>{cat.category.split('&')[0].trim()}</span>
+                <span className="filter-count">{cat.skills.length}</span>
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* Grouped Skills Showcase */}
+        {/* Categorized Skills Showcase */}
         <div className="skills-groups-wrapper">
-          {filteredGroups.map((group) => (
-            <div key={group.categorySlug} className="skills-category-group">
+          {filteredCategories.map((group) => (
+            <div key={group.slug} className="skills-category-group">
               <div className="category-group-header">
                 <div className="category-heading-wrap">
+                  {getCategoryIcon(group.slug)}
                   <h3 className="category-title">{group.category}</h3>
                   <span className="category-badge chip chip-cyan">
-                    {group.skills.length} {group.skills.length === 1 ? 'Skill' : 'Skills'}
+                    {group.skills.length} Skills
                   </span>
                 </div>
                 <p className="category-description">{group.description}</p>
               </div>
 
-              <div className="skills-grid">
+              <div className="skills-resume-grid">
                 {group.skills.map((skill, sIdx) => (
                   <div
                     key={skill.name}
-                    className={`glass-card skill-card ${sIdx % 2 === 0 ? 'glass-card-violet-accent' : 'glass-card-cyan'}`}
+                    className={`glass-card skill-card-resume ${sIdx % 2 === 0 ? 'glass-card-violet-accent' : 'glass-card-cyan'}`}
                   >
-                    <div className="skill-card-top">
-                      <div className="skill-icon-wrapper">
-                        {getSkillIcon(skill.name)}
-                      </div>
-                      <span className="chip chip-violet">{skill.tag}</span>
+                    <div className="skill-card-top-resume">
+                      <h4 className="skill-name-resume">{skill.name}</h4>
+                      <CheckCircle2 size={15} className="text-cyan" />
                     </div>
-
-                    <div className="skill-card-content">
-                      <h4 className="skill-name">{skill.name}</h4>
-                      <p className="skill-description">{skill.description}</p>
-                    </div>
-
-                    <div className="skill-card-footer">
-                      <span className="skill-category-tag">{group.category}</span>
-                      <span className="skill-verified-check">
-                        <CheckCircle2 size={14} className="text-cyan" />
-                        <span>Applied in Projects</span>
-                      </span>
-                    </div>
+                    <p className="skill-focus-text">{skill.focus}</p>
+                    <span className="chip chip-sm chip-subtle">{group.category.split('&')[0].trim()}</span>
                   </div>
                 ))}
               </div>
@@ -175,16 +124,17 @@ export default function Skills() {
           ))}
         </div>
 
-        {/* Analytical Workflow Architecture Box */}
+        {/* Dual Stack Architecture Summary */}
         <div className="glass-card skill-architecture-box">
           <div className="architecture-grid">
             <div className="architecture-col">
               <div className="architecture-col-header">
                 <Database size={18} className="text-cyan" />
-                <h4 className="architecture-heading">Data Analytics & Reporting</h4>
+                <h4 className="architecture-heading">Data Analytics & Business Intelligence</h4>
               </div>
               <p className="architecture-text">
-                SQL aggregation, relational schema modeling, M-Code automated transformations in Power Query, and executive KPI storytelling via interactive Power BI and Tableau dashboards.
+                Power BI, Tableau, Power Query, Excel, SQL, data analysis, data visualization, KPI reporting, and business analytics. 
+                Focus on normalized dimensional modeling, interactive storytelling, and automated ETL.
               </p>
             </div>
 
@@ -193,10 +143,11 @@ export default function Skills() {
             <div className="architecture-col">
               <div className="architecture-col-header">
                 <Bot size={18} className="text-violet" />
-                <h4 className="architecture-heading">AI & Intelligent Automation</h4>
+                <h4 className="architecture-heading">AI, Machine Learning & Data Engineering</h4>
               </div>
               <p className="architecture-text">
-                Private on-premise execution with Ollama and Qwen models for secure text-to-SQL translation, automated metric summarization, Meta API marketing data ingestion, and custom dashboard development.
+                Python, TensorFlow/Keras, PyTorch, Scikit-learn, LangChain, Ollama, Qwen 2.5, Claude, Meta Marketing API, BigQuery, and Hadoop. 
+                Emphasis on private on-premise inference, automated pipelines, and full-stack dashboards.
               </p>
             </div>
           </div>

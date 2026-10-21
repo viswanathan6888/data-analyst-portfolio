@@ -13,6 +13,8 @@ export default function Navbar({ onOpenResume }) {
     { label: 'Skills', href: '#skills', id: 'skills' },
     { label: 'Experience', href: '#experience', id: 'experience' },
     { label: 'Projects', href: '#projects', id: 'projects' },
+    { label: 'Certifications', href: '#certifications', id: 'certifications' },
+    { label: 'Achievements', href: '#achievements', id: 'achievements' },
     { label: 'Contact', href: '#contact', id: 'contact' },
   ];
 

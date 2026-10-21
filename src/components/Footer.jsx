@@ -1,6 +1,6 @@
 import React from 'react';
 import { personalInfo } from '../data/portfolioData';
-import { Terminal, ArrowUpRight, ChevronRight } from './Icons';
+import { Terminal, ArrowUpRight, Mail, Phone } from './Icons';
 import { GithubIcon, LinkedinIcon } from './Icons';
 
 export default function Footer() {
@@ -9,6 +9,11 @@ export default function Footer() {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  const hasConfiguredGithub =
+    Boolean(personalInfo.github) &&
+    personalInfo.github.trim() !== '' &&
+    !personalInfo.github.includes('your-github-username');
 
   return (
     <footer className="footer-wrapper" role="contentinfo">
@@ -23,8 +28,8 @@ export default function Footer() {
               <span className="brand-name">{personalInfo.name}</span>
             </div>
             <p className="footer-tagline">
-              Data Analyst & AI Developer Portfolio. Engineered for performance, 
-              clarity, and modern visual intelligence.
+              B.Tech in Artificial Intelligence & Data Science &bull; Kathir College of Engineering, Coimbatore. 
+              Targeting Data Analyst, AI Developer, and Data Scientist roles.
             </p>
           </div>
 
@@ -37,25 +42,16 @@ export default function Footer() {
               <li><a href="#skills">Skills</a></li>
               <li><a href="#experience">Experience</a></li>
               <li><a href="#projects">Projects</a></li>
-              <li><a href="#resume">Resume</a></li>
+              <li><a href="#certifications">Certifications</a></li>
+              <li><a href="#achievements">Achievements</a></li>
               <li><a href="#contact">Contact</a></li>
             </ul>
           </div>
 
           {/* Connect Links */}
           <div className="footer-links-group">
-            <h4 className="footer-links-title">Connect</h4>
+            <h4 className="footer-links-title">Verified Channels</h4>
             <div className="footer-social-links">
-              <a
-                href={personalInfo.github}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn btn-sm btn-secondary footer-social-btn"
-                aria-label="GitHub profile"
-              >
-                <GithubIcon size={16} />
-                <span>GitHub</span>
-              </a>
               <a
                 href={personalInfo.linkedin}
                 target="_blank"
@@ -66,13 +62,37 @@ export default function Footer() {
                 <LinkedinIcon size={16} />
                 <span>LinkedIn</span>
               </a>
+
               <a
                 href={`mailto:${personalInfo.email}`}
                 className="btn btn-sm btn-secondary footer-social-btn"
                 aria-label="Email link"
               >
+                <Mail size={16} />
                 <span>{personalInfo.email}</span>
               </a>
+
+              <a
+                href={`tel:${personalInfo.phone}`}
+                className="btn btn-sm btn-secondary footer-social-btn"
+                aria-label="Phone call"
+              >
+                <Phone size={16} />
+                <span>{personalInfo.phone}</span>
+              </a>
+
+              {hasConfiguredGithub && (
+                <a
+                  href={personalInfo.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-sm btn-secondary footer-social-btn"
+                  aria-label="GitHub profile"
+                >
+                  <GithubIcon size={16} />
+                  <span>GitHub</span>
+                </a>
+              )}
             </div>
           </div>
         </div>
@@ -83,7 +103,7 @@ export default function Footer() {
         {/* Bottom Footer Row */}
         <div className="footer-bottom-row">
           <p className="footer-copy">
-            &copy; {currentYear} {personalInfo.name}. All portfolio content and placeholders are fully customizable.
+            &copy; {currentYear} {personalInfo.name}. Grounded in verified academic and technical credentials.
           </p>
 
           <button

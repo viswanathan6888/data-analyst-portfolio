@@ -12,10 +12,10 @@ import {
   CheckCircle2,
   ExternalLink,
   Mail,
-  Share2,
-  Monitor
+  GraduationCap,
+  Award
 } from './Icons';
-import { LinkedinIcon, GithubIcon } from './Icons';
+import { LinkedinIcon } from './Icons';
 
 export default function Hero({ onOpenResume }) {
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -43,37 +43,47 @@ export default function Hero({ onOpenResume }) {
               Hi, I'm <span className="text-gradient">{personalInfo.name}</span>
             </h1>
 
-            {/* Headline */}
+            {/* Target Roles Headline */}
             <div className="hero-subtitle-wrapper">
               <h2 className="hero-subtitle">
                 <span className="text-gradient-cyan">Data Analyst</span>
                 <span className="hero-divider">|</span>
                 <span className="text-gradient">AI Developer</span>
+                <span className="hero-divider">|</span>
+                <span className="text-gradient-cyan">Aspiring Data Scientist</span>
               </h2>
             </div>
 
-            {/* Concise Introduction */}
+            {/* Concise Resume-Grounded Introduction */}
             <p className="hero-description">
-              {personalInfo.tagline} Experienced in building business intelligence dashboards 
-              with <strong>Power BI & Tableau</strong>, writing optimized <strong>SQL</strong> and <strong>Power Query</strong> pipelines, 
-              and deploying private, on-premise AI assistants using <strong>Ollama & Qwen</strong>.
+              Pursuing <strong>B.Tech in Artificial Intelligence & Data Science</strong> at <strong>Kathir College Of Engineering, Coimbatore</strong> (Current CGPA: <strong>8.5</strong>). 
+              Specializing in transforming complex multi-source data into enterprise <strong>Power BI & Tableau</strong> dashboards, 
+              building machine learning pipelines, and deploying private on-premise AI assistants using <strong>Ollama & Qwen 2.5</strong>.
             </p>
+
+            {/* Verification Note for CGPA per user instructions */}
+            <div className="hero-verification-callout">
+              <GraduationCap size={15} className="text-cyan flex-shrink-0" />
+              <span>
+                <strong>Academic Standing:</strong> Current CGPA: <strong>{personalInfo.education.cgpa}</strong> ({personalInfo.education.institution}) &bull; <em className="text-dim">Note: formatted as 8.5 CGPA per resume entry &quot;8.5%&quot;.</em>
+              </span>
+            </div>
 
             {/* 4 Action Buttons as requested */}
             <div className="hero-actions">
               <button
                 onClick={() => scrollToSection('projects')}
                 className="btn btn-primary"
-                aria-label="View Projects Section"
+                aria-label="Explore Projects Section"
               >
-                <span>View Projects</span>
+                <span>Explore Projects</span>
                 <ArrowRight size={16} />
               </button>
 
               <button
                 onClick={onOpenResume}
                 className="btn btn-secondary"
-                aria-label="View or Download Resume"
+                aria-label="Download Resume"
               >
                 <Download size={16} />
                 <span>Download Resume</span>
@@ -84,7 +94,7 @@ export default function Hero({ onOpenResume }) {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn btn-secondary hero-linkedin-btn"
-                aria-label="Visit LinkedIn Profile"
+                aria-label="Visit Viswanathan M LinkedIn Profile in a new tab"
               >
                 <LinkedinIcon size={16} />
                 <span>LinkedIn</span>
@@ -103,11 +113,11 @@ export default function Hero({ onOpenResume }) {
 
             {/* Core Domain Badges */}
             <div className="hero-stack-row">
-              <span className="stack-label">Core Domains:</span>
+              <span className="stack-label">Core Focus:</span>
               <div className="stack-pills">
-                <span className="chip chip-cyan">Data Analytics & SQL</span>
-                <span className="chip chip-violet">Power BI & Tableau</span>
-                <span className="chip chip-cyan">Local AI (Ollama + Qwen)</span>
+                <span className="chip chip-cyan">Power BI & SQL</span>
+                <span className="chip chip-violet">Python & Scikit-learn</span>
+                <span className="chip chip-cyan">Ollama & Qwen 2.5</span>
                 <span className="chip chip-violet">Meta API Integration</span>
               </div>
             </div>
@@ -118,7 +128,7 @@ export default function Hero({ onOpenResume }) {
             <div className="portrait-frame-container">
               {/* Animated Halo Shimmer Ring */}
               <div className="portrait-halo-ring" aria-hidden="true" />
-              
+
               {/* Glass Frame Card */}
               <div className="glass-card portrait-glass-card">
                 <div className="portrait-img-wrapper">
@@ -135,14 +145,8 @@ export default function Hero({ onOpenResume }) {
                     />
                   ) : (
                     <div className="portrait-fallback">
-                      <div className="fallback-initials">
-                        {personalInfo.name
-                          .split(' ')
-                          .map((n) => n[0])
-                          .join('')
-                          .slice(0, 2)}
-                      </div>
-                      <span className="fallback-hint">Add photo to public/profile.jpg</span>
+                      <div className="fallback-initials">MV</div>
+                      <span className="fallback-hint">Photo at public/profile.jpg</span>
                     </div>
                   )}
 
@@ -156,7 +160,7 @@ export default function Hero({ onOpenResume }) {
                     <Database size={14} className="text-cyan" />
                   </div>
                   <div className="p-badge-text">
-                    <span className="p-badge-title">SQL & Power BI</span>
+                    <span className="p-badge-title">Power BI & Tableau</span>
                     <span className="p-badge-sub">Business Intelligence</span>
                   </div>
                 </div>
@@ -167,16 +171,16 @@ export default function Hero({ onOpenResume }) {
                     <Bot size={14} className="text-violet" />
                   </div>
                   <div className="p-badge-text">
-                    <span className="p-badge-title">Ollama + Qwen</span>
-                    <span className="p-badge-sub">Local LLM Analytics</span>
+                    <span className="p-badge-title">Ollama + Qwen 2.5</span>
+                    <span className="p-badge-sub">Local LLMs & ML</span>
                   </div>
                 </div>
               </div>
 
-              {/* Recruiter Ready Tagline underneath photo */}
+              {/* Recruiter Ready Tagline */}
               <div className="portrait-caption">
                 <span className="caption-dot" />
-                <span className="caption-text">Recruiter-Ready Profile &bull; Updated October 2026</span>
+                <span className="caption-text">Kathir College of Engineering &bull; B.Tech AI & DS</span>
               </div>
             </div>
           </div>
