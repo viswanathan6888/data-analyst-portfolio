@@ -24,7 +24,7 @@ export const personalInfo = {
   email: "viswanathan23ad060@gmail.com", // Verified from resume
   phone: "+91-9566578560", // Verified from resume
   linkedin: "https://www.linkedin.com/in/viswanathan-m-434b55309/", // Verified from resume
-  github: "", // Left blank per instruction: "Add a GitHub button only after configuring my actual GitHub profile URL. Never invent a GitHub URL."
+  github: "https://github.com/viswanathan6888", // Verified from repository origin
   profileImage: "/profile.jpg", // Real photo from public/profile.jpg
   resumePdfUrl: "/resume.pdf", // Real resume PDF in public/resume.pdf
   about: {
