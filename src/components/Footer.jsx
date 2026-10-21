@@ -1,9 +1,9 @@
 import React from 'react';
 import { personalInfo } from '../data/portfolioData';
-import { Terminal, ArrowUpRight, Mail, Phone } from './Icons';
+import { Terminal, ArrowUpRight, Mail, Phone, FileText } from './Icons';
 import { GithubIcon, LinkedinIcon } from './Icons';
 
-export default function Footer() {
+export default function Footer({ onNavigate }) {
   const currentYear = new Date().getFullYear();
 
   const scrollToTop = () => {
@@ -15,18 +15,42 @@ export default function Footer() {
     personalInfo.github.trim() !== '' &&
     !personalInfo.github.includes('your-github-username');
 
+  const handleNavClick = (e, sectionId) => {
+    e.preventDefault();
+    if (sectionId === 'resume') {
+      if (onNavigate) {
+        onNavigate('resume');
+      } else {
+        window.location.hash = '#resume';
+      }
+    } else {
+      if (onNavigate) {
+        onNavigate('home', sectionId);
+      } else {
+        const el = document.getElementById(sectionId);
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+        else window.location.hash = `#${sectionId}`;
+      }
+    }
+  };
+
   return (
     <footer className="footer-wrapper" role="contentinfo">
       <div className="container footer-container">
         {/* Top Footer Row */}
         <div className="footer-top-row">
           <div className="footer-brand">
-            <div className="brand-logo">
+            <a
+              href="#home"
+              onClick={(e) => handleNavClick(e, 'home')}
+              className="brand-logo"
+              style={{ textDecoration: 'none' }}
+            >
               <div className="brand-icon">
                 <Terminal size={18} />
               </div>
               <span className="brand-name">{personalInfo.name}</span>
-            </div>
+            </a>
             <p className="footer-tagline">
               {personalInfo.title}. {personalInfo.objective}
             </p>
@@ -36,14 +60,15 @@ export default function Footer() {
           <div className="footer-links-group">
             <h4 className="footer-links-title">Navigation</h4>
             <ul className="footer-links-list">
-              <li><a href="#home">Home</a></li>
-              <li><a href="#about">About Me</a></li>
-              <li><a href="#skills">Skills</a></li>
-              <li><a href="#experience">Experience</a></li>
-              <li><a href="#projects">Projects</a></li>
-              <li><a href="#certifications">Certifications</a></li>
-              <li><a href="#achievements">Achievements</a></li>
-              <li><a href="#contact">Contact</a></li>
+              <li><a href="#home" onClick={(e) => handleNavClick(e, 'home')}>Home</a></li>
+              <li><a href="#about" onClick={(e) => handleNavClick(e, 'about')}>About Me</a></li>
+              <li><a href="#skills" onClick={(e) => handleNavClick(e, 'skills')}>Skills</a></li>
+              <li><a href="#experience" onClick={(e) => handleNavClick(e, 'experience')}>Experience</a></li>
+              <li><a href="#projects" onClick={(e) => handleNavClick(e, 'projects')}>Projects</a></li>
+              <li><a href="#certifications" onClick={(e) => handleNavClick(e, 'certifications')}>Certifications</a></li>
+              <li><a href="#achievements" onClick={(e) => handleNavClick(e, 'achievements')}>Achievements</a></li>
+              <li><a href="#contact" onClick={(e) => handleNavClick(e, 'contact')}>Contact</a></li>
+              <li><a href="#resume" onClick={(e) => handleNavClick(e, 'resume')}>Resume</a></li>
             </ul>
           </div>
 
@@ -109,6 +134,7 @@ export default function Footer() {
             onClick={scrollToTop}
             className="back-to-top-btn"
             aria-label="Scroll back to top"
+            type="button"
           >
             <span>Back to Top</span>
             <ArrowUpRight size={14} />
