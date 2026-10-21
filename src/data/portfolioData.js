@@ -27,7 +27,7 @@ export const personalInfo = {
   phone: "+91-9566578560", // Verified from resume
   linkedin: "https://www.linkedin.com/in/viswanathan-m-434b55309/", // Verified from resume
   github: "https://github.com/viswanathan6888", // Verified from repository origin
-  profileImage: null, // Profile photo removed per user request
+  profileImage: "/profile.jpg", // Verified portrait photo
   resumePdfUrl: "/resume.pdf", // Real resume PDF in public/resume.pdf
   coreExpertise: [
     "Data Analytics & Business Intelligence",

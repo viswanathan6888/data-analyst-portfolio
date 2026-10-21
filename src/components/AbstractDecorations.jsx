@@ -237,7 +237,61 @@ export const AbstractArtCover = () => {
   );
 };
 
-export const OrganicProfileFrame = AbstractArtCover;
+// Clean, Professional Profile Frame (140-170px Desktop, 110-130px Mobile)
+// Clean circular frame with crisp white & gradient ring
+// Colorful abstract background shapes float behind without overlapping photo or text
+export const ProfessionalProfileFrame = ({
+  imageSrc = '/profile.jpg',
+  altText = 'Viswanathan M - Data Analyst | AI & Data Science Professional'
+}) => {
+  return (
+    <div className="professional-portrait-wrapper" aria-label="Viswanathan M Profile Portrait">
+      {/* Background Abstract Organic Blobs - Floating Behind Without Overlapping Photo or Text */}
+      <div className="portrait-bg-blobs" aria-hidden="true">
+        <div className="p-blob p-blob-pink" />
+        <div className="p-blob p-blob-orange" />
+        <div className="p-blob p-blob-yellow" />
+        <div className="p-blob p-blob-blue" />
+        <div className="p-blob p-blob-green" />
+        <div className="p-blob p-blob-purple" />
+      </div>
+
+      {/* Main Clean Circular Portrait Card */}
+      <div className="profile-frame-card">
+        <div className="profile-ring-outer">
+          <div className="profile-img-container">
+            <img
+              src={imageSrc || '/profile.jpg'}
+              alt={altText}
+              className="professional-profile-img"
+              loading="eager"
+              width="155"
+              height="155"
+            />
+          </div>
+        </div>
+
+        {/* Professional Meta Pill below photo */}
+        <div className="profile-caption-pill">
+          <span className="profile-status-dot" />
+          <span className="profile-caption-text">Viswanathan M</span>
+        </div>
+      </div>
+
+      {/* Floating Art Chips positioned cleanly outside the photo */}
+      <div className="art-chip profile-art-chip-1">
+        <span className="chip-indicator chip-ind-yellow" />
+        <span className="chip-text">Data &amp; AI</span>
+      </div>
+      <div className="art-chip profile-art-chip-2">
+        <span className="chip-indicator chip-ind-pink" />
+        <span className="chip-text">Power BI &bull; SQL &bull; ML</span>
+      </div>
+    </div>
+  );
+};
+
+export const OrganicProfileFrame = ProfessionalProfileFrame;
 
 // Page Corner & Background Floating Blobs
 export const BackgroundOrganicBlobs = () => {

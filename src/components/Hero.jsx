@@ -16,7 +16,7 @@ import {
   Award
 } from './Icons';
 import { LinkedinIcon } from './Icons';
-import { AbstractArtCover } from './AbstractDecorations';
+import { ProfessionalProfileFrame } from './AbstractDecorations';
 
 export default function Hero({ onOpenResume }) {
   const scrollToSection = (id) => {
@@ -124,9 +124,9 @@ export default function Hero({ onOpenResume }) {
             </div>
           </div>
 
-          {/* Right Column: Colorful Abstract Art Poster (Matching Reference Artwork, No Photo) */}
+          {/* Right Column: Clean Professional Profile Photo (140-170px Desktop, 110-130px Mobile) */}
           <div className="hero-portrait-column">
-            <AbstractArtCover />
+            <ProfessionalProfileFrame imageSrc={personalInfo.profileImage} />
           </div>
         </div>
       </div>
