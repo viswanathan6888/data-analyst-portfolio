@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { personalInfo, resumeData } from '../data/portfolioData';
-import { Menu, X, Download, Terminal, ChevronRight, FileText } from './Icons';
+import { Menu, X, Download, Terminal, ChevronRight, FileText, Sparkles } from './Icons';
 
 export default function Navbar({ currentPage = 'home', onNavigate }) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
+  const [clickedLink, setClickedLink] = useState(null);
 
   const navLinks = [
     { label: 'Home', href: '#home', id: 'home' },
@@ -48,6 +49,8 @@ export default function Navbar({ currentPage = 'home', onNavigate }) {
   const handleLinkClick = (e, link) => {
     e.preventDefault();
     setMobileMenuOpen(false);
+    setClickedLink(link.id);
+    setTimeout(() => setClickedLink(null), 400);
 
     if (link.id === 'resume') {
       if (onNavigate) {
@@ -67,10 +70,17 @@ export default function Navbar({ currentPage = 'home', onNavigate }) {
       return;
     }
 
-    // Currently on home page
+    // Currently on home page - smooth animated transition with header offset
     const target = document.getElementById(link.id);
     if (target) {
-      target.scrollIntoView({ behavior: 'smooth' });
+      const headerOffset = 84;
+      const elementPosition = target.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
       window.history.pushState(null, '', `#${link.id}`);
       setActiveSection(link.id);
     } else {
@@ -101,14 +111,14 @@ export default function Navbar({ currentPage = 'home', onNavigate }) {
       role="banner"
     >
       <div className="container navbar-container">
-        {/* Brand / Logo */}
+        {/* Brand / Logo with subtle futuristic hover glow */}
         <a
           href="#home"
           onClick={handleBrandClick}
           className="brand-logo"
           aria-label="Back to home top"
         >
-          <div className="brand-icon">
+          <div className="brand-icon brand-icon-glow">
             <Terminal size={18} className="brand-terminal-icon" />
           </div>
           <div className="brand-text">
@@ -117,26 +127,34 @@ export default function Navbar({ currentPage = 'home', onNavigate }) {
           </div>
         </a>
 
-        {/* Desktop Navigation */}
+        {/* Desktop Futuristic Navigation */}
         <nav className="desktop-nav" aria-label="Main Navigation">
-          <ul className="nav-list">
+          <ul className="nav-list futuristic-nav-capsule">
             {navLinks.map((link) => {
               const isActive =
                 currentPage === 'resume'
                   ? link.id === 'resume'
                   : activeSection === link.id;
+              const isJustClicked = clickedLink === link.id;
 
               return (
                 <li key={link.id} className="nav-item">
                   <a
                     href={link.href}
                     onClick={(e) => handleLinkClick(e, link)}
-                    className={`nav-link ${isActive ? 'nav-link-active' : ''} ${link.id === 'resume' ? 'nav-link-resume' : ''}`}
+                    className={`nav-link ${isActive ? 'nav-link-active' : ''} ${link.id === 'resume' ? 'nav-link-resume' : ''} ${isJustClicked ? 'nav-link-pulse' : ''}`}
                     aria-current={isActive ? 'page' : undefined}
                   >
                     {link.id === 'resume' && <FileText size={14} className="nav-resume-icon" />}
                     <span>{link.label}</span>
-                    {isActive && <span className="active-dot" />}
+
+                    {/* Glowing neon indicator for selected item */}
+                    {isActive && (
+                      <span className="nav-neon-active-indicator" aria-hidden="true">
+                        <span className="nav-neon-core" />
+                        <span className="nav-neon-blur" />
+                      </span>
+                    )}
                   </a>
                 </li>
               );
@@ -149,7 +167,7 @@ export default function Navbar({ currentPage = 'home', onNavigate }) {
           <a
             href={personalInfo.resumePdfUrl}
             download={resumeData.fileName}
-            className="btn btn-sm btn-secondary resume-nav-btn"
+            className="btn btn-sm btn-secondary resume-nav-btn glow-hover-btn"
             aria-label="Download Official Resume PDF"
             title="Download Official Resume PDF"
           >
@@ -171,7 +189,7 @@ export default function Navbar({ currentPage = 'home', onNavigate }) {
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="mobile-menu-drawer glass-card">
+        <div className="mobile-menu-drawer glass-card mobile-futuristic-drawer">
           <ul className="mobile-nav-list">
             {navLinks.map((link) => {
               const isActive =
@@ -187,7 +205,11 @@ export default function Navbar({ currentPage = 'home', onNavigate }) {
                     className={`mobile-nav-link ${isActive ? 'mobile-nav-link-active' : ''}`}
                   >
                     <div className="mobile-nav-label-wrap">
-                      {link.id === 'resume' && <FileText size={16} className="text-violet" />}
+                      {link.id === 'resume' ? (
+                        <FileText size={16} className="text-violet" />
+                      ) : (
+                        isActive && <span className="mobile-active-neon-pip" />
+                      )}
                       <span>{link.label}</span>
                     </div>
                     <ChevronRight size={16} />
@@ -199,7 +221,7 @@ export default function Navbar({ currentPage = 'home', onNavigate }) {
               <a
                 href={personalInfo.resumePdfUrl}
                 download={resumeData.fileName}
-                className="btn btn-primary"
+                className="btn btn-primary glow-hover-btn"
                 style={{ width: '100%' }}
                 onClick={() => setMobileMenuOpen(false)}
               >

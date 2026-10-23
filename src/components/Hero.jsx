@@ -17,6 +17,7 @@ import {
 } from './Icons';
 import { LinkedinIcon } from './Icons';
 import { ProfessionalProfileFrame } from './AbstractDecorations';
+import FuturisticRobotVisual from './FuturisticRobotVisual';
 
 export default function Hero({ onOpenResume }) {
   const scrollToSection = (id) => {
@@ -30,10 +31,13 @@ export default function Hero({ onOpenResume }) {
         <div className="hero-grid">
           {/* Left Column: Hero Text Content & Actions */}
           <div className="hero-content">
-            {/* Status Pill */}
-            <div className="hero-status-pill">
-              <span className="status-indicator"></span>
-              <span className="status-text">{personalInfo.status}</span>
+            {/* Status Pill & Futuristic Robot Companion */}
+            <div className="hero-top-badge-row">
+              <div className="hero-status-pill">
+                <span className="status-indicator"></span>
+                <span className="status-text">{personalInfo.status}</span>
+              </div>
+              <FuturisticRobotVisual />
             </div>
 
             {/* Name */}

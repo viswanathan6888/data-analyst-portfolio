@@ -11,10 +11,15 @@ import Contact from './components/Contact';
 import ResumePage from './components/ResumePage';
 import Footer from './components/Footer';
 import BackToTop from './components/BackToTop';
+import FuturisticAmbientGlow from './components/FuturisticAmbientGlow';
 import { BackgroundOrganicBlobs, WaveDivider, FooterWaveDivider } from './components/AbstractDecorations';
+import { useScrollReveal } from './hooks/useScrollReveal';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState('home'); // 'home' | 'resume'
+
+  // Initialize smooth viewport entry animations for headings and cards
+  useScrollReveal([currentPage]);
 
   useEffect(() => {
     const handleLocationChange = () => {
@@ -47,7 +52,12 @@ export default function App() {
         window.location.hash = `#${sectionId}`;
         setTimeout(() => {
           const el = document.getElementById(sectionId);
-          if (el) el.scrollIntoView({ behavior: 'smooth' });
+          if (el) {
+            const headerOffset = 84;
+            const elementPosition = el.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+            window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+          }
         }, 80);
       } else {
         window.location.hash = '#home';
@@ -58,59 +68,64 @@ export default function App() {
 
   return (
     <div className="portfolio-app">
-      {/* Organic Multicolored Abstract Blobs in Background */}
+      {/* Background Abstract Organic Blobs */}
       <BackgroundOrganicBlobs />
 
-      {/* Main Sticky Navigation Bar */}
+      {/* Futuristic Ambient Neon Glow Wells & Floating Cyber Particles */}
+      <FuturisticAmbientGlow />
+
+      {/* Main Sticky Futuristic Navigation Bar */}
       <Navbar currentPage={currentPage} onNavigate={handleNavigate} />
 
-      {/* Main Content Area */}
-      {currentPage === 'resume' ? (
-        <main id="main-content" role="main">
-          <ResumePage onNavigate={handleNavigate} />
-        </main>
-      ) : (
-        <main id="main-content" role="main">
-          {/* Section 1: Home — Data Analyst | AI Developer | Aspiring Data Scientist */}
-          <Hero onOpenResume={() => handleNavigate('resume')} />
+      {/* Main Content Area with Smooth Page Transition */}
+      <div key={currentPage} className="page-transition-frame">
+        {currentPage === 'resume' ? (
+          <main id="main-content" role="main">
+            <ResumePage onNavigate={handleNavigate} />
+          </main>
+        ) : (
+          <main id="main-content" role="main">
+            {/* Section 1: Home — Data Analyst | AI Developer | Aspiring Data Scientist */}
+            <Hero onOpenResume={() => handleNavigate('resume')} />
 
-          {/* Wave Divider into About */}
-          <WaveDivider variant="coral-purple" />
+            {/* Wave Divider into About */}
+            <WaveDivider variant="coral-purple" />
 
-          {/* Section 2: About Me */}
-          <About />
+            {/* Section 2: About Me */}
+            <About />
 
-          {/* Section 3: Skills (6 Categorized Resume Groups) */}
-          <Skills />
+            {/* Section 3: Skills (6 Categorized Resume Groups) */}
+            <Skills />
 
-          {/* Flowing Wave into Experience */}
-          <WaveDivider variant="teal-yellow" />
+            {/* Flowing Wave into Experience */}
+            <WaveDivider variant="teal-yellow" />
 
-          {/* Section 4: Experience (5 Internships + 5 Company Projects) */}
-          <Experience />
+            {/* Section 4: Experience (5 Internships + 5 Company Projects) */}
+            <Experience />
 
-          {/* Wave into Projects */}
-          <WaveDivider variant="default" flip={true} />
+            {/* Wave into Projects */}
+            <WaveDivider variant="default" flip={true} />
 
-          {/* Section 5: Projects (All 10 Resume Projects with Mockups & Modals) */}
-          <Projects />
+            {/* Section 5: Projects (All 10 Resume Projects with Mockups & Modals) */}
+            <Projects />
 
-          {/* Wave into Certifications & Achievements */}
-          <WaveDivider variant="coral-purple" />
+            {/* Wave into Certifications & Achievements */}
+            <WaveDivider variant="coral-purple" />
 
-          {/* Section 6: Certifications (4 Verified Credentials) */}
-          <Certifications />
+            {/* Section 6: Certifications (4 Verified Credentials) */}
+            <Certifications />
 
-          {/* Section 7: Key Achievements (Symposium, 3D Graphics, Webinars) */}
-          <Achievements />
+            {/* Section 7: Key Achievements (Symposium, 3D Graphics, Webinars) */}
+            <Achievements />
 
-          {/* Wave into Contact */}
-          <WaveDivider variant="teal-yellow" flip={true} />
+            {/* Wave into Contact */}
+            <WaveDivider variant="teal-yellow" flip={true} />
 
-          {/* Section 8: Contact Section */}
-          <Contact onOpenResume={() => handleNavigate('resume')} />
-        </main>
-      )}
+            {/* Section 8: Contact Section */}
+            <Contact onOpenResume={() => handleNavigate('resume')} />
+          </main>
+        )}
+      </div>
 
       {/* Organic Wave Transition into Dark Navy Footer */}
       <FooterWaveDivider />
