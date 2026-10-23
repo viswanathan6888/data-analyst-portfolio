@@ -584,60 +584,49 @@ body {
 
 .nav-link:hover:not(.nav-link-active) {
   color: var(--art-pink);
-  background: rgba(236, 72, 153, 0.08);
-  box-shadow: 0 0 14px rgba(6, 182, 212, 0.18);
+  background: rgba(236, 72, 153, 0.06);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
   transform: translateY(-1px);
 }
 
-/* Subtle neon glow to active navigation item */
+/* Refined active navigation item */
 .nav-link-active {
   color: #ffffff !important;
   background: var(--gradient-pink-orange) !important;
-  box-shadow: 0 0 16px rgba(236, 72, 153, 0.45), 0 0 28px rgba(6, 182, 212, 0.25) !important;
-  transform: scale(1.02);
+  box-shadow: 0 4px 14px rgba(236, 72, 153, 0.32), 0 1px 3px rgba(15, 23, 42, 0.08) !important;
+  transform: translateY(-0.5px);
 }
 
-/* Smooth animated glowing indicator / underline for active item */
+/* Sleek Apple-inspired active indicator bar */
 .nav-neon-active-indicator {
   position: absolute;
   bottom: -3px;
   left: 50%;
   transform: translateX(-50%);
-  width: 60%;
-  height: 3px;
+  width: 52%;
+  height: 2px;
   pointer-events: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: indicatorGlowPulse 2.5s ease-in-out infinite alternate;
+  transition: opacity 0.3s ease, width 0.3s ease;
 }
 
 .nav-neon-core {
   width: 100%;
-  height: 2.5px;
-  background: linear-gradient(90deg, #06b6d4, #ffffff, #ec4899);
+  height: 2px;
+  background: linear-gradient(90deg, #06b6d4 0%, #ec4899 100%);
   border-radius: 9999px;
-  box-shadow: 0 0 8px #06b6d4, 0 0 14px #ec4899;
+  box-shadow: 0 1px 6px rgba(236, 72, 153, 0.4);
 }
 
 .nav-neon-blur {
   position: absolute;
-  width: 80%;
-  height: 6px;
-  background: #06b6d4;
-  filter: blur(4px);
-  opacity: 0.7;
-}
-
-@keyframes indicatorGlowPulse {
-  0% {
-    opacity: 0.75;
-    filter: drop-shadow(0 0 4px #06b6d4);
-  }
-  100% {
-    opacity: 1;
-    filter: drop-shadow(0 0 10px #ec4899);
-  }
+  width: 90%;
+  height: 4px;
+  background: #ec4899;
+  filter: blur(3px);
+  opacity: 0.4;
 }
 
 .nav-link-pulse {
@@ -658,30 +647,24 @@ body {
 }
 
 .glow-hover-btn {
-  transition: transform 0.2s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease;
 }
 
 .glow-hover-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 0 18px rgba(6, 182, 212, 0.35);
-  border-color: rgba(6, 182, 212, 0.5);
+  box-shadow: 0 8px 22px -4px rgba(6, 182, 212, 0.22), 0 2px 6px rgba(15, 23, 42, 0.05);
+  border-color: rgba(6, 182, 212, 0.4);
 }
 
-/* Mobile active neon pip */
+/* Mobile active indicator pip */
 .mobile-active-neon-pip {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: var(--art-pink);
-  box-shadow: 0 0 8px #ec4899, 0 0 14px #06b6d4;
+  box-shadow: 0 0 6px rgba(236, 72, 153, 0.6);
   display: inline-block;
   margin-right: 0.35rem;
-  animation: pipPulse 2s infinite ease-in-out;
-}
-
-@keyframes pipPulse {
-  0%, 100% { transform: scale(1); opacity: 0.9; }
-  50% { transform: scale(1.3); opacity: 1; box-shadow: 0 0 12px #ec4899, 0 0 18px #06b6d4; }
 }
 
 .mobile-futuristic-drawer .mobile-nav-link-active {
@@ -2170,14 +2153,36 @@ body {
   display: flex;
   flex-direction: column;
   background: #ffffff;
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease;
   position: relative;
+  border-radius: var(--card-radius);
+  isolation: isolate;
+}
+
+.project-card::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.65) 0%, rgba(139, 92, 246, 0.45) 50%, rgba(236, 72, 153, 0.55) 100%);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  z-index: 3;
 }
 
 .project-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 16px 36px -6px rgba(15, 23, 42, 0.1), 0 0 24px rgba(6, 182, 212, 0.22);
-  border-color: rgba(6, 182, 212, 0.45);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.08), 0 8px 20px -4px rgba(6, 182, 212, 0.12);
+  border-color: transparent;
+}
+
+.project-card:hover::before {
+  opacity: 1;
 }
 
 .project-preview-wrapper {
@@ -3512,171 +3517,146 @@ body {
 }
 
 /* ==========================================================================
-   FUTURISTIC ROBOT & AI COMPANION VISUAL
+   PREMIUM AI NEURAL ENGINE & COPROCESSOR VISUAL
+   Inspired by Apple Intelligence and futuristic AI SaaS dashboards.
+   Clean, minimalist, zero cartoon elements.
    ========================================================================== */
 
-.futuristic-robot-badge {
+.ai-neural-badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.7rem;
   padding: 0.35rem 0.85rem 0.35rem 0.45rem;
-  background: rgba(255, 255, 255, 0.94);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(6, 182, 212, 0.35);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(6, 182, 212, 0.28);
   border-radius: 9999px;
-  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.05), 0 0 16px rgba(6, 182, 212, 0.18);
+  box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.05), 0 0 12px rgba(6, 182, 212, 0.08);
   cursor: pointer;
   position: relative;
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   user-select: none;
 }
 
-.futuristic-robot-badge:hover {
-  transform: translateY(-2px) scale(1.02);
-  border-color: rgba(6, 182, 212, 0.65);
-  box-shadow: 0 8px 25px rgba(15, 23, 42, 0.08), 0 0 24px rgba(6, 182, 212, 0.38);
+.ai-neural-badge:hover {
+  transform: translateY(-1.5px);
+  border-color: rgba(6, 182, 212, 0.5);
+  box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.08), 0 0 18px rgba(6, 182, 212, 0.16);
 }
 
-.robot-neon-aura {
+.ai-neural-badge:focus-visible {
+  outline: 2px solid var(--art-blue);
+  outline-offset: 3px;
+}
+
+.ai-core-halo {
   position: absolute;
   left: 6px;
   top: 50%;
   transform: translateY(-50%);
-  width: 44px;
-  height: 44px;
-  background: radial-gradient(circle, rgba(6, 182, 212, 0.35) 0%, transparent 70%);
+  width: 32px;
+  height: 32px;
+  background: radial-gradient(circle, rgba(6, 182, 212, 0.22) 0%, transparent 70%);
   border-radius: 50%;
-  filter: blur(8px);
+  filter: blur(6px);
   pointer-events: none;
   transition: all 0.3s ease;
 }
 
-.futuristic-robot-badge:hover .robot-neon-aura {
-  background: radial-gradient(circle, rgba(236, 72, 153, 0.4) 0%, rgba(6, 182, 212, 0.35) 60%, transparent 80%);
-  filter: blur(12px);
-  transform: translateY(-50%) scale(1.25);
+.ai-neural-badge:hover .ai-core-halo {
+  background: radial-gradient(circle, rgba(236, 72, 153, 0.25) 0%, rgba(6, 182, 212, 0.2) 60%, transparent 80%);
+  filter: blur(8px);
+  transform: translateY(-50%) scale(1.15);
 }
 
-.robot-floating-avatar {
-  width: 36px;
-  height: 40px;
+.ai-neural-orb {
+  width: 26px;
+  height: 26px;
   position: relative;
-  animation: robotLevitate 3.6s ease-in-out infinite;
+  flex-shrink: 0;
 }
 
-@keyframes robotLevitate {
-  0%, 100% {
-    transform: translateY(0px) rotate(0deg);
-  }
-  50% {
-    transform: translateY(-4px) rotate(1.2deg);
-  }
-}
-
-.robot-svg {
+.ai-orb-svg {
   width: 100%;
   height: 100%;
   display: block;
 }
 
-.robot-antenna-orb {
-  animation: antennaPulse 2s ease-in-out infinite alternate;
+.orb-ring-outer {
+  transform-origin: 20px 20px;
+  animation: orbRotateClockwise 16s linear infinite;
 }
 
-@keyframes antennaPulse {
-  0% { fill: #06b6d4; filter: drop-shadow(0 0 2px #06b6d4); }
-  100% { fill: #38bdf8; filter: drop-shadow(0 0 8px #06b6d4); }
+.orb-ring-inner {
+  transform-origin: 20px 20px;
+  animation: orbRotateCounter 12s linear infinite;
 }
 
-.robot-antenna-wave {
-  animation: antennaRing 2.4s ease-out infinite;
-  transform-origin: 50px 10px;
+.orb-core-pulse {
+  transform-origin: 20px 20px;
+  animation: orbCorePulse 3.5s ease-in-out infinite alternate;
 }
 
-@keyframes antennaRing {
-  0% { transform: scale(0.8); opacity: 0.8; }
-  100% { transform: scale(1.6); opacity: 0; }
+@keyframes orbRotateClockwise {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
-.robot-energy-core {
-  animation: coreHeartbeat 2.2s ease-in-out infinite;
-  transform-origin: 50px 85px;
+@keyframes orbRotateCounter {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
 }
 
-@keyframes coreHeartbeat {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.15); filter: drop-shadow(0 0 6px #ec4899); }
+@keyframes orbCorePulse {
+  0% { transform: scale(0.92); opacity: 0.85; }
+  100% { transform: scale(1.08); opacity: 1; }
 }
 
-.robot-thruster {
-  animation: thrusterFlicker 1.5s ease-in-out infinite alternate;
-}
-
-@keyframes thrusterFlicker {
-  0% { opacity: 0.55; transform: scaleY(0.9); }
-  100% { opacity: 0.9; transform: scaleY(1.2); }
-}
-
-.robot-speech-pill {
+.ai-badge-text-group {
   display: flex;
   align-items: center;
   gap: 0.45rem;
 }
 
-.speech-neon-dot {
-  width: 7px;
-  height: 7px;
+.ai-status-indicator-dot {
+  width: 6.5px;
+  height: 6.5px;
   border-radius: 50%;
-  background: #06b6d4;
-  box-shadow: 0 0 6px #06b6d4, 0 0 10px #06b6d4;
-  animation: neonBlink 1.8s ease-in-out infinite alternate;
+  background: #10b981;
+  box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
+  animation: aiDotPulse 2.8s ease-in-out infinite alternate;
 }
 
-@keyframes neonBlink {
-  0% { opacity: 0.6; transform: scale(0.9); }
-  100% { opacity: 1; transform: scale(1.1); box-shadow: 0 0 10px #06b6d4; }
+@keyframes aiDotPulse {
+  0% { opacity: 0.7; transform: scale(0.9); }
+  100% { opacity: 1; transform: scale(1.05); }
 }
 
-.speech-label {
+.ai-badge-label {
   font-size: 0.78125rem;
   font-weight: 700;
-  color: #0f172a;
+  color: #1e293b;
   letter-spacing: -0.01em;
 }
 
-.speech-sparkle {
-  animation: sparkleTwinkle 2.5s ease-in-out infinite;
+.ai-badge-sparkle {
+  opacity: 0.75;
+  transition: transform 0.25s ease, opacity 0.25s ease;
 }
 
-@keyframes sparkleTwinkle {
-  0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.7; }
-  50% { transform: scale(1.25) rotate(15deg); opacity: 1; filter: drop-shadow(0 0 4px #06b6d4); }
-}
-
-/* Soft ground shadow for robot */
-.robot-ground-shadow {
-  position: absolute;
-  bottom: 2px;
-  left: 12px;
-  width: 24px;
-  height: 4px;
-  background: rgba(15, 23, 42, 0.12);
-  border-radius: 50%;
-  filter: blur(2px);
-  animation: robotShadowPulse 3.6s ease-in-out infinite;
-}
-
-@keyframes robotShadowPulse {
-  0%, 100% { transform: scaleX(1); opacity: 0.8; }
-  50% { transform: scaleX(0.7); opacity: 0.4; }
+.ai-neural-badge:hover .ai-badge-sparkle {
+  transform: rotate(15deg) scale(1.1);
+  opacity: 1;
 }
 
 /* ==========================================================================
-   FUTURISTIC AMBIENT GLOW & FLOATING PARTICLES
+   PREMIUM AMBIENT LIGHTING & MOUSE-FOLLOWING SPOTLIGHT
+   Inspired by high-end Apple / Linear / Vercel product pages.
+   Non-blocking, composite-only, ultra-soft.
    ========================================================================== */
 
-.futuristic-ambient-layer {
+.premium-ambient-backdrop {
   position: fixed;
   inset: 0;
   pointer-events: none;
@@ -3684,158 +3664,145 @@ body {
   overflow: hidden;
 }
 
-.ambient-glow-well {
+.cursor-spotlight {
   position: absolute;
-  width: 500px;
-  height: 500px;
+  width: 700px;
+  height: 700px;
   border-radius: 50%;
-  filter: blur(95px);
-  opacity: 0.14;
-  will-change: transform;
-}
-
-.glow-well-cyan {
-  background: radial-gradient(circle, #06b6d4 0%, transparent 70%);
-}
-
-.glow-well-violet {
-  background: radial-gradient(circle, #8b5cf6 0%, transparent 70%);
-}
-
-.glow-well-pink {
-  background: radial-gradient(circle, #ec4899 0%, transparent 70%);
-}
-
-.ambient-glow-well.top-left {
-  top: -140px;
-  left: -140px;
-  animation: auraFloat1 18s ease-in-out infinite alternate;
-}
-
-.ambient-glow-well.mid-right {
-  top: 42%;
-  right: -160px;
-  animation: auraFloat2 20s ease-in-out infinite alternate;
-}
-
-.ambient-glow-well.bottom-center {
-  bottom: -120px;
-  left: 25%;
-  animation: auraFloat3 22s ease-in-out infinite alternate;
-}
-
-@keyframes auraFloat1 {
-  0% { transform: translate(0, 0); }
-  100% { transform: translate(60px, 45px); }
-}
-@keyframes auraFloat2 {
-  0% { transform: translate(0, 0); }
-  100% { transform: translate(-55px, 50px); }
-}
-@keyframes auraFloat3 {
-  0% { transform: translate(0, 0); }
-  100% { transform: translate(45px, -45px); }
-}
-
-.floating-particles-field {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-}
-
-.cyber-particle {
-  position: absolute;
-  border-radius: 50%;
-  opacity: 0;
+  background: radial-gradient(circle, rgba(6, 182, 212, 0.08) 0%, rgba(139, 92, 246, 0.04) 40%, transparent 70%);
   pointer-events: none;
-  animation: particleDrift infinite ease-in-out;
+  filter: blur(35px);
+  will-change: transform;
+  transition: opacity 0.4s ease;
 }
 
-.particle-small { width: 3px; height: 3px; }
-.particle-medium { width: 4.5px; height: 4.5px; }
-.particle-large { width: 6px; height: 6px; }
-
-.particle-cyan {
-  background: #06b6d4;
-  box-shadow: 0 0 8px #06b6d4, 0 0 14px #06b6d4;
+.ambient-aurora-well {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(130px);
+  opacity: 0.08;
+  will-change: transform;
+  pointer-events: none;
 }
 
-.particle-violet {
-  background: #8b5cf6;
-  box-shadow: 0 0 8px #8b5cf6, 0 0 14px #8b5cf6;
+.aurora-cyan {
+  width: 600px;
+  height: 600px;
+  top: -160px;
+  left: -140px;
+  background: radial-gradient(circle, #06b6d4 0%, transparent 70%);
+  animation: auroraDrift1 24s ease-in-out infinite alternate;
 }
 
-.particle-pink {
-  background: #ec4899;
-  box-shadow: 0 0 8px #ec4899, 0 0 14px #ec4899;
+.aurora-violet {
+  width: 550px;
+  height: 550px;
+  top: 40%;
+  right: -180px;
+  background: radial-gradient(circle, #8b5cf6 0%, transparent 70%);
+  animation: auroraDrift2 28s ease-in-out infinite alternate;
 }
 
-@keyframes particleDrift {
-  0% {
-    transform: translateY(20px) scale(0.8);
-    opacity: 0;
-  }
-  20% {
-    opacity: 0.65;
-  }
-  50% {
-    transform: translateY(-25px) scale(1.1);
-    opacity: 0.85;
-  }
-  80% {
-    opacity: 0.5;
-  }
-  100% {
-    transform: translateY(-60px) scale(0.6);
-    opacity: 0;
-  }
+.aurora-pink {
+  width: 650px;
+  height: 650px;
+  bottom: -180px;
+  left: 20%;
+  background: radial-gradient(circle, #ec4899 0%, transparent 70%);
+  animation: auroraDrift3 30s ease-in-out infinite alternate;
 }
 
-.ambient-cyber-mesh {
+@keyframes auroraDrift1 {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(45px, 35px); }
+}
+
+@keyframes auroraDrift2 {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(-40px, 35px); }
+}
+
+@keyframes auroraDrift3 {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(35px, -30px); }
+}
+
+.ambient-dot-grid {
   position: absolute;
   inset: 0;
-  background-image: 
-    linear-gradient(to right, rgba(6, 182, 212, 0.02) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(139, 92, 246, 0.02) 1px, transparent 1px);
-  background-size: 56px 56px;
-  mask-image: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.5) 0%, transparent 80%);
-  -webkit-mask-image: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.5) 0%, transparent 80%);
+  background-image: radial-gradient(rgba(148, 163, 184, 0.16) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.4) 0%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.4) 0%, transparent 80%);
+  pointer-events: none;
 }
 
 /* ==========================================================================
-   VIEWPORT SCROLL REVEAL & INTERACTIVE CARD GLOWS
+   HERO SECTION SMOOTH REVEAL & TEXT SHIMMER
+   ========================================================================== */
+
+.hero-fade-in {
+  animation: heroFadeIn 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: opacity, transform;
+}
+
+.hero-fade-in-delayed {
+  animation: heroFadeIn 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.15s backwards;
+  will-change: opacity, transform;
+}
+
+@keyframes heroFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-heading-reveal {
+  position: relative;
+  display: inline-block;
+}
+
+.hero-heading-glow-bg {
+  position: absolute;
+  inset: -15% -10%;
+  background: radial-gradient(ellipse at center, rgba(236, 72, 153, 0.12) 0%, rgba(6, 182, 212, 0.08) 50%, transparent 75%);
+  filter: blur(35px);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.hero-text-shimmer {
+  background: linear-gradient(135deg, #ec4899 0%, #f97316 35%, #8b5cf6 70%, #ec4899 100%);
+  background-size: 250% 250%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: textShimmerMove 9s ease-in-out infinite;
+}
+
+@keyframes textShimmerMove {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* ==========================================================================
+   VIEWPORT SCROLL REVEAL & INTERACTIVE DETAILS
    ========================================================================== */
 
 .reveal-on-scroll {
   opacity: 0;
-  transform: translateY(24px);
-  transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), transform 0.65s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(22px);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
   will-change: opacity, transform;
 }
 
 .reveal-on-scroll.is-revealed {
   opacity: 1;
   transform: translateY(0);
-}
-
-/* Subtle hover glow to primary and secondary buttons */
-.btn-primary {
-  transition: transform 0.2s ease, box-shadow 0.25s ease, filter 0.25s ease !important;
-}
-
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 0 20px rgba(236, 72, 153, 0.5), 0 6px 20px rgba(249, 115, 22, 0.35) !important;
-}
-
-.btn-secondary {
-  transition: transform 0.2s ease, box-shadow 0.25s ease, border-color 0.25s ease !important;
-}
-
-.btn-secondary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 0 18px rgba(6, 182, 212, 0.3) !important;
-  border-color: rgba(6, 182, 212, 0.45) !important;
 }
 
 /* Smooth page transition between Home and Resume */
@@ -3874,26 +3841,20 @@ body {
     transition: none !important;
   }
 
-  .robot-floating-avatar,
-  .robot-antenna-orb,
-  .robot-antenna-wave,
-  .robot-energy-core,
-  .robot-thruster,
-  .speech-neon-dot,
-  .speech-sparkle,
-  .robot-ground-shadow,
-  .ambient-glow-well,
-  .cyber-particle,
+  .ai-neural-badge,
+  .orb-ring-outer,
+  .orb-ring-inner,
+  .orb-core-pulse,
+  .ai-status-indicator-dot,
+  .cursor-spotlight,
+  .ambient-aurora-well,
+  .hero-fade-in,
+  .hero-fade-in-delayed,
+  .hero-text-shimmer,
   .nav-neon-active-indicator,
-  .mobile-active-neon-pip,
   .page-transition-frame,
-  .corner-blob,
-  .blob-bg-layer,
-  .animate-pulse-subtle,
-  .animate-float-subtle,
-  .animate-float-subtle-delay {
+  .corner-blob {
     animation: none !important;
     transform: none !important;
-    opacity: 1 !important;
   }
 }

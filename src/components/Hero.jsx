@@ -1,10 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { personalInfo, resumeData } from '../data/portfolioData';
 import {
   Download,
   ArrowRight,
   Database,
-  Bot,
   Sparkles,
   Terminal,
   Code2,
@@ -20,9 +19,38 @@ import { ProfessionalProfileFrame } from './AbstractDecorations';
 import FuturisticRobotVisual from './FuturisticRobotVisual';
 
 export default function Hero({ onOpenResume }) {
+  const [parallaxOffset, setParallaxOffset] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) return;
+
+    let ticking = false;
+    const handleMouseMove = (e) => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const { innerWidth, innerHeight } = window;
+          const x = ((e.clientX / innerWidth) - 0.5) * 12;
+          const y = ((e.clientY / innerHeight) - 0.5) * 12;
+          setParallaxOffset({ x, y });
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
   const scrollToSection = (id) => {
     const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
+    if (el) {
+      const headerOffset = 84;
+      const elementPosition = el.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+      window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+    }
   };
 
   return (
@@ -30,8 +58,13 @@ export default function Hero({ onOpenResume }) {
       <div className="container">
         <div className="hero-grid">
           {/* Left Column: Hero Text Content & Actions */}
-          <div className="hero-content">
-            {/* Status Pill & Futuristic Robot Companion */}
+          <div
+            className="hero-content hero-fade-in"
+            style={{
+              transform: `translate3d(${parallaxOffset.x * 0.35}px, ${parallaxOffset.y * 0.35}px, 0)`
+            }}
+          >
+            {/* Status Pill & Refined AI Coprocessor */}
             <div className="hero-top-badge-row">
               <div className="hero-status-pill">
                 <span className="status-indicator"></span>
@@ -40,9 +73,10 @@ export default function Hero({ onOpenResume }) {
               <FuturisticRobotVisual />
             </div>
 
-            {/* Name */}
-            <h1 className="hero-title">
-              Hi, I'm <span className="text-gradient">Viswanathan M</span>
+            {/* Name with subtle animated backdrop & gradient shimmer */}
+            <h1 className="hero-title hero-heading-reveal">
+              <span className="hero-heading-glow-bg" aria-hidden="true" />
+              Hi, I'm <span className="text-gradient hero-text-shimmer">Viswanathan M</span>
             </h1>
 
             {/* Target Roles Headline */}
@@ -76,7 +110,7 @@ export default function Hero({ onOpenResume }) {
             <div className="hero-actions">
               <button
                 onClick={() => scrollToSection('projects')}
-                className="btn btn-primary"
+                className="btn btn-primary glow-hover-btn"
                 aria-label="Explore Projects Section"
               >
                 <span>Explore Projects</span>
@@ -86,7 +120,7 @@ export default function Hero({ onOpenResume }) {
               <a
                 href={personalInfo.resumePdfUrl}
                 download={resumeData.fileName}
-                className="btn btn-secondary"
+                className="btn btn-secondary glow-hover-btn"
                 aria-label="Download Official Resume PDF"
               >
                 <Download size={16} />
@@ -97,7 +131,7 @@ export default function Hero({ onOpenResume }) {
                 href={personalInfo.linkedin}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn btn-secondary hero-linkedin-btn"
+                className="btn btn-secondary hero-linkedin-btn glow-hover-btn"
                 aria-label="Visit Viswanathan M LinkedIn Profile in a new tab"
               >
                 <LinkedinIcon size={16} />
@@ -107,7 +141,7 @@ export default function Hero({ onOpenResume }) {
 
               <button
                 onClick={() => scrollToSection('contact')}
-                className="btn btn-secondary"
+                className="btn btn-secondary glow-hover-btn"
                 aria-label="Scroll to Contact Section"
               >
                 <Mail size={16} />
@@ -128,8 +162,13 @@ export default function Hero({ onOpenResume }) {
             </div>
           </div>
 
-          {/* Right Column: Clean Professional Profile Photo (140-170px Desktop, 110-130px Mobile) */}
-          <div className="hero-portrait-column">
+          {/* Right Column: Clean Professional Profile Photo with subtle inverted parallax */}
+          <div
+            className="hero-portrait-column hero-fade-in-delayed"
+            style={{
+              transform: `translate3d(${-parallaxOffset.x * 0.7}px, ${-parallaxOffset.y * 0.7}px, 0)`
+            }}
+          >
             <ProfessionalProfileFrame imageSrc={personalInfo.profileImage} />
           </div>
         </div>

@@ -1,54 +1,71 @@
-import React from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 
 /**
- * Futuristic Ambient Glow & Floating Cyber Particles
- * - Soft neon atmospheric lighting (cyan, violet, pink)
- * - Shimmering floating particle specks
- * - Delicate cybernetic spatial grid
- * - Strictly pointer-events: none, sits behind content, 100% non-blocking
+ * Premium Ambient Lighting & Subtle Interactive Mouse Spotlight
+ * Inspired by Apple Pro and modern AI SaaS interfaces.
+ * Features:
+ * - Smooth mouse-following radial spotlight (damped via requestAnimationFrame)
+ * - Ultra-soft ambient gradient glows in background (diffuse, non-distracting)
+ * - Subtle geometric dot matrix with radial falloff
+ * - Strictly pointer-events: none, non-blocking, composited
  * - Respects prefers-reduced-motion
  */
 export default function FuturisticAmbientGlow() {
-  const particles = [
-    { left: '8%', top: '15%', delay: '0s', duration: '6s', size: 'small', color: 'cyan' },
-    { left: '22%', top: '35%', delay: '1.2s', duration: '7.5s', size: 'medium', color: 'violet' },
-    { left: '88%', top: '20%', delay: '0.5s', duration: '6.8s', size: 'small', color: 'pink' },
-    { left: '76%', top: '48%', delay: '2.1s', duration: '8.2s', size: 'large', color: 'cyan' },
-    { left: '15%', top: '65%', delay: '1.8s', duration: '7.1s', size: 'small', color: 'violet' },
-    { left: '42%', top: '80%', delay: '0.8s', duration: '6.4s', size: 'medium', color: 'cyan' },
-    { left: '92%', top: '75%', delay: '2.5s', duration: '7.8s', size: 'small', color: 'pink' },
-    { left: '60%', top: '28%', delay: '1.5s', duration: '8.5s', size: 'small', color: 'cyan' },
-    { left: '30%', top: '12%', delay: '3.0s', duration: '6.2s', size: 'medium', color: 'pink' },
-    { left: '82%', top: '90%', delay: '0.9s', duration: '7.4s', size: 'small', color: 'violet' },
-    { left: '5%', top: '85%', delay: '2.2s', duration: '8.0s', size: 'medium', color: 'cyan' },
-    { left: '68%', top: '62%', delay: '1.7s', duration: '6.9s', size: 'small', color: 'pink' }
-  ];
+  const [mousePos, setMousePos] = useState({ x: -1000, y: -1000 });
+  const targetPos = useRef({ x: -1000, y: -1000 });
+  const currentPos = useRef({ x: -1000, y: -1000 });
+  const rafId = useRef(null);
+
+  useEffect(() => {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) return;
+
+    const handlePointerMove = (e) => {
+      targetPos.current = { x: e.clientX, y: e.clientY };
+    };
+
+    // Smooth lerp loop for the mouse spotlight
+    const updatePosition = () => {
+      // Smooth linear interpolation (lerp)
+      currentPos.current.x += (targetPos.current.x - currentPos.current.x) * 0.12;
+      currentPos.current.y += (targetPos.current.y - currentPos.current.y) * 0.12;
+
+      setMousePos({
+        x: Math.round(currentPos.current.x),
+        y: Math.round(currentPos.current.y)
+      });
+
+      rafId.current = requestAnimationFrame(updatePosition);
+    };
+
+    window.addEventListener('pointermove', handlePointerMove, { passive: true });
+    rafId.current = requestAnimationFrame(updatePosition);
+
+    return () => {
+      window.removeEventListener('pointermove', handlePointerMove);
+      if (rafId.current) cancelAnimationFrame(rafId.current);
+    };
+  }, []);
 
   return (
-    <div className="futuristic-ambient-layer" aria-hidden="true">
-      {/* Subtle Ambient Neon Light Aura Wells */}
-      <div className="ambient-glow-well glow-well-cyan top-left" />
-      <div className="ambient-glow-well glow-well-violet mid-right" />
-      <div className="ambient-glow-well glow-well-pink bottom-center" />
+    <div className="premium-ambient-backdrop" aria-hidden="true">
+      {/* Interactive Cursor Spotlight */}
+      {mousePos.x > -500 && (
+        <div
+          className="cursor-spotlight"
+          style={{
+            transform: `translate3d(${mousePos.x - 350}px, ${mousePos.y - 350}px, 0)`
+          }}
+        />
+      )}
 
-      {/* Floating Cyber Particle Field */}
-      <div className="floating-particles-field">
-        {particles.map((p, idx) => (
-          <span
-            key={idx}
-            className={`cyber-particle particle-${p.color} particle-${p.size}`}
-            style={{
-              left: p.left,
-              top: p.top,
-              animationDelay: p.delay,
-              animationDuration: p.duration
-            }}
-          />
-        ))}
-      </div>
+      {/* Soft Ambient Aurora Gradient Wells */}
+      <div className="ambient-aurora-well aurora-cyan" />
+      <div className="ambient-aurora-well aurora-violet" />
+      <div className="ambient-aurora-well aurora-pink" />
 
-      {/* Delicate Cybernetic Geometric Grid */}
-      <div className="ambient-cyber-mesh" />
+      {/* Subtle Architectural Dot Grid */}
+      <div className="ambient-dot-grid" />
     </div>
   );
 }
