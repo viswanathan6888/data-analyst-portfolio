@@ -14,7 +14,8 @@ import {
 } from './services/youtubeApi';
 import {
   VERIFIED_VIDEO_METADATA,
-  VERIFIED_DAILY_ANALYTICS
+  VERIFIED_DAILY_ANALYTICS,
+  LAST_PROCESSED_DATE
 } from './services/dataSnapshot';
 import { VERIFIED_COMMENTS } from './services/commentsSnapshot';
 import {
@@ -74,8 +75,8 @@ export default function App() {
     }
   }, [videoData, dailyData]);
 
-  // Selected date and Comments (default to latest date 2026-10-26 on the right)
-  const [selectedDate, setSelectedDate] = useState(isDefaultInitial ? '2026-10-26' : null);
+  // Selected date and Comments (default to latest fully processed date)
+  const [selectedDate, setSelectedDate] = useState(isDefaultInitial ? (LAST_PROCESSED_DATE || '2026-10-25') : null);
   const [isCommentsOpen, setIsCommentsOpen] = useState(true);
 
   // Auto-refresh interval (default 1 minute = 60000ms for responsive genuine updates)
@@ -271,7 +272,9 @@ export default function App() {
       if (loadedDailyData && loadedDailyData.length > 0) {
         setDailyData(loadedDailyData);
         if (!preserveSelection) {
-          setSelectedDate(loadedDailyData[loadedDailyData.length - 1]?.date || loadedDailyData[0]?.date);
+          // Focus by default on the latest fully processed date (where metrics are finalized, not pending)
+          const lastProcessed = [...loadedDailyData].reverse().find(d => !d.isPendingProcessing && d.views !== null && d.views !== undefined);
+          setSelectedDate(lastProcessed?.date || loadedDailyData[loadedDailyData.length - 1]?.date || loadedDailyData[0]?.date);
         }
       } else {
         setDailyData([]);

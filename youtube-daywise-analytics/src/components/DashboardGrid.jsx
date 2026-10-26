@@ -96,6 +96,19 @@ export default function DashboardGrid({
     ? dailyData.reduce((acc, d) => acc + (Number(d.views) || 0), 0)
     : null;
 
+  // Calculation of finalized daily views and in-flight/pending processing views (Requirement 8)
+  const finalizedDailyViews = (dailyData && dailyData.length > 0)
+    ? dailyData.filter(d => !d.isPendingProcessing && d.views !== null && d.views !== undefined).reduce((acc, d) => acc + Number(d.views), 0)
+    : null;
+
+  const lastFullyProcessedDay = (dailyData && dailyData.length > 0)
+    ? [...dailyData].reverse().find(d => !d.isPendingProcessing && d.views !== null && d.views !== undefined)
+    : null;
+
+  const inFlightDiscrepancy = (totalViews !== null && finalizedDailyViews !== null && finalizedDailyViews > 0)
+    ? totalViews - finalizedDailyViews
+    : null;
+
   const pendingRollupViews = (totalViews !== null && totalDailyViews !== null)
     ? Math.max(0, totalViews - totalDailyViews)
     : 0;
@@ -164,6 +177,14 @@ export default function DashboardGrid({
   // Real YouTube Views Performance Calculations for Gauge Glows
   // 1. Growth Gauge Performance (Day-over-Day views growth vs previous equivalent period)
   const getGrowthPerformance = () => {
+    if (selectedRecord?.isPendingProcessing) {
+      return {
+        status: 'pending',
+        label: 'Processing: Metrics accumulating. 48-72h YouTube Analytics processing delay.',
+        color: '#eab308',
+        glowClass: 'gauge-glow-average'
+      };
+    }
     if (activeIndex === 0 || viewsDiff === null || previousViews === null) {
       return {
         status: 'insufficient',
@@ -199,7 +220,15 @@ export default function DashboardGrid({
 
   // 2. Selected Views Gauge Performance (Actual views vs video average daily baseline)
   const getViewsPerformance = () => {
-    if (dailyData.length < 2) {
+    if (selectedRecord?.isPendingProcessing) {
+      return {
+        status: 'pending',
+        label: 'Pending: Daily views currently accumulating in YouTube Analytics processing window',
+        color: '#eab308',
+        glowClass: 'gauge-glow-average'
+      };
+    }
+    if (dailyData.length < 2 || selectedViews === null) {
       return {
         status: 'insufficient',
         label: 'Performance cannot yet be determined (insufficient historical baseline)',
@@ -437,12 +466,24 @@ export default function DashboardGrid({
               <span className="uppercase font-semibold tracking-wider">Lifetime Plays</span>
               <span 
                 className="font-mono text-[#8fa3bf] text-[9.5px]" 
-                title={totalDailyViews !== null ? `Day-Wise Sum: ${totalDailyViews.toLocaleString()}` : 'Day-wise sum requires channel OAuth'}
+                title={finalizedDailyViews !== null ? `Finalized Daily Sum (Days 1-${lastFullyProcessedDay?.dayIndex || 'N'}): ${finalizedDailyViews.toLocaleString()}` : 'Day-wise sum requires channel OAuth'}
               >
-                {totalDailyViews !== null ? `Tracked: ${totalDailyViews.toLocaleString()}` : 'Tracked: N/A (Requires OAuth)'}
-                {totalDailyViews !== null && pendingRollupViews === 0 && <span className="text-emerald-400 font-bold ml-1">✓ Synced</span>}
+                {finalizedDailyViews !== null ? `Finalized: ${finalizedDailyViews.toLocaleString()}` : 'Tracked: N/A'}
               </span>
             </div>
+
+            {/* Reconciliation Check & In-Flight Lag Explanation (Requirement 8) */}
+            {inFlightDiscrepancy !== null && (
+              <div 
+                className="mt-1 pt-1 border-t border-[#18345c]/80 flex items-center justify-between text-[9px] font-mono"
+                title={`Reconciliation Check: ${totalViews.toLocaleString()} lifetime views (Data API v3) - ${finalizedDailyViews.toLocaleString()} finalized daily sum = ${inFlightDiscrepancy.toLocaleString()} in-flight views pending 48-72h YouTube Analytics rollup.`}
+              >
+                <span className="text-[#8fa3bf]">Reconciliation:</span>
+                <span className="text-[#eab308] font-bold">
+                  +{inFlightDiscrepancy.toLocaleString()} in-flight lag
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
@@ -709,14 +750,14 @@ export default function DashboardGrid({
               </div>
 
               <div className="min-w-0">
-                <div className="text-base sm:text-lg font-black text-white font-mono leading-none truncate">
-                  {selectedViews !== null ? Number(selectedViews).toLocaleString() : (selectedRecord?.isUnavailable ? 'N/A' : (totalViews !== null ? Number(totalViews).toLocaleString() : 'N/A'))}
+                <div className={`text-base sm:text-lg font-black font-mono leading-none truncate ${selectedRecord?.isPendingProcessing ? 'text-[#eab308]' : 'text-white'}`}>
+                  {selectedViews !== null ? Number(selectedViews).toLocaleString() : (selectedRecord?.isPendingProcessing ? 'Pending' : (selectedRecord?.isUnavailable ? 'N/A' : (totalViews !== null ? Number(totalViews).toLocaleString() : 'N/A')))}
                 </div>
                 <div className="text-[10px] text-[#6296b8] uppercase font-semibold truncate mt-0.5">
-                  {selectedRecord?.isUnavailable ? 'Protected Metric' : (dailyData.length > 0 ? formattedShortDate : 'Lifetime Total')}
+                  {selectedRecord?.isPendingProcessing ? 'Processing Lag' : (selectedRecord?.isUnavailable ? 'Protected Metric' : (dailyData.length > 0 ? formattedShortDate : 'Lifetime Total'))}
                 </div>
                 <div className="text-[9px] text-[#8fa3bf] font-mono truncate">
-                  {selectedRecord?.isUnavailable ? 'Requires Channel OAuth' : (selectedViewsPct !== null ? `${selectedViewsPct}% of Lifetime Views` : 'Public Data API v3')}
+                  {selectedRecord?.isPendingProcessing ? '48-72h Analytics Delay' : (selectedRecord?.isUnavailable ? 'Requires Channel OAuth' : (selectedViewsPct !== null ? `${selectedViewsPct}% of Lifetime Views` : 'Public Data API v3'))}
                 </div>
               </div>
             </div>
@@ -808,27 +849,33 @@ export default function DashboardGrid({
 
               <div className="min-w-0">
                 <div className={`text-base sm:text-lg font-black font-mono leading-none truncate ${
-                  selectedRecord?.isUnavailable
-                    ? 'text-[#7e9cbe]'
-                    : viewsDiff !== null
-                      ? (viewsDiff >= 0 ? 'text-[#05d5b3]' : 'text-amber-400')
-                      : (newViewsGained > 0 ? 'text-[#05d5b3]' : 'text-white')
+                  selectedRecord?.isPendingProcessing
+                    ? 'text-[#eab308]'
+                    : selectedRecord?.isUnavailable
+                      ? 'text-[#7e9cbe]'
+                      : viewsDiff !== null
+                        ? (viewsDiff >= 0 ? 'text-[#05d5b3]' : 'text-amber-400')
+                        : (newViewsGained > 0 ? 'text-[#05d5b3]' : 'text-white')
                 }`}>
-                  {selectedRecord?.isUnavailable
-                    ? 'N/A'
-                    : growthPct !== null
-                      ? `${Number(growthPct) >= 0 ? '+' : ''}${growthPct}%`
-                      : (dailyData.length > 0 ? 'Launch Base' : (newViewsGained > 0 ? `+${newViewsGained.toLocaleString()}` : 'Live Polling'))}
+                  {selectedRecord?.isPendingProcessing
+                    ? 'Pending'
+                    : selectedRecord?.isUnavailable
+                      ? 'N/A'
+                      : growthPct !== null
+                        ? `${Number(growthPct) >= 0 ? '+' : ''}${growthPct}%`
+                        : (dailyData.length > 0 ? 'Launch Base' : (newViewsGained > 0 ? `+${newViewsGained.toLocaleString()}` : 'Live Polling'))}
                 </div>
 
                 <div className="text-[10px] text-[#6296b8] font-mono truncate mt-0.5">
-                  {selectedRecord?.isUnavailable
-                    ? 'Requires OAuth'
-                    : viewsDiff !== null ? (
-                      `${viewsDiff >= 0 ? '+' : ''}${Number(viewsDiff).toLocaleString()} views`
-                    ) : (
-                      dailyData.length > 0 ? 'First recorded date' : (newViewsGained > 0 ? 'Views Gained This Session' : 'Auto-Sync Active')
-                    )}
+                  {selectedRecord?.isPendingProcessing
+                    ? '48-72h Analytics Lag'
+                    : selectedRecord?.isUnavailable
+                      ? 'Requires OAuth'
+                      : viewsDiff !== null ? (
+                        `${viewsDiff >= 0 ? '+' : ''}${Number(viewsDiff).toLocaleString()} views`
+                      ) : (
+                        dailyData.length > 0 ? 'First recorded date' : (newViewsGained > 0 ? 'Views Gained This Session' : 'Auto-Sync Active')
+                      )}
                 </div>
 
                 {previousViews !== null && !selectedRecord?.isUnavailable && (

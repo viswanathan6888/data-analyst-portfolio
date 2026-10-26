@@ -269,8 +269,13 @@ export async function fetchYouTubeAnalyticsReport({
     throw new Error('Video ID is required.');
   }
 
-  // Default to today if endDate not specified
-  const effectiveEndDate = endDate || new Date().toISOString().split('T')[0];
+  // Default to latest fully processed date (48-72h delay) if endDate not specified (Requirement 4)
+  const defaultProcessedDate = (() => {
+    const d = new Date();
+    d.setUTCDate(d.getUTCDate() - 2);
+    return d.toISOString().split('T')[0];
+  })();
+  const effectiveEndDate = endDate || defaultProcessedDate;
   const effectiveStartDate = startDate || '2026-10-17';
 
   const metrics = 'views,estimatedMinutesWatched,averageViewDuration,likes,comments,shares,subscribersGained,subscribersLost';
@@ -718,6 +723,7 @@ export function generateTimelineCalendar({
       netSubscribers,
       growthRate,
       isUnavailable,
+      isPendingProcessing: verifiedRow?.isPendingProcessing || (apiRow?.isPendingProcessing ?? false),
       status,
       latencyNote
     });

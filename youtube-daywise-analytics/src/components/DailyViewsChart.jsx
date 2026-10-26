@@ -405,20 +405,21 @@ export default function DailyViewsChart({
     const item = chartData[index];
     if (!item) return null;
     const isSelected = selectedDate === item.date;
-    const isProtected = item.isProtected || item.views === null;
-    const labelText = isProtected ? 'N/A' : formatOnBarCount(item.views);
+    const isPending = item.isPendingProcessing;
+    const isProtected = (item.isProtected || item.views === null) && !isPending;
+    const labelText = isPending ? 'Pending' : (isProtected ? 'N/A' : formatOnBarCount(item.views));
 
     return (
       <text
         x={x + width / 2}
-        y={isProtected ? y - 4 : y - 6}
+        y={isProtected || isPending ? y - 4 : y - 6}
         textAnchor="middle"
-        fill={isSelected ? '#00f2fe' : (isProtected ? '#5fa5c8' : '#7e9cbe')}
+        fill={isSelected ? (isPending ? '#facc15' : '#00f2fe') : (isPending ? '#eab308' : (isProtected ? '#5fa5c8' : '#7e9cbe'))}
         fontSize={isSelected ? 11 : 9.5}
-        fontWeight={isSelected ? 700 : 500}
+        fontWeight={isSelected || isPending ? 700 : 500}
         fontFamily="monospace"
         style={{
-          filter: isSelected ? 'drop-shadow(0 0 6px rgba(0,242,254,0.85))' : 'none',
+          filter: isSelected ? `drop-shadow(0 0 6px ${isPending ? 'rgba(250, 204, 21, 0.85)' : 'rgba(0,242,254,0.85)'})` : 'none',
           pointerEvents: 'none'
         }}
       >
@@ -519,7 +520,16 @@ export default function DailyViewsChart({
             )}
           </div>
 
-          {isProtected ? (
+          {data.isPendingProcessing ? (
+            <div className="space-y-1">
+              <div className="text-sm font-bold text-[#eab308] font-mono">
+                Daily Views: Pending
+              </div>
+              <div className="text-[10px] text-amber-200 bg-[#291e07] p-1.5 rounded border border-amber-500/40">
+                ⏳ YouTube Analytics has a 48–72 hour aggregation latency. Today's metrics are actively accumulating in real time.
+              </div>
+            </div>
+          ) : isProtected ? (
             <div className="space-y-1">
               <div className="text-sm font-bold text-[#7e9cbe] font-mono">
                 Daily Views: N/A
@@ -594,6 +604,18 @@ export default function DailyViewsChart({
                 </span>
                 <span className="text-[10px] px-2 py-0.2 rounded-full bg-[#071324] border border-[#1b3e70] text-[#7eb3d6] font-mono">
                   {pctOfLifetime}% of {Number(lifetimeViews).toLocaleString()} Lifetime Views
+                </span>
+              </div>
+            ) : selectedRecord.isPendingProcessing ? (
+              <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-0.5">
+                <span className="text-xl sm:text-2xl font-extrabold text-[#eab308] font-mono tracking-tight">
+                  Pending
+                </span>
+                <span className="text-xs font-semibold text-[#facc15]">
+                  Daily Views In Progress
+                </span>
+                <span className="text-[10px] px-2 py-0.2 rounded-full bg-[#291e07] border border-amber-500/40 text-amber-300 font-mono">
+                  48-72h YouTube Analytics Lag
                 </span>
               </div>
             ) : (
@@ -828,27 +850,28 @@ export default function DailyViewsChart({
 
                   {chartData.map((entry) => {
                     const isSelected = selectedDate === entry.date;
-                    const isProtected = entry.isProtected || entry.views === null;
+                    const isPending = entry.isPendingProcessing;
+                    const isProtected = (entry.isProtected || entry.views === null) && !isPending;
                     return (
                       <Cell
                         key={`cell-${entry.date}`}
                         fill={
                           isSelected
-                            ? (isProtected ? 'rgba(0, 242, 254, 0.45)' : '#00f2fe')
-                            : (isProtected ? 'rgba(16, 35, 66, 0.7)' : '#00a8cc')
+                            ? (isPending ? '#eab308' : (isProtected ? 'rgba(0, 242, 254, 0.45)' : '#00f2fe'))
+                            : (isPending ? 'rgba(234, 179, 8, 0.25)' : (isProtected ? 'rgba(16, 35, 66, 0.7)' : '#00a8cc'))
                         }
                         stroke={
                           isSelected
-                            ? '#00f2fe'
-                            : (isProtected ? '#1e3a64' : 'transparent')
+                            ? (isPending ? '#facc15' : '#00f2fe')
+                            : (isPending ? '#ca8a04' : (isProtected ? '#1e3a64' : 'transparent'))
                         }
-                        strokeWidth={isSelected ? 1.5 : (isProtected ? 1 : 0)}
-                        strokeDasharray={isProtected ? '3 2' : undefined}
+                        strokeWidth={isSelected ? 1.5 : (isPending || isProtected ? 1 : 0)}
+                        strokeDasharray={isPending || isProtected ? '3 2' : undefined}
                         className="transition-all duration-200 hover:opacity-90"
                         style={{
                           cursor: 'pointer',
                           filter: isSelected
-                            ? 'drop-shadow(0px 0px 14px rgba(0, 242, 254, 0.95))'
+                            ? `drop-shadow(0px 0px 14px ${isPending ? 'rgba(250, 204, 21, 0.95)' : 'rgba(0, 242, 254, 0.95)'})`
                             : undefined
                         }}
                         onClick={(e) => {

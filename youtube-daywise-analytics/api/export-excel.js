@@ -32,10 +32,34 @@ export default async function handler(req, res) {
     let targetDaily = [];
 
     if (cleanId === 'CobjbCF-Rvw') {
-      // Default initial video verified dataset
-      targetVideo = VERIFIED_VIDEO_METADATA;
+      // Default initial video verified dataset with live Data API v3 statistics
+      targetVideo = { ...VERIFIED_VIDEO_METADATA };
       targetDaily = VERIFIED_DAILY_ANALYTICS;
-      console.log(`[API /api/export-excel] Requested Video ID: ${cleanId} | Title: "${targetVideo.title}" | Channel: ${targetVideo.channelId} | Verified Dataset Used`);
+
+      if (apiKey) {
+        try {
+          const vUrl = `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&id=${encodeURIComponent(cleanId)}&key=${encodeURIComponent(apiKey)}`;
+          const vRes = await fetch(vUrl);
+          if (vRes.ok) {
+            const vData = await vRes.json();
+            if (vData.items && vData.items.length > 0) {
+              const liveStats = vData.items[0].statistics || {};
+              const liveSnippet = vData.items[0].snippet || {};
+              targetVideo = {
+                ...targetVideo,
+                title: liveSnippet.title || targetVideo.title,
+                viewCount: parseInt(liveStats.viewCount || targetVideo.viewCount, 10),
+                likeCount: parseInt(liveStats.likeCount || targetVideo.likeCount, 10),
+                commentCount: parseInt(liveStats.commentCount || targetVideo.commentCount, 10),
+                statistics: { ...targetVideo.statistics, ...liveStats }
+              };
+            }
+          }
+        } catch (fetchErr) {
+          console.warn('[API /api/export-excel] Live stats fetch fallback:', fetchErr);
+        }
+      }
+      console.log(`[API /api/export-excel] Requested Video ID: ${cleanId} | Title: "${targetVideo.title}" | Views: ${targetVideo.viewCount} | Channel: ${targetVideo.channelId} | Verified Dataset Used`);
     } else {
       // Fetch genuine video metadata for the requested video from YouTube Data API v3
       if (!apiKey) {

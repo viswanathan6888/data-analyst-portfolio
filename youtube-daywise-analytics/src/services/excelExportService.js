@@ -227,6 +227,9 @@ export async function generateYouTubeExcelWorkbook({
   }
 
   let totalDataRowsCount = 0;
+  let finalizedDailySum = 0;
+  let lastProcessedDay = null;
+  let hasPendingRow = false;
 
   if (dailyRecords.length > 0) {
     dailyRecords.forEach((d, idx) => {
@@ -235,13 +238,23 @@ export async function generateYouTubeExcelWorkbook({
       const row = sheet.getRow(rowNumber);
       row.height = 24;
 
+      const isPending = Boolean(d.isPendingProcessing);
+      if (isPending) {
+        hasPendingRow = true;
+      } else if (d.views !== null && d.views !== undefined && !isNaN(Number(d.views))) {
+        finalizedDailySum += Number(d.views);
+        lastProcessedDay = d;
+      }
+
       const prevD = idx > 0 ? dailyRecords[idx - 1] : null;
       const prevViews = prevD ? prevD.views : null;
-      const growth = (prevViews !== null && d.views !== null) ? calculateGrowthRate(d.views, prevViews) : null;
+      const growth = (!isPending && prevViews !== null && d.views !== null) ? calculateGrowthRate(d.views, prevViews) : null;
 
       let growthStr = 'N/A (Launch Baseline)';
       if (idx > 0) {
-        if (d.views === null || d.views === undefined) {
+        if (isPending) {
+          growthStr = 'Pending (Processing Lag)';
+        } else if (d.views === null || d.views === undefined) {
           growthStr = 'N/A (Requires Channel OAuth)';
         } else if (growth !== null && !isNaN(growth) && isFinite(growth)) {
           const sign = growth > 0 ? '+' : '';
@@ -253,7 +266,9 @@ export async function generateYouTubeExcelWorkbook({
 
       // Format average watch duration
       let durationFormatted = 'N/A';
-      if (d.averageViewDurationSeconds !== undefined && d.averageViewDurationSeconds !== null) {
+      if (isPending) {
+        durationFormatted = 'Pending';
+      } else if (d.averageViewDurationSeconds !== undefined && d.averageViewDurationSeconds !== null) {
         const durationSec = Number(d.averageViewDurationSeconds);
         const mins = Math.floor(durationSec / 60);
         const secs = durationSec % 60;
@@ -264,10 +279,10 @@ export async function generateYouTubeExcelWorkbook({
         `Day ${d.dayIndex || idx + 1}`,
         d.date || 'N/A',
         d.dayName || 'N/A',
-        d.views !== undefined && d.views !== null ? Number(d.views) : 'N/A',
-        d.likes !== undefined && d.likes !== null ? Number(d.likes) : 'N/A',
-        d.shares !== undefined && d.shares !== null ? Number(d.shares) : 'N/A',
-        d.comments !== undefined && d.comments !== null ? Number(d.comments) : 'N/A',
+        isPending ? 'Pending' : (d.views !== undefined && d.views !== null ? Number(d.views) : 'N/A'),
+        isPending ? 'Pending' : (d.likes !== undefined && d.likes !== null ? Number(d.likes) : 'N/A'),
+        isPending ? 'Pending' : (d.shares !== undefined && d.shares !== null ? Number(d.shares) : 'N/A'),
+        isPending ? 'Pending' : (d.comments !== undefined && d.comments !== null ? Number(d.comments) : 'N/A'),
         growthStr,
         durationFormatted
       ];
@@ -286,7 +301,21 @@ export async function generateYouTubeExcelWorkbook({
         };
 
         // Alignment & Typography per column
-        if (colNumber === 4) {
+        if (isPending) {
+          cell.alignment = { vertical: 'middle', horizontal: colNumber === 4 ? 'right' : 'center' };
+          cell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFFFFBEB' } // Warm amber background (#fffbeb)
+          };
+          cell.font = {
+            name: 'Calibri',
+            size: 11,
+            italic: true,
+            color: { argb: 'FFB45309' }, // Amber-700 font
+            bold: colNumber === 4
+          };
+        } else if (colNumber === 4) {
           // Daily Views (with Data Bar)
           cell.alignment = { vertical: 'middle', horizontal: 'right' };
           cell.font = { name: 'Calibri', size: 11, color: { argb: 'FF0F172A' }, bold: true };
@@ -302,8 +331,8 @@ export async function generateYouTubeExcelWorkbook({
           }
         }
 
-        // Alternating row background for clean readability
-        if (totalDataRowsCount % 2 === 0) {
+        // Alternating row background for clean readability (non-pending rows)
+        if (!isPending && totalDataRowsCount % 2 === 0) {
           cell.fill = {
             type: 'pattern',
             pattern: 'solid',
@@ -384,6 +413,115 @@ export async function generateYouTubeExcelWorkbook({
           color: { argb: 'FF00A8CC' } // Professional blue-to-cyan style matching dashboard theme
         }
       ]
+    });
+  }
+
+  // Add Data Reconciliation & Verification Summary (Requirements 7 & 8)
+  const currentLifetime = Number(currentVideo?.statistics?.viewCount ?? currentVideo?.viewCount ?? 0);
+  if (totalDataRowsCount > 0 && currentLifetime > 0) {
+    const reconStartRow = totalRows + 3;
+
+    // Header Row: Data Reconciliation & Verification Audit
+    sheet.mergeCells(`A${reconStartRow}:I${reconStartRow}`);
+    const reconHeaderRow = sheet.getRow(reconStartRow);
+    reconHeaderRow.height = 26;
+    const reconHeaderCell = sheet.getCell(`A${reconStartRow}`);
+    reconHeaderCell.value = 'DATA RECONCILIATION & PROCESSING STATUS AUDIT';
+    reconHeaderCell.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FF0C1B32' } // Dark Navy matching theme
+    };
+    reconHeaderCell.font = { name: 'Calibri', size: 11, bold: true, color: { argb: 'FFFFFFFF' } };
+    reconHeaderCell.alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };
+
+    const reconItems = [
+      {
+        label: 'Live Lifetime Views (YouTube Data API v3):',
+        value: currentLifetime,
+        numFmt: '#,##0',
+        note: 'Real-time public counter queried directly from YouTube Data API v3 (videos.list)'
+      },
+      {
+        label: `Finalized Daily Views Sum (Days 1 to ${lastProcessedDay?.dayIndex || 'N/A'}):`,
+        value: finalizedDailySum > 0 ? finalizedDailySum : 'N/A',
+        numFmt: '#,##0',
+        note: 'Chronological sum of finalized daily records from authorized YouTube Analytics API'
+      },
+      {
+        label: 'In-Flight Processing Variance (Lag Window):',
+        value: (currentLifetime > 0 && finalizedDailySum > 0)
+          ? `${currentLifetime >= finalizedDailySum ? '+' : ''}${(currentLifetime - finalizedDailySum).toLocaleString()} views`
+          : 'N/A',
+        numFmt: null,
+        note: 'Active in-flight views accumulating across the 48–72 hour YouTube Analytics batch processing latency'
+      },
+      {
+        label: 'Last Fully Processed Date:',
+        value: lastProcessedDay ? `${lastProcessedDay.date} (Day ${lastProcessedDay.dayIndex})` : 'N/A',
+        numFmt: null,
+        note: 'Latest date for which historical metrics (views, duration, shares, subscribers) are finalized'
+      },
+      {
+        label: 'Processing Delay Audit Note:',
+        value: 'YouTube Analytics historical daily reporting operates on a 48–72 hour aggregation latency. Recent dates (e.g. Day 10 / today) are marked as Pending to prevent fabricated daily estimates and ensure data integrity.',
+        isNote: true
+      }
+    ];
+
+    reconItems.forEach((item, rIdx) => {
+      const currentRow = reconStartRow + 1 + rIdx;
+      const row = sheet.getRow(currentRow);
+      row.height = item.isNote ? 30 : 22;
+
+      sheet.mergeCells(`A${currentRow}:C${currentRow}`);
+      const labelCell = sheet.getCell(`A${currentRow}`);
+      labelCell.value = item.label;
+      labelCell.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FF0F172A' } };
+      labelCell.alignment = { vertical: 'middle', horizontal: 'left', indent: 1 };
+
+      const borderDef = {
+        top: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+        bottom: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+        left: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+        right: { style: 'thin', color: { argb: 'FFE2E8F0' } }
+      };
+      labelCell.border = borderDef;
+
+      if (item.isNote) {
+        sheet.mergeCells(`D${currentRow}:I${currentRow}`);
+        const noteCell = sheet.getCell(`D${currentRow}`);
+        noteCell.value = item.value;
+        noteCell.font = { name: 'Calibri', size: 9.5, italic: true, color: { argb: 'FF78350F' } }; // Amber-900
+        noteCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFFBEB' } }; // Warm amber tint
+        noteCell.alignment = { vertical: 'middle', horizontal: 'left', wrapText: true };
+        noteCell.border = borderDef;
+      } else {
+        const valCell = sheet.getCell(`D${currentRow}`);
+        valCell.value = item.value;
+        valCell.font = { name: 'Calibri', size: 10, bold: true, color: { argb: 'FF007799' } };
+        valCell.alignment = { vertical: 'middle', horizontal: typeof item.value === 'number' ? 'right' : 'center' };
+        if (item.numFmt && typeof item.value === 'number') {
+          valCell.numFmt = item.numFmt;
+        }
+        valCell.border = borderDef;
+
+        sheet.mergeCells(`E${currentRow}:I${currentRow}`);
+        const descCell = sheet.getCell(`E${currentRow}`);
+        descCell.value = item.note;
+        descCell.font = { name: 'Calibri', size: 9.5, color: { argb: 'FF64748B' } };
+        descCell.alignment = { vertical: 'middle', horizontal: 'left' };
+        descCell.border = borderDef;
+      }
+
+      const isEven = rIdx % 2 === 0;
+      if (!item.isNote && isEven) {
+        labelCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF8FAFC' } };
+        const valCell = sheet.getCell(`D${currentRow}`);
+        valCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF8FAFC' } };
+        const descCell = sheet.getCell(`E${currentRow}`);
+        descCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF8FAFC' } };
+      }
     });
   }
 
