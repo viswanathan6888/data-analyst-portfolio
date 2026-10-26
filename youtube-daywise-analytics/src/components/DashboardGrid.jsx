@@ -688,26 +688,26 @@ export default function DashboardGrid({
                     className="stroke-[#00f2fe]"
                     strokeWidth="4"
                     strokeDasharray="125.66"
-                    strokeDashoffset={125.66 * (1 - Math.min(100, Number(selectedViewsPct)) / 100)}
+                    strokeDashoffset={selectedViewsPct !== null ? 125.66 * (1 - Math.min(100, Number(selectedViewsPct)) / 100) : 0}
                     strokeLinecap="round"
                     fill="transparent"
                     style={{ filter: 'drop-shadow(0 0 5px rgba(0, 242, 254, 0.7))' }}
                   />
                 </svg>
                 <span className="text-[10px] font-bold text-[#00f2fe] font-mono absolute">
-                  {selectedViewsPct !== null ? `${selectedViewsPct}%` : 'N/A'}
+                  {selectedViewsPct !== null ? `${selectedViewsPct}%` : (totalViews ? '100%' : 'N/A')}
                 </span>
               </div>
 
               <div className="min-w-0">
                 <div className="text-base sm:text-lg font-black text-white font-mono leading-none truncate">
-                  {selectedViews !== null ? Number(selectedViews).toLocaleString() : 'N/A'}
+                  {selectedViews !== null ? Number(selectedViews).toLocaleString() : (totalViews !== null ? Number(totalViews).toLocaleString() : 'N/A')}
                 </div>
                 <div className="text-[10px] text-[#6296b8] uppercase font-semibold truncate mt-0.5">
-                  {formattedShortDate}
+                  {dailyData.length > 0 ? formattedShortDate : 'Lifetime Total'}
                 </div>
                 <div className="text-[9px] text-[#8fa3bf] font-mono truncate">
-                  {selectedViewsPct !== null ? `${selectedViewsPct}% of Lifetime Views` : 'Requires Channel OAuth'}
+                  {selectedViewsPct !== null ? `${selectedViewsPct}% of Lifetime Views` : 'Public Data API v3'}
                 </div>
               </div>
             </div>
@@ -735,7 +735,7 @@ export default function DashboardGrid({
                     ? 'bg-[#062420] text-[#05d5b3] border-[#05d5b3]/40'
                     : 'bg-[#291708] text-amber-400 border-amber-500/40'
               }`}>
-                {viewsDiff === null ? 'Day 1' : viewsDiff >= 0 ? 'Surge' : 'Drop'}
+                {dailyData.length > 0 ? (viewsDiff === null ? 'Day 1' : viewsDiff >= 0 ? 'Surge' : 'Drop') : (newViewsGained > 0 ? '+New' : 'Live')}
               </span>
             </div>
 
@@ -799,18 +799,20 @@ export default function DashboardGrid({
 
               <div className="min-w-0">
                 <div className={`text-base sm:text-lg font-black font-mono leading-none truncate ${
-                  viewsDiff === null ? 'text-white' : viewsDiff >= 0 ? 'text-[#05d5b3]' : 'text-amber-400'
+                  viewsDiff !== null
+                    ? (viewsDiff >= 0 ? 'text-[#05d5b3]' : 'text-amber-400')
+                    : (newViewsGained > 0 ? 'text-[#05d5b3]' : 'text-white')
                 }`}>
                   {growthPct !== null
                     ? `${Number(growthPct) >= 0 ? '+' : ''}${growthPct}%`
-                    : (dailyData.length > 0 ? 'Launch Base' : 'N/A')}
+                    : (dailyData.length > 0 ? 'Launch Base' : (newViewsGained > 0 ? `+${newViewsGained.toLocaleString()}` : 'Live Polling'))}
                 </div>
 
                 <div className="text-[10px] text-[#6296b8] font-mono truncate mt-0.5">
                   {viewsDiff !== null ? (
                     `${viewsDiff >= 0 ? '+' : ''}${Number(viewsDiff).toLocaleString()} views`
                   ) : (
-                    dailyData.length > 0 ? 'First recorded date' : 'OAuth Required'
+                    dailyData.length > 0 ? 'First recorded date' : (newViewsGained > 0 ? 'Views Gained This Session' : 'Auto-Sync Active')
                   )}
                 </div>
 

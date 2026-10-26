@@ -12,6 +12,7 @@ import {
 } from 'recharts';
 import {
   Calendar,
+  CheckCircle2,
   ShieldCheck,
   Activity,
   MousePointerClick,
@@ -212,7 +213,7 @@ export default function DailyViewsChart({
     return (
       <div
         aria-label="Daily Views Bar Chart"
-        className="bg-[#0c1b32] panel-blue-neon-glow rounded-2xl p-4 sm:p-5 flex-1 min-h-0 h-full flex flex-col justify-between transition relative overflow-hidden"
+        className="bg-[#0c1b32] panel-blue-neon-glow rounded-2xl p-3 sm:p-3.5 flex-1 min-h-0 h-full flex flex-col justify-between transition relative overflow-hidden"
       >
         {/* Subtle Cyan Ambient Radial Glow at top */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-24 bg-[radial-gradient(ellipse_at_top,rgba(0,242,254,0.08)_0%,transparent_70%)] pointer-events-none" />
@@ -221,36 +222,82 @@ export default function DailyViewsChart({
         <div className="flex items-center justify-between pb-2 mb-1.5 border-b border-[#18345c] shrink-0 z-10">
           <div className="flex items-center space-x-2 text-xs text-[#8fa3bf]">
             <Calendar className="w-3.5 h-3.5 text-[#00f2fe]" />
-            <span className="font-semibold text-white">Day-Wise Historical Views</span>
+            <span className="font-semibold text-white">Public Video Overview & Data Availability</span>
           </div>
           <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#071324] border border-[#1b3e70] text-[#00f2fe] font-mono">
             {lifetimeViews ? `${Number(lifetimeViews).toLocaleString()} Lifetime Views` : 'Live API'}
           </span>
         </div>
 
-        {/* Center informative placeholder */}
-        <div className="my-auto flex flex-col items-center justify-center text-center p-4 max-w-md mx-auto z-10">
-          <div className="w-12 h-12 rounded-2xl bg-[#071324] border border-[#1b3e70] flex items-center justify-center text-[#00f2fe] shadow-[0_0_15px_rgba(0,242,254,0.25)] mb-3">
-            <ShieldCheck className="w-6 h-6 stroke-[1.8]" />
+        {/* Center Grid: 2 Side-by-Side Cards (Public vs Channel Owner) */}
+        <div className="my-auto grid grid-cols-1 md:grid-cols-2 gap-2.5 sm:gap-3 p-1 z-10">
+          
+          {/* Card 1: Active Public Metrics (Any Channel) */}
+          <div className="bg-[#071324]/90 border border-[#1b3e70] rounded-xl p-3 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center space-x-2 mb-1.5">
+                <div className="p-1 rounded-md bg-emerald-950/60 border border-emerald-500/40 text-emerald-400">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                </div>
+                <h4 className="text-xs font-bold text-white">Public Metrics (Any Channel)</h4>
+              </div>
+              <p className="text-[11px] text-[#8fa3bf] leading-relaxed mb-2">
+                Available for any public YouTube video via YouTube Data API v3:
+              </p>
+              <ul className="space-y-1 text-[10.5px] text-[#c7d7eb]">
+                <li className="flex items-center space-x-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#00f2fe]" />
+                  <span><strong>Lifetime Views:</strong> {lifetimeViews ? Number(lifetimeViews).toLocaleString() : 'Live'} plays</span>
+                </li>
+                <li className="flex items-center space-x-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#00f2fe]" />
+                  <span><strong>Engagement:</strong> Real-time likes, comment count & threads</span>
+                </li>
+                <li className="flex items-center space-x-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#00f2fe]" />
+                  <span><strong>Details:</strong> Title, channel attribution, duration & thumbnail</span>
+                </li>
+                <li className="flex items-center space-x-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#05d5b3]" />
+                  <span><strong>Live Session Polling:</strong> Delta tracking active</span>
+                </li>
+              </ul>
+            </div>
+            <div className="mt-2 pt-2 border-t border-[#12253f] text-[9.5px] text-emerald-400 font-mono">
+              ● 100% Live Synchronized
+            </div>
           </div>
 
-          <h3 className="text-sm sm:text-base font-bold text-white mb-1.5">
-            Day-Wise Breakdown Requires Channel Owner OAuth
-          </h3>
-
-          <p className="text-xs text-[#8fa3bf] leading-relaxed mb-3">
-            The YouTube Analytics API restricts day-by-day historical curves to the channel's verified owner. Public lifetime views, likes, comments, and video metadata are live synced above.
-          </p>
-
-          <div className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-[#071324] border border-[#18345c] text-[11px] text-[#5fa5c8] font-mono">
-            <Activity className="w-3.5 h-3.5 text-[#00d2c4] animate-pulse" />
-            <span>Public metrics for this video are fully synchronized</span>
+          {/* Card 2: Owner-Authorized Daily Breakdown */}
+          <div className="bg-[#071324]/90 border border-[#1b3e70] rounded-xl p-3 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center space-x-2 mb-1.5">
+                <div className="p-1 rounded-md bg-[#0c1f3d] border border-[#00f2fe]/40 text-[#00f2fe]">
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                </div>
+                <h4 className="text-xs font-bold text-white">Day-Wise Historical Breakdown</h4>
+              </div>
+              <p className="text-[11px] text-[#8fa3bf] leading-relaxed mb-2">
+                Official YouTube Analytics API v2 restriction:
+              </p>
+              <p className="text-[10.5px] text-[#8fa3bf] leading-relaxed mb-2">
+                Google restricts historical day-by-day view splits and watch-time retention strictly to the channel owner via OAuth 2.0 authorization. No official public API provides private daily curves for third-party channels.
+              </p>
+            </div>
+            <div className="mt-2 pt-2 border-t border-[#12253f] flex items-center justify-between text-[9.5px] text-[#5fa5c8] font-mono">
+              <span>Owner OAuth Required for Daily Curve</span>
+              <span className="text-[#00f2fe]">Privacy Protected</span>
+            </div>
           </div>
+
         </div>
 
         {/* Slim Footer */}
         <div className="pt-2 mt-1 border-t border-[#18345c] flex items-center justify-between text-[10px] text-[#8fa3bf] shrink-0 z-10">
-          <span className="text-[#6296b8]">Click OAuth in top toolbar to query private daily reports</span>
+          <div className="flex items-center space-x-2">
+            <Activity className="w-3 h-3 text-[#00d2c4] animate-pulse" />
+            <span className="text-[#6296b8]">Live monitoring active • Click OAuth in top toolbar to authorize your channel</span>
+          </div>
           <span className="font-mono text-[#00d2c4]">YouTube Data API v3</span>
         </div>
       </div>
