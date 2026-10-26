@@ -555,147 +555,150 @@ export async function fetchVideoTitlesBatch(videoIds = [], apiKey) {
 }
 
 /**
- * Intelligent Day-Wise Analytics & Retention Modeling Engine
+ * Generates the complete day-wise timeline starting from the video's original publication date
+ * through the latest available analytics date.
  * 
- * Generates an accurate 10-day historical time-series model for ANY YouTube video
- * based on its actual public lifetime statistics (views, likes, comments, duration, publish date).
- * 
- * Computes:
- * 1. Day-by-Day Historical Views Curve (calibrated to exact lifetime views)
- * 2. Estimated Minutes Watched (based on actual duration & retention benchmark)
- * 3. Average View Duration & Retention Percentage
- * 4. Daily Shares Split
- * 5. Daily Subscribers Gained & Lost
- * 6. Traffic Sources & Device Distribution
+ * - Starts at snippet.publishedAt (Day 1)
+ * - Numbers dates sequentially: Day 1, Day 2, Day 3 ... Day N
+ * - Integrates genuine authorized YouTube Analytics API v2 report data when available
+ * - For dates/videos without channel authorization, marks daily metrics as null / N/A without fabricating values
+ * - Preserves verified daily dataset for default initial video (CobjbCF-Rvw)
  */
-export function generateDayWiseAnalyticsModel(videoDetails) {
-  if (!videoDetails) return [];
+export function generateTimelineCalendar({
+  publishedAt,
+  latestDate,
+  apiReportRows = [],
+  verifiedDailyAnalytics = null,
+  isDefaultVideo = false
+}) {
+  if (!publishedAt) return [];
 
-  const rawViews = Number(videoDetails.viewCount ?? videoDetails.statistics?.viewCount ?? 0);
-  const rawLikes = Number(videoDetails.likeCount ?? videoDetails.statistics?.likeCount ?? 0);
-  const rawComments = Number(videoDetails.commentCount ?? videoDetails.statistics?.commentCount ?? 0);
-  const rawDuration = videoDetails.duration || videoDetails.contentDetails?.duration || 'PT3M30S';
+  // Extract clean YYYY-MM-DD from publication date
+  const cleanPubDate = publishedAt.split('T')[0];
+  const todayStr = latestDate || new Date().toISOString().split('T')[0];
 
-  const durationSec = Math.max(10, parseDurationToSeconds(rawDuration));
+  const startDate = new Date(cleanPubDate + 'T00:00:00Z');
+  const endDate = new Date(todayStr + 'T00:00:00Z');
 
-  // Determine retention percentage based on duration categories (YouTube retention curve benchmark)
-  let retentionPct = 0.35;
-  if (durationSec <= 60) {
-    retentionPct = 0.78; // Shorts have 70-85% retention
-  } else if (durationSec <= 300) {
-    retentionPct = 0.48; // 1-5 mins have 40-55% retention
-  } else if (durationSec <= 900) {
-    retentionPct = 0.36; // 5-15 mins have 30-42% retention
-  } else {
-    retentionPct = 0.24; // >15 mins long-form
-  }
+  // If published date is in the future for any reason, clamp to today
+  const effectiveStart = startDate > endDate ? endDate : startDate;
 
-  const avgViewDurationSec = Math.max(8, Math.round(durationSec * retentionPct));
-  const avgViewPct = Number(((avgViewDurationSec / durationSec) * 100).toFixed(1));
-
-  // Determine start date: if published within last 30 days, start from publish date, else last 10 days
-  let startDate = new Date();
-  if (videoDetails.publishedAt) {
-    const pubDate = new Date(videoDetails.publishedAt);
-    const daysSincePub = Math.floor((new Date() - pubDate) / (1000 * 60 * 60 * 24));
-    if (daysSincePub >= 0 && daysSincePub <= 20) {
-      startDate = new Date(pubDate);
-    } else {
-      startDate = new Date();
-      startDate.setDate(startDate.getDate() - 9);
+  // Build lookup maps for fast access
+  const apiMap = new Map();
+  if (Array.isArray(apiReportRows) && apiReportRows.length > 0) {
+    for (const row of apiReportRows) {
+      if (row.date) {
+        apiMap.set(row.date, row);
+      }
     }
-  } else {
-    startDate.setDate(startDate.getDate() - 9);
   }
 
-  // Realistic 10-day distribution weights (launch push, weekend surge, sustained plateau)
-  const weights = [0.185, 0.224, 0.162, 0.113, 0.082, 0.068, 0.054, 0.042, 0.036, 0.034];
+  const verifiedMap = new Map();
+  if (isDefaultVideo && Array.isArray(verifiedDailyAnalytics)) {
+    for (const row of verifiedDailyAnalytics) {
+      if (row.date) {
+        verifiedMap.set(row.date, row);
+      }
+    }
+  }
+
   const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const timeline = [];
 
-  let runningViews = 0;
-  let runningLikes = 0;
-  let runningComments = 0;
+  let current = new Date(effectiveStart);
+  let dayIdx = 1;
+  let prevViews = null;
+  let runningCumulativeViews = 0;
 
-  const records = [];
+  while (current <= endDate) {
+    const dateStr = current.toISOString().split('T')[0];
+    const dayName = dayNames[current.getUTCDay()];
 
-  for (let i = 0; i < 10; i++) {
-    const d = new Date(startDate);
-    d.setDate(startDate.getDate() + i);
-    const dateStr = d.toISOString().split('T')[0];
-    const dayName = dayNames[d.getDay()];
+    const apiRow = apiMap.get(dateStr);
+    const verifiedRow = verifiedMap.get(dateStr);
 
-    const isLast = i === 9;
+    let views = null;
+    let likes = null;
+    let shares = null;
+    let comments = null;
+    let estimatedMinutesWatched = null;
+    let averageViewDurationSeconds = null;
+    let averageViewPercentage = null;
+    let subscribersGained = null;
+    let subscribersLost = null;
+    let netSubscribers = null;
+    let isUnavailable = true;
+    let status = 'Unavailable (Requires Channel OAuth)';
+    let latencyNote = 'Historical daily breakdown protected by YouTube Analytics API (Requires Channel Owner OAuth)';
 
-    // Calculate daily views
-    const dailyViews = isLast
-      ? Math.max(1, rawViews - runningViews)
-      : Math.max(1, Math.round(rawViews * weights[i]));
-    runningViews += dailyViews;
+    if (apiRow) {
+      isUnavailable = false;
+      views = apiRow.views !== undefined && apiRow.views !== null ? Number(apiRow.views) : null;
+      likes = apiRow.likes !== undefined && apiRow.likes !== null ? Number(apiRow.likes) : null;
+      shares = apiRow.shares !== undefined && apiRow.shares !== null ? Number(apiRow.shares) : null;
+      comments = apiRow.comments !== undefined && apiRow.comments !== null ? Number(apiRow.comments) : null;
+      estimatedMinutesWatched = apiRow.estimatedMinutesWatched !== undefined && apiRow.estimatedMinutesWatched !== null ? Number(apiRow.estimatedMinutesWatched) : null;
+      averageViewDurationSeconds = apiRow.averageViewDurationSeconds !== undefined && apiRow.averageViewDurationSeconds !== null ? Number(apiRow.averageViewDurationSeconds) : null;
+      averageViewPercentage = apiRow.averageViewPercentage !== undefined && apiRow.averageViewPercentage !== null ? Number(apiRow.averageViewPercentage) : null;
+      subscribersGained = apiRow.subscribersGained !== undefined && apiRow.subscribersGained !== null ? Number(apiRow.subscribersGained) : null;
+      subscribersLost = apiRow.subscribersLost !== undefined && apiRow.subscribersLost !== null ? Number(apiRow.subscribersLost) : null;
+      netSubscribers = apiRow.netSubscribers !== undefined && apiRow.netSubscribers !== null ? Number(apiRow.netSubscribers) : (subscribersGained !== null && subscribersLost !== null ? subscribersGained - subscribersLost : null);
+      status = apiRow.status || 'Finalized';
+      latencyNote = apiRow.latencyNote || 'Authorized YouTube Analytics API v2';
+    } else if (verifiedRow) {
+      isUnavailable = false;
+      views = verifiedRow.views !== undefined && verifiedRow.views !== null ? Number(verifiedRow.views) : null;
+      likes = verifiedRow.likes !== undefined && verifiedRow.likes !== null ? Number(verifiedRow.likes) : null;
+      shares = verifiedRow.shares !== undefined && verifiedRow.shares !== null ? Number(verifiedRow.shares) : null;
+      comments = verifiedRow.comments !== undefined && verifiedRow.comments !== null ? Number(verifiedRow.comments) : null;
+      estimatedMinutesWatched = verifiedRow.estimatedMinutesWatched !== undefined && verifiedRow.estimatedMinutesWatched !== null ? Number(verifiedRow.estimatedMinutesWatched) : null;
+      averageViewDurationSeconds = verifiedRow.averageViewDurationSeconds !== undefined && verifiedRow.averageViewDurationSeconds !== null ? Number(verifiedRow.averageViewDurationSeconds) : null;
+      averageViewPercentage = verifiedRow.averageViewPercentage !== undefined && verifiedRow.averageViewPercentage !== null ? Number(verifiedRow.averageViewPercentage) : null;
+      subscribersGained = verifiedRow.subscribersGained !== undefined && verifiedRow.subscribersGained !== null ? Number(verifiedRow.subscribersGained) : null;
+      subscribersLost = verifiedRow.subscribersLost !== undefined && verifiedRow.subscribersLost !== null ? Number(verifiedRow.subscribersLost) : null;
+      netSubscribers = verifiedRow.netSubscribers !== undefined && verifiedRow.netSubscribers !== null ? Number(verifiedRow.netSubscribers) : null;
+      status = verifiedRow.status || 'Finalized';
+      latencyNote = verifiedRow.latencyNote || 'Verified Analytics Dataset';
+    }
 
-    // Calculate daily likes
-    const dailyLikes = isLast
-      ? Math.max(0, rawLikes - runningLikes)
-      : Math.round(rawLikes * weights[i]);
-    runningLikes += dailyLikes;
+    let growthRate = null;
+    if (views !== null && prevViews !== null && prevViews > 0) {
+      growthRate = Number((((views - prevViews) / prevViews) * 100).toFixed(2));
+    }
+    if (views !== null) {
+      prevViews = views;
+      runningCumulativeViews += views;
+    }
 
-    // Calculate daily comments
-    const dailyComments = isLast
-      ? Math.max(0, rawComments - runningComments)
-      : Math.round(rawComments * weights[i]);
-    runningComments += dailyComments;
+    const dayLabel = dayIdx === 1 ? 'Day 1 (Launch)' : `Day ${dayIdx}`;
 
-    // Estimated minutes watched for this day
-    const estimatedMinutesWatched = Math.round((dailyViews * avgViewDurationSec) / 60);
-
-    // Daily shares: calibrated to views and likes (~0.15% of views or ~14% of likes)
-    const dailyShares = Math.max(1, Math.round(dailyLikes > 0 ? dailyLikes * 0.15 : dailyViews * 0.0015));
-
-    // Daily subscribers gained & lost: ~0.35% conversion of daily views
-    const subscribersGained = Math.max(1, Math.round(dailyViews * 0.0035));
-    const subscribersLost = Math.max(0, Math.round(subscribersGained * 0.035));
-    const netSubscribers = subscribersGained - subscribersLost;
-
-    const dayLabel = i === 0 ? 'Day 1 (Launch)' : (i === 1 ? 'Day 2 (Peak Surge)' : `Day ${i + 1}`);
-
-    records.push({
+    timeline.push({
       date: dateStr,
-      dayIndex: i + 1,
-      dayName,
+      dayIndex: dayIdx,
       dayLabel,
-      views: dailyViews,
-      cumulativeViews: runningViews,
-      pctOfTotalViews: rawViews > 0 ? Number(((dailyViews / rawViews) * 100).toFixed(2)) : 0,
-      likes: dailyLikes,
-      cumulativeLikes: runningLikes,
-      comments: dailyComments,
-      cumulativeComments: runningComments,
+      dayName,
+      views,
+      cumulativeViews: views !== null ? runningCumulativeViews : null,
+      likes,
+      shares,
+      comments,
       estimatedMinutesWatched,
-      averageViewDurationSeconds: avgViewDurationSec,
-      averageViewPercentage: avgViewPct,
-      shares: dailyShares,
+      averageViewDurationSeconds,
+      averageViewPercentage,
       subscribersGained,
       subscribersLost,
       netSubscribers,
-      trafficSources: [
-        { source: 'YouTube Recommendations / Home', percentage: 54.2 },
-        { source: 'Subscribers / Notification Bell', percentage: 22.8 },
-        { source: 'Direct / Social Sharing (WhatsApp, Telegram)', percentage: 14.5 },
-        { source: 'YouTube Search', percentage: 8.5 }
-      ],
-      deviceDistribution: [
-        { device: 'Mobile Phone', percentage: 84.6 },
-        { device: 'Connected TV', percentage: 9.8 },
-        { device: 'Computer / Desktop', percentage: 4.6 },
-        { device: 'Tablet', percentage: 1.0 }
-      ],
-      status: isLast ? 'Live Synced' : 'Finalized',
-      isPendingProcessing: false,
-      isEstimatedModel: true,
-      latencyNote: 'Performance Curve Calibrated to Lifetime Video Velocity'
+      growthRate,
+      isUnavailable,
+      status,
+      latencyNote
     });
+
+    current.setUTCDate(current.getUTCDate() + 1);
+    dayIdx++;
   }
 
-  return records;
+  return timeline;
 }
 
 

@@ -10,7 +10,7 @@ import {
   fetchVideoDetails,
   fetchYouTubeAnalyticsReport,
   fetchVideoComments,
-  generateDayWiseAnalyticsModel
+  generateTimelineCalendar
 } from './services/youtubeApi';
 import {
   VERIFIED_VIDEO_METADATA,
@@ -246,34 +246,43 @@ export default function App() {
         }
       }
 
-      // 3. Fetch or load day-wise analytics
-      let loadedDailyData = [];
+      // 3. Fetch or load day-wise analytics starting from the video's original published date
+      let apiReportRows = [];
+      const effectivePublishedAt = publicDetails?.publishedAt || (targetVideoId === 'CobjbCF-Rvw' ? VERIFIED_VIDEO_METADATA.publishedAt : null);
+      const originalPublishDate = effectivePublishedAt ? effectivePublishedAt.split('T')[0] : '2026-10-17';
+      const todayStr = new Date().toISOString().split('T')[0];
+
       if (isOAuthConnected && accessToken) {
         try {
           const reportRows = await fetchYouTubeAnalyticsReport({
             videoId: targetVideoId,
-            startDate: publicDetails?.publishedAt?.split('T')[0] || videoData?.publishedAt?.split('T')[0] || '2026-10-17',
+            startDate: originalPublishDate,
+            endDate: todayStr,
             accessToken: accessToken
           });
           if (reportRows && reportRows.length > 0) {
-            loadedDailyData = reportRows;
+            apiReportRows = reportRows;
           }
         } catch (oauthErr) {
-          console.warn('OAuth YouTube Analytics API query failed, falling back to calibrated model:', oauthErr);
+          console.warn('OAuth YouTube Analytics API query failed:', oauthErr);
         }
       }
 
-      if (loadedDailyData.length === 0) {
-        if (targetVideoId === 'CobjbCF-Rvw') {
-          loadedDailyData = VERIFIED_DAILY_ANALYTICS;
-        } else if (publicDetails) {
-          loadedDailyData = generateDayWiseAnalyticsModel(publicDetails);
-        }
+      let loadedDailyData = [];
+      if (effectivePublishedAt) {
+        loadedDailyData = generateTimelineCalendar({
+          publishedAt: effectivePublishedAt,
+          latestDate: todayStr,
+          apiReportRows,
+          verifiedDailyAnalytics: targetVideoId === 'CobjbCF-Rvw' ? VERIFIED_DAILY_ANALYTICS : null,
+          isDefaultVideo: targetVideoId === 'CobjbCF-Rvw'
+        });
       }
 
       if (loadedDailyData && loadedDailyData.length > 0) {
         setDailyData(loadedDailyData);
         if (!preserveSelection) {
+          // Default to showing the latest date
           setSelectedDate(loadedDailyData[loadedDailyData.length - 1]?.date || loadedDailyData[0]?.date);
         }
       } else {

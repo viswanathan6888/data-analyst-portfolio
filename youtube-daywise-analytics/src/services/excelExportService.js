@@ -1,6 +1,6 @@
 import ExcelJS from 'exceljs/dist/exceljs.min.js';
 import { VERIFIED_VIDEO_METADATA, VERIFIED_DAILY_ANALYTICS } from './dataSnapshot.js';
-import { fetchVideoTitleDirect, generateDayWiseAnalyticsModel } from './youtubeApi.js';
+import { fetchVideoTitleDirect, generateTimelineCalendar } from './youtubeApi.js';
 
 /**
  * Calculates daily views growth rate compared with the previous day's views:
@@ -212,9 +212,18 @@ export async function generateYouTubeExcelWorkbook({
   if (hasDailyData) {
     dailyRecords = dailyData;
   } else if (isDefaultVideo) {
-    dailyRecords = VERIFIED_DAILY_ANALYTICS;
-  } else if (currentVideo) {
-    dailyRecords = generateDayWiseAnalyticsModel(currentVideo);
+    dailyRecords = generateTimelineCalendar({
+      publishedAt: currentVideo?.publishedAt || VERIFIED_VIDEO_METADATA.publishedAt,
+      latestDate: new Date().toISOString().split('T')[0],
+      verifiedDailyAnalytics: VERIFIED_DAILY_ANALYTICS,
+      isDefaultVideo: true
+    });
+  } else if (currentVideo && currentVideo.publishedAt) {
+    dailyRecords = generateTimelineCalendar({
+      publishedAt: currentVideo.publishedAt,
+      latestDate: new Date().toISOString().split('T')[0],
+      isDefaultVideo: false
+    });
   }
 
   let totalDataRowsCount = 0;
@@ -228,11 +237,13 @@ export async function generateYouTubeExcelWorkbook({
 
       const prevD = idx > 0 ? dailyRecords[idx - 1] : null;
       const prevViews = prevD ? prevD.views : null;
-      const growth = prevD ? calculateGrowthRate(d.views, prevViews) : null;
+      const growth = (prevViews !== null && d.views !== null) ? calculateGrowthRate(d.views, prevViews) : null;
 
       let growthStr = 'N/A (Launch Baseline)';
       if (idx > 0) {
-        if (growth !== null && !isNaN(growth) && isFinite(growth)) {
+        if (d.views === null || d.views === undefined) {
+          growthStr = 'N/A (Requires Channel OAuth)';
+        } else if (growth !== null && !isNaN(growth) && isFinite(growth)) {
           const sign = growth > 0 ? '+' : '';
           growthStr = `${sign}${growth.toFixed(2)}%`;
         } else {

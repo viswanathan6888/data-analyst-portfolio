@@ -109,14 +109,16 @@ export default function LiveViewsTrendChart({
   const activeIndex = dailyData.findIndex((d) => d.date === activeRecord?.date);
   const prevRecord = activeIndex > 0 ? dailyData[activeIndex - 1] : null;
 
+  const isProtected = activeRecord?.isUnavailable || activeRecord?.views === null || activeRecord?.views === undefined;
+
   // Real YouTube views metrics
-  const currentViews = Number(activeRecord?.views || 0);
-  const prevViews = prevRecord ? Number(prevRecord.views || 0) : null;
+  const currentViews = (activeRecord?.views !== undefined && activeRecord?.views !== null) ? Number(activeRecord.views) : null;
+  const prevViews = (prevRecord?.views !== undefined && prevRecord?.views !== null) ? Number(prevRecord.views) : null;
   const isLaunchDay = activeIndex === 0;
 
   // Day-over-Day views delta & percentage
-  const viewsDelta = prevViews !== null ? currentViews - prevViews : 0;
-  const pctChange = prevViews && prevViews > 0
+  const viewsDelta = (prevViews !== null && currentViews !== null) ? currentViews - prevViews : 0;
+  const pctChange = (prevViews && prevViews > 0 && currentViews !== null)
     ? Number(((viewsDelta / prevViews) * 100).toFixed(1))
     : 0;
 
@@ -124,8 +126,8 @@ export default function LiveViewsTrendChart({
   const isIncreasing = isLaunchDay ? true : viewsDelta >= 0;
   
   // Theme colors: green/cyan for increasing, red for decreasing
-  const trendColor = isIncreasing ? '#00f2fe' : '#ff4b6e';
-  const trendBg = isIncreasing ? 'bg-cyan-500/10 border-cyan-500/30 text-cyan-400' : 'bg-rose-500/10 border-rose-500/30 text-rose-400';
+  const trendColor = isProtected ? '#5fa5c8' : (isIncreasing ? '#00f2fe' : '#ff4b6e');
+  const trendBg = isProtected ? 'bg-cyan-950/20 border-[#18345c] text-[#7e9cbe]' : (isIncreasing ? 'bg-cyan-500/10 border-cyan-500/30 text-cyan-400' : 'bg-rose-500/10 border-rose-500/30 text-rose-400');
   const TrendIcon = isIncreasing ? TrendingUp : TrendingDown;
   const ArrowIcon = isIncreasing ? ArrowUpRight : ArrowDownRight;
 
@@ -135,37 +137,48 @@ export default function LiveViewsTrendChart({
     formattedDateLabel = format(parseISO(activeRecord.date), 'MMM d');
   } catch (e) {}
 
+  // Windowing for sparkline chart: up to 30 days around active record to prevent SVG bloat
+  const windowedTrendData = (() => {
+    if (dailyData.length <= 30) return dailyData;
+    const targetIdx = activeIndex !== -1 ? activeIndex : dailyData.length - 1;
+    const start = Math.max(0, Math.min(dailyData.length - 30, Math.floor(targetIdx - 15)));
+    return dailyData.slice(start, start + 30);
+  })();
+
   // Prepare chronological trend line data using genuine API figures
-  const trendChartData = dailyData.map((d, idx) => {
+  const trendChartData = windowedTrendData.map((d, idx) => {
     let shortDate = d.date;
     try {
       shortDate = format(parseISO(d.date), 'MMM d');
     } catch (e) {}
 
-    const prev = idx > 0 ? dailyData[idx - 1] : null;
-    const diff = prev ? Number(d.views) - Number(prev.views) : 0;
-    const diffPct = prev && Number(prev.views) > 0
-      ? Number(((diff / Number(prev.views)) * 100).toFixed(1))
+    const prev = idx > 0 ? windowedTrendData[idx - 1] : null;
+    const itemViews = (d.views !== null && d.views !== undefined) ? Number(d.views) : 0;
+    const prevViewsNum = (prev && prev.views !== null && prev.views !== undefined) ? Number(prev.views) : null;
+    const diff = prevViewsNum !== null ? itemViews - prevViewsNum : 0;
+    const diffPct = prevViewsNum && prevViewsNum > 0
+      ? Number(((diff / prevViewsNum) * 100).toFixed(1))
       : 0;
 
     return {
       date: d.date,
       shortDate,
-      views: Number(d.views || 0),
+      views: itemViews,
       dayLabel: d.dayLabel,
       diff,
       diffPct,
+      isProtected: d.views === null || d.isUnavailable,
       isSelected: d.date === activeRecord?.date
     };
   });
 
   // Calculate dynamic domain bounds for expressive line movement
   const viewsList = trendChartData.map((d) => d.views);
-  const minViews = Math.min(...viewsList);
-  const maxViews = Math.max(...viewsList);
+  const minViews = viewsList.length > 0 ? Math.min(...viewsList) : 0;
+  const maxViews = viewsList.length > 0 ? Math.max(...viewsList) : 10;
   const yDomain = [
     Math.max(0, Math.floor(minViews * 0.7)),
-    Math.ceil(maxViews * 1.08)
+    Math.max(10, Math.ceil(maxViews * 1.08))
   ];
 
   // Custom Dot renderer highlighting the active/monitored point with pulsing glow
@@ -310,10 +323,10 @@ export default function LiveViewsTrendChart({
             className="text-lg lg:text-xl font-black font-mono leading-tight tracking-tight"
             style={{
               color: trendColor,
-              textShadow: `0 0 12px ${trendColor}50`
+              textShadow: isProtected ? 'none' : `0 0 12px ${trendColor}50`
             }}
           >
-            {currentViews.toLocaleString()}
+            {isProtected ? 'N/A' : (currentViews !== null ? currentViews.toLocaleString() : 'N/A')}
           </div>
         </div>
 
@@ -322,21 +335,27 @@ export default function LiveViewsTrendChart({
           <div
             className={`flex items-center space-x-0.5 px-2 py-0.5 rounded-lg border font-mono text-xs font-bold ${trendBg}`}
             style={{
-              boxShadow: `0 0 8px ${trendColor}25`
+              boxShadow: isProtected ? 'none' : `0 0 8px ${trendColor}25`
             }}
           >
-            <ArrowIcon className="w-3.5 h-3.5" />
-            <span>
-              {isLaunchDay
-                ? 'Launch Base'
-                : `${pctChange >= 0 ? `+${pctChange}%` : `${pctChange}%`}`}
-            </span>
+            {isProtected ? (
+              <span>Protected</span>
+            ) : (
+              <>
+                <ArrowIcon className="w-3.5 h-3.5" />
+                <span>
+                  {isLaunchDay
+                    ? 'Launch Base'
+                    : `${pctChange >= 0 ? `+${pctChange}%` : `${pctChange}%`}`}
+                </span>
+              </>
+            )}
           </div>
           <span
             className="text-[9px] font-mono font-semibold uppercase tracking-wider mt-0.5"
             style={{ color: trendColor }}
           >
-            {isLaunchDay ? 'Baseline' : (isIncreasing ? 'Increasing' : 'Decreasing')}
+            {isProtected ? 'OAuth Required' : (isLaunchDay ? 'Baseline' : (isIncreasing ? 'Increasing' : 'Decreasing'))}
           </span>
         </div>
       </div>

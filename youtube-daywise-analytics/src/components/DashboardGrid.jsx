@@ -128,12 +128,12 @@ export default function DashboardGrid({
     : (comments || []).slice().sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
 
   // Selected Date Metrics
-  const selectedViews = selectedRecord?.views !== undefined ? Number(selectedRecord.views) : null;
+  const selectedViews = (selectedRecord?.views !== undefined && selectedRecord?.views !== null) ? Number(selectedRecord.views) : null;
   const selectedViewsPct = (totalViews && totalViews > 0 && selectedViews !== null)
     ? ((selectedViews / totalViews) * 100).toFixed(1)
     : null;
-  const selectedLikes = selectedRecord?.likes !== undefined ? Number(selectedRecord.likes) : null;
-  const selectedShares = selectedRecord?.shares !== undefined ? Number(selectedRecord.shares) : null;
+  const selectedLikes = (selectedRecord?.likes !== undefined && selectedRecord?.likes !== null) ? Number(selectedRecord.likes) : null;
+  const selectedShares = (selectedRecord?.shares !== undefined && selectedRecord?.shares !== null) ? Number(selectedRecord.shares) : null;
   const selectedCommentsCount = (dailyData && dailyData.length > 0)
     ? filteredComments.length
     : (totalComments !== null ? totalComments : filteredComments.length);
@@ -145,19 +145,20 @@ export default function DashboardGrid({
 
   // Growth Calculation vs Previous Day
   const previousRecord = (dailyData && activeIndex > 0) ? dailyData[activeIndex - 1] : null;
-  const previousViews = previousRecord ? Number(previousRecord.views || 0) : null;
+  const previousViews = (previousRecord?.views !== undefined && previousRecord?.views !== null) ? Number(previousRecord.views) : null;
   const viewsDiff = (previousViews !== null && selectedViews !== null) ? selectedViews - previousViews : null;
   const growthPct = (previousViews && previousViews > 0 && viewsDiff !== null)
     ? ((viewsDiff / previousViews) * 100).toFixed(1)
     : null;
 
   // Peak views in dataset
-  const maxDailyViews = dailyData.length > 0 ? Math.max(...dailyData.map((d) => Number(d.views || 0)), 1) : 1;
+  const validDailyViews = dailyData.filter((d) => d.views !== null && d.views !== undefined);
+  const maxDailyViews = validDailyViews.length > 0 ? Math.max(...validDailyViews.map((d) => Number(d.views)), 1) : 1;
   const dailyPeakPct = selectedViews !== null ? Math.min(100, Math.round((selectedViews / maxDailyViews) * 100)) : 0;
 
   // Historical average daily views baseline
-  const avgDailyViews = dailyData.length > 0
-    ? Math.round(dailyData.reduce((acc, d) => acc + Number(d.views || 0), 0) / dailyData.length)
+  const avgDailyViews = validDailyViews.length > 0
+    ? Math.round(validDailyViews.reduce((acc, d) => acc + Number(d.views), 0) / validDailyViews.length)
     : null;
 
   // Real YouTube Views Performance Calculations for Gauge Glows
@@ -701,13 +702,13 @@ export default function DashboardGrid({
 
               <div className="min-w-0">
                 <div className="text-base sm:text-lg font-black text-white font-mono leading-none truncate">
-                  {selectedViews !== null ? Number(selectedViews).toLocaleString() : (totalViews !== null ? Number(totalViews).toLocaleString() : 'N/A')}
+                  {selectedViews !== null ? Number(selectedViews).toLocaleString() : (selectedRecord?.isUnavailable ? 'N/A' : (totalViews !== null ? Number(totalViews).toLocaleString() : 'N/A'))}
                 </div>
                 <div className="text-[10px] text-[#6296b8] uppercase font-semibold truncate mt-0.5">
-                  {dailyData.length > 0 ? formattedShortDate : 'Lifetime Total'}
+                  {selectedRecord?.isUnavailable ? 'Protected Metric' : (dailyData.length > 0 ? formattedShortDate : 'Lifetime Total')}
                 </div>
                 <div className="text-[9px] text-[#8fa3bf] font-mono truncate">
-                  {selectedViewsPct !== null ? `${selectedViewsPct}% of Lifetime Views` : 'Public Data API v3'}
+                  {selectedRecord?.isUnavailable ? 'Requires Channel OAuth' : (selectedViewsPct !== null ? `${selectedViewsPct}% of Lifetime Views` : 'Public Data API v3')}
                 </div>
               </div>
             </div>
@@ -799,24 +800,30 @@ export default function DashboardGrid({
 
               <div className="min-w-0">
                 <div className={`text-base sm:text-lg font-black font-mono leading-none truncate ${
-                  viewsDiff !== null
-                    ? (viewsDiff >= 0 ? 'text-[#05d5b3]' : 'text-amber-400')
-                    : (newViewsGained > 0 ? 'text-[#05d5b3]' : 'text-white')
+                  selectedRecord?.isUnavailable
+                    ? 'text-[#7e9cbe]'
+                    : viewsDiff !== null
+                      ? (viewsDiff >= 0 ? 'text-[#05d5b3]' : 'text-amber-400')
+                      : (newViewsGained > 0 ? 'text-[#05d5b3]' : 'text-white')
                 }`}>
-                  {growthPct !== null
-                    ? `${Number(growthPct) >= 0 ? '+' : ''}${growthPct}%`
-                    : (dailyData.length > 0 ? 'Launch Base' : (newViewsGained > 0 ? `+${newViewsGained.toLocaleString()}` : 'Live Polling'))}
+                  {selectedRecord?.isUnavailable
+                    ? 'N/A'
+                    : growthPct !== null
+                      ? `${Number(growthPct) >= 0 ? '+' : ''}${growthPct}%`
+                      : (dailyData.length > 0 ? 'Launch Base' : (newViewsGained > 0 ? `+${newViewsGained.toLocaleString()}` : 'Live Polling'))}
                 </div>
 
                 <div className="text-[10px] text-[#6296b8] font-mono truncate mt-0.5">
-                  {viewsDiff !== null ? (
-                    `${viewsDiff >= 0 ? '+' : ''}${Number(viewsDiff).toLocaleString()} views`
-                  ) : (
-                    dailyData.length > 0 ? 'First recorded date' : (newViewsGained > 0 ? 'Views Gained This Session' : 'Auto-Sync Active')
-                  )}
+                  {selectedRecord?.isUnavailable
+                    ? 'Requires OAuth'
+                    : viewsDiff !== null ? (
+                      `${viewsDiff >= 0 ? '+' : ''}${Number(viewsDiff).toLocaleString()} views`
+                    ) : (
+                      dailyData.length > 0 ? 'First recorded date' : (newViewsGained > 0 ? 'Views Gained This Session' : 'Auto-Sync Active')
+                    )}
                 </div>
 
-                {previousViews !== null && (
+                {previousViews !== null && !selectedRecord?.isUnavailable && (
                   <div className="text-[9px] text-[#8fa3bf] font-mono truncate">
                     Prev: {Number(previousViews).toLocaleString()}
                   </div>

@@ -5,7 +5,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { generateYouTubeExcelWorkbook } from './src/services/excelExportService.js';
 import { VERIFIED_VIDEO_METADATA, VERIFIED_DAILY_ANALYTICS } from './src/services/dataSnapshot.js';
-import { generateDayWiseAnalyticsModel } from './src/services/youtubeApi.js';
+import { generateTimelineCalendar } from './src/services/youtubeApi.js';
 
 dotenv.config();
 
@@ -210,7 +210,14 @@ app.get('/api/export-excel', async (req, res) => {
           console.warn('[Server Excel Export] Direct video details query failed:', fetchErr);
         }
       }
-      targetDaily = generateDayWiseAnalyticsModel(targetVideo);
+      const publishedAt = targetVideo.publishedAt || '2026-10-17';
+      targetDaily = generateTimelineCalendar({
+        publishedAt,
+        latestDate: new Date().toISOString().split('T')[0],
+        apiReportRows: [],
+        verifiedDailyAnalytics: cleanId === 'CobjbCF-Rvw' ? VERIFIED_DAILY_ANALYTICS : null,
+        isDefaultVideo: cleanId === 'CobjbCF-Rvw'
+      });
     }
 
     const workbook = await generateYouTubeExcelWorkbook({
