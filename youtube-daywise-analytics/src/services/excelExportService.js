@@ -413,7 +413,7 @@ export async function downloadYouTubeExcelReport({
   const url = window.URL.createObjectURL(blob);
   const anchor = document.createElement('a');
   anchor.href = url;
-  const videoId = videoData?.id || 'CobjbCF-Rvw';
+  const videoId = videoData?.id || 'video';
   const today = new Date().toISOString().split('T')[0];
   const defaultName = `YouTube_Daily_Analytics_${videoId}_${today}.xlsx`;
   anchor.download = fileName || defaultName;

@@ -126,10 +126,11 @@ export default function App() {
   // Load video analytics and real YouTube comments with robust live synchronization
   const loadVideoAnalytics = async (targetVideoId, preserveSelection = false) => {
     if (!targetVideoId) return;
+    const cleanTargetId = targetVideoId.trim();
 
-    // 1. Prevent overlapping requests
-    if (isSyncingRef.current) {
-      console.log(`[YouTube Sync] Sync already in progress for ${targetVideoId}, skipping overlapping request.`);
+    // Prevent background auto-refresh from blocking explicit user-initiated search
+    if (isSyncingRef.current && preserveSelection) {
+      console.log(`[YouTube Sync] Background sync in progress for ${cleanTargetId}, skipping background poll.`);
       return;
     }
     isSyncingRef.current = true;
@@ -139,78 +140,57 @@ export default function App() {
     setErrorMessage('');
     setLastSyncStatus('syncing');
 
-    // If switching to a different video, clear previous video data immediately so old data never lingers
-    if (targetVideoId !== videoId) {
-      setVideoId(targetVideoId);
-      updateBrowserUrl(targetVideoId);
+    // Whenever a new video is requested or explicitly reloaded, CLEAR old state immediately (Requirement 5)
+    setVideoId(cleanTargetId);
+    updateBrowserUrl(cleanTargetId);
+    if (!preserveSelection || cleanTargetId !== videoId) {
+      setVideoData(null);
+      setDailyData([]);
+      setComments([]);
+      setSelectedDate(null);
       setPreviousLifetimeViews(null);
       setNewViewsGained(0);
       setCommentsDisabled(false);
-      if (targetVideoId !== 'CobjbCF-Rvw') {
-        setVideoData(null);
-        setDailyData([]);
-        setComments([]);
-      }
     }
 
     const fetchTimestamp = new Date().toISOString();
-    console.log(`[YouTube Sync Start] Target Video ID: ${targetVideoId} | Timestamp: ${fetchTimestamp} | Seq: ${currentSeq}`);
+    console.log(`[YouTube Sync Start] Target Video ID: ${cleanTargetId} | Timestamp: ${fetchTimestamp} | Seq: ${currentSeq}`);
 
     let publicDetails = null;
     try {
-      // 1. Fetch live public video details using statistics.viewCount
+      // 1. Fetch live public video details using videos.list with part=snippet,contentDetails,statistics
       try {
-        publicDetails = await fetchVideoDetails(targetVideoId, apiKey);
+        publicDetails = await fetchVideoDetails(cleanTargetId, apiKey);
 
-        // Check if a newer request superseded this one (prevent stale responses overwriting newer data)
+        // Discard outdated responses (Requirement 5)
         if (currentSeq !== requestSeqRef.current) {
           console.warn(`[YouTube Sync] Discarding outdated response (Seq ${currentSeq} vs latest ${requestSeqRef.current}).`);
           return;
         }
 
-        if (publicDetails) {
-          const latestViewCount = Number(publicDetails.statistics?.viewCount ?? publicDetails.viewCount ?? 0);
-          console.log(`[YouTube Sync API Response] Video ID: ${publicDetails.id} | statistics.viewCount: ${publicDetails.statistics?.viewCount} | Parsed: ${latestViewCount} | Likes: ${publicDetails.statistics?.likeCount} | Comments: ${publicDetails.statistics?.commentCount}`);
-          
-          setVideoData((prev) => {
-            const prevViews = prev && prev.id === targetVideoId ? Number(prev.statistics?.viewCount ?? prev.viewCount ?? 0) : 0;
-            if (prevViews > 0 && latestViewCount >= prevViews) {
-              const delta = latestViewCount - prevViews;
-              setNewViewsGained(delta);
-              setPreviousLifetimeViews(prevViews);
-              console.log(`[YouTube Sync Metric] Consecutive Snapshot Delta (New Views): +${delta} views (${prevViews} -> ${latestViewCount})`);
-            }
-            return publicDetails;
-          });
-
-          // If default video (CobjbCF-Rvw), dynamically synchronize live views into active tracking day
-          if (targetVideoId === 'CobjbCF-Rvw') {
-            setDailyData((prevDaily) => {
-              const baseDaily = (prevDaily && prevDaily.length > 0) ? prevDaily : VERIFIED_DAILY_ANALYTICS;
-              const copy = baseDaily.map((d) => ({ ...d }));
-              const lastIdx = copy.length - 1;
-              const lastDay = copy[lastIdx];
-              const priorSum = copy.slice(0, -1).reduce((acc, d) => acc + Number(d.views || 0), 0);
-              const liveDayViews = Math.max(Number(lastDay.views || 0), latestViewCount - priorSum);
-
-              copy[lastIdx] = {
-                ...lastDay,
-                views: liveDayViews,
-                cumulativeViews: latestViewCount,
-                pctOfTotalViews: latestViewCount > 0
-                  ? Number(((liveDayViews / latestViewCount) * 100).toFixed(2))
-                  : lastDay.pctOfTotalViews,
-                status: 'Live Synced',
-                isPendingProcessing: false,
-                latencyNote: 'Live Synced with YouTube Data API v3'
-              };
-              return copy;
-            });
-          }
+        // Validate returned video ID matches requested video ID (Requirement 6)
+        if (publicDetails.id !== cleanTargetId) {
+          throw new Error(`Video ID mismatch: requested "${cleanTargetId}" but received "${publicDetails.id}".`);
         }
+
+        const latestViewCount = Number(publicDetails.statistics?.viewCount ?? publicDetails.viewCount ?? 0);
+        console.log(`[YouTube Sync API Response] Video ID: ${publicDetails.id} | Channel: "${publicDetails.channelTitle}" (${publicDetails.channelId}) | Views: ${latestViewCount} | Likes: ${publicDetails.likeCount} | Comments: ${publicDetails.commentCount}`);
+
+        setVideoData((prev) => {
+          const prevViews = prev && prev.id === cleanTargetId ? Number(prev.statistics?.viewCount ?? prev.viewCount ?? 0) : 0;
+          if (prevViews > 0 && latestViewCount >= prevViews) {
+            const delta = latestViewCount - prevViews;
+            setNewViewsGained(delta);
+            setPreviousLifetimeViews(prevViews);
+            console.log(`[YouTube Sync Metric] Consecutive Snapshot Delta (New Views): +${delta} views (${prevViews} -> ${latestViewCount})`);
+          }
+          return publicDetails;
+        });
+
       } catch (err) {
+        if (currentSeq !== requestSeqRef.current) return;
         console.warn('YouTube Data API v3 error:', err);
-        if (targetVideoId === 'CobjbCF-Rvw') {
+        if (cleanTargetId === 'CobjbCF-Rvw') {
           setVideoData(VERIFIED_VIDEO_METADATA);
           publicDetails = VERIFIED_VIDEO_METADATA;
         } else {
@@ -218,9 +198,13 @@ export default function App() {
         }
       }
 
-      // 2. Fetch genuine YouTube comments
+      if (currentSeq !== requestSeqRef.current) return;
+
+      // 2. Fetch genuine YouTube comments for the requested video only (Requirement 7)
       try {
-        const commentsResult = await fetchVideoComments(targetVideoId, apiKey);
+        const commentsResult = await fetchVideoComments(cleanTargetId, apiKey);
+        if (currentSeq !== requestSeqRef.current) return;
+
         if (commentsResult && commentsResult.commentsDisabled) {
           setCommentsDisabled(true);
           setComments([]);
@@ -230,7 +214,7 @@ export default function App() {
         } else if (Array.isArray(commentsResult)) {
           setCommentsDisabled(false);
           setComments(commentsResult);
-        } else if (targetVideoId === 'CobjbCF-Rvw') {
+        } else if (cleanTargetId === 'CobjbCF-Rvw') {
           setCommentsDisabled(false);
           setComments(VERIFIED_COMMENTS);
         } else {
@@ -238,24 +222,27 @@ export default function App() {
           setComments([]);
         }
       } catch (commentsErr) {
+        if (currentSeq !== requestSeqRef.current) return;
         console.warn('Could not fetch comments via API:', commentsErr);
-        if (targetVideoId === 'CobjbCF-Rvw') {
+        if (cleanTargetId === 'CobjbCF-Rvw') {
           setComments(VERIFIED_COMMENTS);
         } else {
           setComments([]);
         }
       }
 
+      if (currentSeq !== requestSeqRef.current) return;
+
       // 3. Fetch or load day-wise analytics starting from the video's original published date
       let apiReportRows = [];
-      const effectivePublishedAt = publicDetails?.publishedAt || (targetVideoId === 'CobjbCF-Rvw' ? VERIFIED_VIDEO_METADATA.publishedAt : null);
+      const effectivePublishedAt = publicDetails?.publishedAt || (cleanTargetId === 'CobjbCF-Rvw' ? VERIFIED_VIDEO_METADATA.publishedAt : null);
       const originalPublishDate = effectivePublishedAt ? effectivePublishedAt.split('T')[0] : '2026-10-17';
       const todayStr = new Date().toISOString().split('T')[0];
 
       if (isOAuthConnected && accessToken) {
         try {
           const reportRows = await fetchYouTubeAnalyticsReport({
-            videoId: targetVideoId,
+            videoId: cleanTargetId,
             startDate: originalPublishDate,
             endDate: todayStr,
             accessToken: accessToken
@@ -274,15 +261,16 @@ export default function App() {
           publishedAt: effectivePublishedAt,
           latestDate: todayStr,
           apiReportRows,
-          verifiedDailyAnalytics: targetVideoId === 'CobjbCF-Rvw' ? VERIFIED_DAILY_ANALYTICS : null,
-          isDefaultVideo: targetVideoId === 'CobjbCF-Rvw'
+          verifiedDailyAnalytics: cleanTargetId === 'CobjbCF-Rvw' ? VERIFIED_DAILY_ANALYTICS : null,
+          isDefaultVideo: cleanTargetId === 'CobjbCF-Rvw'
         });
       }
+
+      if (currentSeq !== requestSeqRef.current) return;
 
       if (loadedDailyData && loadedDailyData.length > 0) {
         setDailyData(loadedDailyData);
         if (!preserveSelection) {
-          // Default to showing the latest date
           setSelectedDate(loadedDailyData[loadedDailyData.length - 1]?.date || loadedDailyData[0]?.date);
         }
       } else {
@@ -297,12 +285,16 @@ export default function App() {
       setLastSyncStatus('success');
       console.log(`[YouTube Sync Complete] Last Successful Sync Time: ${syncTimeStr}`);
     } catch (err) {
-      setErrorMessage(err.message || 'Failed to load video data. Please check the URL.');
-      setLastSyncStatus('error');
-      console.error('[YouTube Sync Error]', err);
+      if (currentSeq === requestSeqRef.current) {
+        setErrorMessage(err.message || 'Failed to load video data. Please check the URL.');
+        setLastSyncStatus('error');
+        console.error('[YouTube Sync Error]', err);
+      }
     } finally {
-      isSyncingRef.current = false;
-      setIsLoading(false);
+      if (currentSeq === requestSeqRef.current) {
+        isSyncingRef.current = false;
+        setIsLoading(false);
+      }
     }
   };
 

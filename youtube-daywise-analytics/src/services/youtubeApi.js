@@ -107,13 +107,17 @@ export function parseDurationToSeconds(durationStr) {
  */
 export async function fetchVideoDetails(videoId, apiKey) {
   if (!videoId) throw new Error('Video ID is required.');
+  const cleanId = String(videoId).trim();
+  if (!/^[a-zA-Z0-9_-]{11}$/.test(cleanId)) {
+    throw new Error(`Invalid YouTube video ID format: "${cleanId}". Must be an 11-character video ID.`);
+  }
 
   let item = null;
 
   // 1. Try server backend proxy endpoint first (/api/video?id=...)
   // This bypasses client-side browser ad-blockers, CORS restrictions, and client API quota limits
   try {
-    const backendRes = await fetch(`/api/video?id=${encodeURIComponent(videoId)}`, {
+    const backendRes = await fetch(`/api/video?id=${encodeURIComponent(cleanId)}`, {
       cache: 'no-store',
       headers: { 'Accept': 'application/json' }
     });
@@ -122,16 +126,28 @@ export async function fetchVideoDetails(videoId, apiKey) {
       if (backendData && (backendData.id || backendData.items)) {
         item = backendData.items ? backendData.items[0] : backendData;
       }
+    } else {
+      const errJson = await backendRes.json().catch(() => null);
+      if (backendRes.status === 404) {
+        throw new Error(errJson?.error || `Video with ID "${cleanId}" was not found or is private/deleted.`);
+      }
     }
   } catch (backendErr) {
+    if (backendErr.message?.includes('not found') || backendErr.message?.includes('private/deleted')) {
+      throw backendErr;
+    }
     // If backend proxy is not reachable, continue to direct YouTube API
   }
 
   // 2. Fallback to direct YouTube Data API v3 query if backend proxy didn't return item
   if (!item) {
-    if (!apiKey) throw new Error('YouTube API Key is missing. Please provide a valid API key.');
+    const effectiveKey = apiKey || 
+      (typeof import.meta !== 'undefined' && import.meta.env?.VITE_YOUTUBE_API_KEY) || 
+      (typeof process !== 'undefined' && process.env?.YOUTUBE_API_KEY) || 
+      '';
+    if (!effectiveKey) throw new Error('YouTube API Key is missing. Please configure VITE_YOUTUBE_API_KEY.');
 
-    const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&id=${encodeURIComponent(videoId)}&key=${encodeURIComponent(apiKey)}`;
+    const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&id=${encodeURIComponent(cleanId)}&key=${encodeURIComponent(effectiveKey)}`;
 
     try {
       const response = await fetch(url);
@@ -149,7 +165,7 @@ export async function fetchVideoDetails(videoId, apiKey) {
       }
 
       if (!data.items || data.items.length === 0) {
-        throw new Error(`No YouTube video found with ID "${videoId}". Please check the URL.`);
+        throw new Error(`No YouTube video found with ID "${cleanId}". Please check the URL.`);
       }
 
       item = data.items[0];
@@ -157,6 +173,11 @@ export async function fetchVideoDetails(videoId, apiKey) {
       console.error('fetchVideoDetails direct YouTube API error:', directErr);
       throw directErr;
     }
+  }
+
+  // Mismatch check (Requirement 6)
+  if (item.id !== cleanId) {
+    throw new Error(`Video ID mismatch: requested "${cleanId}" but YouTube API returned "${item.id}".`);
   }
 
   const snippet = item.snippet || {};
@@ -170,14 +191,15 @@ export async function fetchVideoDetails(videoId, apiKey) {
     title: snippet.title || 'Untitled Video',
     description: snippet.description || '',
     publishedAt: snippet.publishedAt,
-    channelId: snippet.channelId,
+    channelId: snippet.channelId || '',
     channelTitle: snippet.channelTitle || 'Unknown Channel',
     thumbnails: snippet.thumbnails || {},
     bestThumbnailUrl: snippet.thumbnails?.maxres?.url || 
                        snippet.thumbnails?.standard?.url || 
                        snippet.thumbnails?.high?.url || 
                        snippet.thumbnails?.medium?.url || 
-                       snippet.thumbnails?.default?.url,
+                       snippet.thumbnails?.default?.url ||
+                       `https://i.ytimg.com/vi/${item.id}/hqdefault.jpg`,
     duration: content.duration,
     formattedDuration: parseDuration(content.duration),
     viewCount: parsedViewCount,
@@ -380,11 +402,12 @@ export function checkViewerEmailApiSupport() {
  */
 export async function fetchVideoComments(videoId, apiKey) {
   if (!videoId) return { comments: [], commentsDisabled: false };
+  const cleanId = String(videoId).trim();
 
   // 1. Try secure backend proxy endpoint first (/api/comments?videoId=...)
   // Keeps YouTube API key hidden securely on server side
   try {
-    const backendRes = await fetch(`/api/comments?videoId=${encodeURIComponent(videoId)}`, {
+    const backendRes = await fetch(`/api/comments?videoId=${encodeURIComponent(cleanId)}`, {
       cache: 'no-store',
       headers: { 'Accept': 'application/json' }
     });
@@ -401,9 +424,14 @@ export async function fetchVideoComments(videoId, apiKey) {
     // If backend proxy not reachable, continue to direct if apiKey provided
   }
 
-  if (!apiKey) return { comments: [], commentsDisabled: false };
+  const effectiveKey = apiKey || 
+    (typeof import.meta !== 'undefined' && import.meta.env?.VITE_YOUTUBE_API_KEY) || 
+    (typeof process !== 'undefined' && process.env?.YOUTUBE_API_KEY) || 
+    '';
 
-  const url = `https://www.googleapis.com/youtube/v3/commentThreads?part=snippet&videoId=${encodeURIComponent(videoId)}&maxResults=100&order=time&key=${encodeURIComponent(apiKey)}`;
+  if (!effectiveKey) return { comments: [], commentsDisabled: false };
+
+  const url = `https://www.googleapis.com/youtube/v3/commentThreads?part=snippet&videoId=${encodeURIComponent(cleanId)}&maxResults=100&order=time&key=${encodeURIComponent(effectiveKey)}`;
 
   try {
     const response = await fetch(url);

@@ -5,7 +5,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { generateYouTubeExcelWorkbook } from './src/services/excelExportService.js';
 import { VERIFIED_VIDEO_METADATA, VERIFIED_DAILY_ANALYTICS } from './src/services/dataSnapshot.js';
-import { generateTimelineCalendar } from './src/services/youtubeApi.js';
+import { generateTimelineCalendar, parseDuration } from './src/services/youtubeApi.js';
 
 dotenv.config();
 
@@ -13,7 +13,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = process.env.PORT || 3005;
+const PORT = process.env.PORT || 3001;
 
 app.use(cors());
 app.use(express.json());
@@ -24,12 +24,14 @@ app.get('/api/video', async (req, res) => {
   const apiKey = process.env.YOUTUBE_API_KEY || process.env.VITE_YOUTUBE_API_KEY;
 
   if (!id || typeof id !== 'string' || !/^[a-zA-Z0-9_-]{11}$/.test(id.trim())) {
+    console.warn(`[Local Server /api/video] Invalid or missing video ID parameter: "${id}"`);
     return res.status(400).json({ error: 'Valid 11-character YouTube Video ID is required.' });
   }
 
   const cleanId = id.trim();
 
   if (!apiKey) {
+    console.error(`[Local Server /api/video] YOUTUBE_API_KEY is not configured.`);
     return res.status(500).json({ error: 'YOUTUBE_API_KEY is not configured.' });
   }
 
@@ -39,18 +41,34 @@ app.get('/api/video', async (req, res) => {
     const data = await response.json();
 
     if (!response.ok) {
+      console.error(`[Local Server /api/video] API error for video ${cleanId}: Status ${response.status} - ${data.error?.message}`);
       return res.status(response.status).json({ error: data.error?.message || 'YouTube Data API error' });
     }
 
     if (!data.items || data.items.length === 0) {
+      console.warn(`[Local Server /api/video] Video not found: ${cleanId}`);
       return res.status(404).json({ error: `Video with ID "${cleanId}" was not found or is private/deleted.` });
+    }
+
+    const item = data.items[0];
+    const returnedVideoId = item.id;
+    const channelId = item.snippet?.channelId || 'Unknown';
+    const channelTitle = item.snippet?.channelTitle || 'Unknown';
+
+    // Development logging without API keys (Requirement 8)
+    console.log(`[Local Server /api/video] Requested Video ID: ${cleanId} | Returned Video ID: ${returnedVideoId} | Channel: "${channelTitle}" (${channelId}) | API Status: ${response.status}`);
+
+    if (returnedVideoId !== cleanId) {
+      console.error(`[Local Server /api/video] Mismatch: requested ${cleanId} but API returned ${returnedVideoId}`);
+      return res.status(400).json({ error: `Video ID mismatch: requested "${cleanId}" but API returned "${returnedVideoId}".` });
     }
 
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
-    return res.json(data.items[0]);
+    return res.json(item);
   } catch (error) {
+    console.error(`[Local Server /api/video] Error for video ${cleanId}:`, error);
     return res.status(500).json({ error: error.message });
   }
 });
@@ -61,12 +79,14 @@ app.get('/api/comments', async (req, res) => {
   const apiKey = process.env.YOUTUBE_API_KEY || process.env.VITE_YOUTUBE_API_KEY;
 
   if (!videoId || typeof videoId !== 'string' || !/^[a-zA-Z0-9_-]{11}$/.test(videoId.trim())) {
+    console.warn(`[Local Server /api/comments] Invalid videoId parameter: "${videoId}"`);
     return res.status(400).json({ error: 'Valid 11-character videoId query parameter is required.' });
   }
 
   const cleanVideoId = videoId.trim();
 
   if (!apiKey) {
+    console.error(`[Local Server /api/comments] YOUTUBE_API_KEY is not configured.`);
     return res.status(500).json({ error: 'YOUTUBE_API_KEY is not configured.' });
   }
 
@@ -81,6 +101,7 @@ app.get('/api/comments', async (req, res) => {
         (typeof data.error?.message === 'string' && data.error.message.toLowerCase().includes('disabled comments'));
 
       if (isCommentsDisabled) {
+        console.log(`[Local Server /api/comments] Requested Video ID: ${cleanVideoId} | Status: Comments Disabled (HTTP ${response.status})`);
         return res.status(200).json({
           commentsDisabled: true,
           message: 'Comments are disabled for this video.',
@@ -88,19 +109,22 @@ app.get('/api/comments', async (req, res) => {
         });
       }
 
+      console.error(`[Local Server /api/comments] Error for video ${cleanVideoId}: Status ${response.status} - ${data.error?.message}`);
       return res.status(response.status).json({
         error: data.error?.message || 'YouTube Data API commentThreads error'
       });
     }
 
     if (!data.items || data.items.length === 0) {
+      console.log(`[Local Server /api/comments] Requested Video ID: ${cleanVideoId} | Returned 0 comments | Status: ${response.status}`);
       return res.json([]);
     }
 
     const comments = data.items.map((item) => {
-      const top = item.snippet.topLevelComment.snippet;
+      const top = item.snippet?.topLevelComment?.snippet || {};
       return {
         id: item.id,
+        videoId: item.snippet?.videoId || cleanVideoId,
         authorDisplayName: top.authorDisplayName,
         authorProfileImageUrl: top.authorProfileImageUrl,
         authorChannelUrl: top.authorChannelUrl,
@@ -112,8 +136,15 @@ app.get('/api/comments', async (req, res) => {
       };
     }).sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
 
+    const channelId = data.items[0]?.snippet?.channelId || 'N/A';
+    console.log(`[Local Server /api/comments] Requested Video ID: ${cleanVideoId} | Channel: ${channelId} | Returned: ${comments.length} comments | Status: ${response.status}`);
+
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
     return res.json(comments);
   } catch (error) {
+    console.error(`[Local Server /api/comments] Error for video ${cleanVideoId}:`, error);
     return res.status(500).json({ error: error.message });
   }
 });
@@ -170,53 +201,76 @@ app.get('/api/analytics', async (req, res) => {
 app.get('/api/export-excel', async (req, res) => {
   try {
     const { videoId } = req.query;
-    const cleanId = (videoId && typeof videoId === 'string' && /^[a-zA-Z0-9_-]{11}$/.test(videoId.trim()))
-      ? videoId.trim()
-      : 'CobjbCF-Rvw';
 
-    let targetVideo = VERIFIED_VIDEO_METADATA;
-    let targetDaily = VERIFIED_DAILY_ANALYTICS;
+    if (!videoId || typeof videoId !== 'string' || !/^[a-zA-Z0-9_-]{11}$/.test(videoId.trim())) {
+      console.warn(`[Local Server /api/export-excel] Invalid or missing videoId query parameter: "${videoId}"`);
+      return res.status(400).json({ error: 'Valid 11-character videoId query parameter is required.' });
+    }
 
+    const cleanId = videoId.trim();
     const apiKey = process.env.YOUTUBE_API_KEY || process.env.VITE_YOUTUBE_API_KEY;
 
-    // If an arbitrary non-default video is requested, fetch genuine video metadata
-    if (cleanId !== 'CobjbCF-Rvw') {
-      if (apiKey) {
-        try {
-          const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&id=${encodeURIComponent(cleanId)}&key=${encodeURIComponent(apiKey)}`;
-          const response = await fetch(url);
-          if (response.ok) {
-            const data = await response.json();
-            if (data.items && data.items.length > 0) {
-              const item = data.items[0];
-              const snippet = item.snippet || {};
-              const content = item.contentDetails || {};
-              const stats = item.statistics || {};
-              targetVideo = {
-                id: item.id,
-                title: snippet.title || 'YouTube Video',
-                channelTitle: snippet.channelTitle || 'Unknown Channel',
-                publishedAt: snippet.publishedAt,
-                duration: content.duration,
-                formattedDuration: content.duration,
-                viewCount: parseInt(stats.viewCount || 0, 10),
-                likeCount: parseInt(stats.likeCount || 0, 10),
-                commentCount: parseInt(stats.commentCount || 0, 10),
-                statistics: stats
-              };
-            }
-          }
-        } catch (fetchErr) {
-          console.warn('[Server Excel Export] Direct video details query failed:', fetchErr);
-        }
+    let targetVideo = null;
+    let targetDaily = [];
+
+    if (cleanId === 'CobjbCF-Rvw') {
+      // Default initial video verified dataset
+      targetVideo = VERIFIED_VIDEO_METADATA;
+      targetDaily = VERIFIED_DAILY_ANALYTICS;
+      console.log(`[Local Server /api/export-excel] Requested Video ID: ${cleanId} | Title: "${targetVideo.title}" | Channel: ${targetVideo.channelId} | Verified Dataset Used`);
+    } else {
+      // Fetch genuine video metadata for the requested video from YouTube Data API v3
+      if (!apiKey) {
+        return res.status(500).json({ error: 'Server-side YOUTUBE_API_KEY environment variable is not configured.' });
       }
-      const publishedAt = targetVideo.publishedAt || '2026-10-17';
+
+      const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&id=${encodeURIComponent(cleanId)}&key=${encodeURIComponent(apiKey)}`;
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (!response.ok) {
+        console.error(`[Local Server /api/export-excel] YouTube API error for video ${cleanId}: Status ${response.status} - ${data.error?.message}`);
+        return res.status(response.status).json({ error: data.error?.message || 'YouTube Data API error' });
+      }
+
+      if (!data.items || data.items.length === 0) {
+        console.warn(`[Local Server /api/export-excel] Video not found: ${cleanId}`);
+        return res.status(404).json({ error: `Video with ID "${cleanId}" not found or is private/deleted.` });
+      }
+
+      const item = data.items[0];
+      const returnedVideoId = item.id;
+      const snippet = item.snippet || {};
+      const content = item.contentDetails || {};
+      const stats = item.statistics || {};
+
+      console.log(`[Local Server /api/export-excel] Requested Video ID: ${cleanId} | Returned Video ID: ${returnedVideoId} | Channel: "${snippet.channelTitle}" (${snippet.channelId}) | API Status: ${response.status}`);
+
+      if (returnedVideoId !== cleanId) {
+        return res.status(400).json({ error: `Video ID mismatch: requested "${cleanId}" but API returned "${returnedVideoId}".` });
+      }
+
+      targetVideo = {
+        id: item.id,
+        title: snippet.title || 'YouTube Video',
+        channelId: snippet.channelId || '',
+        channelTitle: snippet.channelTitle || 'Unknown Channel',
+        publishedAt: snippet.publishedAt,
+        duration: content.duration,
+        formattedDuration: parseDuration(content.duration),
+        viewCount: parseInt(stats.viewCount || 0, 10),
+        likeCount: parseInt(stats.likeCount || 0, 10),
+        commentCount: parseInt(stats.commentCount || 0, 10),
+        statistics: stats
+      };
+
+      const publishedAt = targetVideo.publishedAt || new Date().toISOString();
       targetDaily = generateTimelineCalendar({
         publishedAt,
         latestDate: new Date().toISOString().split('T')[0],
         apiReportRows: [],
-        verifiedDailyAnalytics: cleanId === 'CobjbCF-Rvw' ? VERIFIED_DAILY_ANALYTICS : null,
-        isDefaultVideo: cleanId === 'CobjbCF-Rvw'
+        verifiedDailyAnalytics: null,
+        isDefaultVideo: false
       });
     }
 
@@ -231,6 +285,7 @@ app.get('/api/export-excel', async (req, res) => {
 
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     return res.send(Buffer.from(buffer));
   } catch (error) {
     console.error('Server Excel export error:', error);

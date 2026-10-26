@@ -22,12 +22,14 @@ export default async function handler(req, res) {
   const apiKey = process.env.YOUTUBE_API_KEY || process.env.VITE_YOUTUBE_API_KEY;
 
   if (!videoId || typeof videoId !== 'string' || !/^[a-zA-Z0-9_-]{11}$/.test(videoId.trim())) {
+    console.warn(`[API /api/comments] Invalid videoId parameter: "${videoId}"`);
     return res.status(400).json({ error: 'Valid 11-character videoId query parameter is required.' });
   }
 
   const cleanVideoId = videoId.trim();
 
   if (!apiKey) {
+    console.error(`[API /api/comments] Server-side YOUTUBE_API_KEY environment variable is not configured.`);
     return res.status(500).json({
       error: 'Server-side YOUTUBE_API_KEY environment variable is not configured.'
     });
@@ -44,6 +46,7 @@ export default async function handler(req, res) {
         (typeof data.error?.message === 'string' && data.error.message.toLowerCase().includes('disabled comments'));
 
       if (isCommentsDisabled) {
+        console.log(`[API /api/comments] Requested Video ID: ${cleanVideoId} | Status: Comments Disabled (HTTP ${response.status})`);
         return res.status(200).json({
           commentsDisabled: true,
           message: 'Comments are disabled for this video.',
@@ -51,19 +54,22 @@ export default async function handler(req, res) {
         });
       }
 
+      console.error(`[API /api/comments] API error for video ${cleanVideoId}: Status ${response.status} - ${data.error?.message}`);
       return res.status(response.status).json({
         error: data.error?.message || 'YouTube Data API commentThreads error'
       });
     }
 
     if (!data.items || data.items.length === 0) {
+      console.log(`[API /api/comments] Requested Video ID: ${cleanVideoId} | Returned: 0 comments | Status: ${response.status}`);
       return res.status(200).json([]);
     }
 
     const comments = data.items.map((item) => {
-      const top = item.snippet.topLevelComment.snippet;
+      const top = item.snippet?.topLevelComment?.snippet || {};
       return {
         id: item.id,
+        videoId: item.snippet?.videoId || cleanVideoId,
         authorDisplayName: top.authorDisplayName,
         authorProfileImageUrl: top.authorProfileImageUrl,
         authorChannelUrl: top.authorChannelUrl,
@@ -75,9 +81,15 @@ export default async function handler(req, res) {
       };
     }).sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
 
-    res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=120');
+    const channelId = data.items[0]?.snippet?.channelId || 'N/A';
+    console.log(`[API /api/comments] Requested Video ID: ${cleanVideoId} | Channel: ${channelId} | Returned: ${comments.length} comments | Status: ${response.status}`);
+
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
     return res.status(200).json(comments);
   } catch (error) {
+    console.error(`[API /api/comments] Server error for video ${cleanVideoId}:`, error);
     return res.status(500).json({ error: error.message || 'Internal server error' });
   }
 }

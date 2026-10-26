@@ -60,7 +60,7 @@ export default function DashboardGrid({
       setTimeout(() => setDownloadSuccess(false), 3000);
     } catch (err) {
       console.warn('Client Excel export fallback to server endpoint:', err);
-      window.open(`/api/export-excel?videoId=${videoData?.id || 'CobjbCF-Rvw'}`, '_blank');
+      window.open(`/api/export-excel?videoId=${encodeURIComponent(videoData?.id || '')}`, '_blank');
       setDownloadSuccess(true);
       setTimeout(() => setDownloadSuccess(false), 3000);
     } finally {
@@ -598,6 +598,14 @@ export default function DashboardGrid({
               </h2>
               <div className="flex items-center space-x-1.5 text-[10px] text-[#8fa3bf] mt-0.5 font-mono truncate">
                 <span className="text-[#00d2c4] font-semibold">{videoData?.channelTitle || 'YouTube Channel'}</span>
+                {videoData?.channelId && (
+                  <>
+                    <span>•</span>
+                    <span className="text-[#38bdf8] text-[9px] bg-[#071326] px-1 py-0.5 rounded border border-[#1e3a5f]" title={`Channel ID: ${videoData.channelId}`}>
+                      {videoData.channelId}
+                    </span>
+                  </>
+                )}
                 <span>•</span>
                 <span>{videoData?.formattedDuration || '36 min'}</span>
                 <span>•</span>
@@ -610,7 +618,7 @@ export default function DashboardGrid({
           <div className="relative shrink-0 h-full aspect-video rounded-lg overflow-hidden bg-[#070e1c] border border-[#1b3e70] shadow-[0_0_8px_rgba(0,242,254,0.2)]">
             <img
               src={
-                videoData?.bestThumbnailUrl || (videoData?.id ? `https://i.ytimg.com/vi/${videoData.id}/hqdefault.jpg` : 'https://i.ytimg.com/vi/CobjbCF-Rvw/hqdefault.jpg')
+                videoData?.bestThumbnailUrl || (videoData?.id ? `https://i.ytimg.com/vi/${videoData.id}/hqdefault.jpg` : '')
               }
               alt={videoData?.title}
               className="w-full h-full object-cover"
