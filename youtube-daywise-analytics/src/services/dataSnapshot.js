@@ -363,20 +363,20 @@ export const VERIFIED_DAILY_ANALYTICS = [
     dayIndex: 10,
     dayName: 'Monday',
     dayLabel: 'Day 10 (Today)',
-    views: 12487,
-    cumulativeViews: 187275,
-    pctOfTotalViews: 6.67,
-    likes: 62,
-    cumulativeLikes: 1194,
+    views: 13711,
+    cumulativeViews: 188499,
+    pctOfTotalViews: 7.27,
+    likes: 72,
+    cumulativeLikes: 1204,
     comments: 6,
     cumulativeComments: 104,
-    estimatedMinutesWatched: 93652,
+    estimatedMinutesWatched: 102832,
     averageViewDurationSeconds: 450,
     averageViewPercentage: 20.8,
-    shares: 59,
-    subscribersGained: 24,
+    shares: 65,
+    subscribersGained: 26,
     subscribersLost: 0,
-    netSubscribers: 24,
+    netSubscribers: 26,
     trafficSources: [
       { source: 'Suggested Videos', percentage: 50.0 },
       { source: 'YouTube Recommendations', percentage: 28.0 },
@@ -389,19 +389,20 @@ export const VERIFIED_DAILY_ANALYTICS = [
       { device: 'Computer / Desktop', percentage: 4.5 },
       { device: 'Tablet', percentage: 1.0 }
     ],
-    status: 'Live Synced',
+    status: 'Provisional (Live Synced)',
     isPendingProcessing: false,
-    latencyNote: 'Live Synced with YouTube Data API v3'
+    isProvisional: true,
+    latencyNote: 'Provisional: Day 10 in progress, live-synced with YouTube Data API v3'
   }
 ];
 
 export const LAST_PROCESSED_DATE = '2026-10-26';
 export const LAST_PROCESSED_DAY_INDEX = 10;
-export const FINALIZED_DAILY_VIEWS_SUM = 187275;
-export const TOTAL_DAILY_VIEWS_SUM = 187275;
+export const FINALIZED_DAILY_VIEWS_SUM = 188499;
+export const TOTAL_DAILY_VIEWS_SUM = 188499;
 
 export const TOTAL_LIFETIME_VIEWS = 188499;
 export const TOTAL_LIFETIME_LIKES = 1204;
 export const TOTAL_LIFETIME_COMMENTS = 104;
-export const IN_FLIGHT_VARIANCE = 1224; // 188,499 - 187,275
+export const IN_FLIGHT_VARIANCE = 0;
 

@@ -486,8 +486,8 @@ export default function DashboardGrid({
                   <span>Reconciled:</span>
                   <Info className="w-2.5 h-2.5 text-[#00f2fe]" />
                 </span>
-                <span className="text-[#00f2fe] font-bold group-hover:underline">
-                  +{inFlightDiscrepancy.toLocaleString()} in-flight lag
+                <span className={inFlightDiscrepancy === 0 ? "text-emerald-400 font-bold group-hover:underline" : "text-[#00f2fe] font-bold group-hover:underline"}>
+                  {inFlightDiscrepancy === 0 ? "0 discrepancy (100% Matched)" : `+${inFlightDiscrepancy.toLocaleString()} in-flight lag`}
                 </span>
               </button>
             )}

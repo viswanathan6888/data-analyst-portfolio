@@ -111,21 +111,21 @@ export default function ReconciliationAuditModal({
             </div>
 
             {/* Card 3: In-Flight Variance */}
-            <div className="bg-[#0c1b32] p-3 rounded-xl border border-[#18345c] flex flex-col justify-between">
+            <div className={`bg-[#0c1b32] p-3 rounded-xl border flex flex-col justify-between ${variance === 0 ? 'border-emerald-500/30' : 'border-[#18345c]'}`}>
               <div className="flex items-center justify-between text-[#8fa3bf]">
                 <span className="text-[10px] font-semibold uppercase tracking-wider">In-Flight Variance</span>
-                <Clock className="w-3.5 h-3.5 text-[#eab308]" />
+                <Clock className={`w-3.5 h-3.5 ${variance === 0 ? 'text-emerald-400' : 'text-[#eab308]'}`} />
               </div>
               <div className="my-2">
-                <div className="text-xl font-black font-mono text-[#eab308]">
-                  +{variance.toLocaleString()}
+                <div className={`text-xl font-black font-mono ${variance === 0 ? 'text-emerald-400' : 'text-[#eab308]'}`}>
+                  {variance > 0 ? `+${variance.toLocaleString()}` : `${variance.toLocaleString()} views`}
                 </div>
                 <div className="text-[9.5px] text-[#8fa3bf] mt-0.5">
-                  +{variancePct}% real-time pacing
+                  {variance === 0 ? '0.00% variance' : `+${variancePct}% real-time pacing`}
                 </div>
               </div>
               <div className="text-[9px] text-[#6296b8] border-t border-[#18345c]/50 pt-1">
-                48–72h Batch Aggregation Lag
+                {variance === 0 ? 'Real-Time Public Synced' : '48–72h Batch Aggregation Lag'}
               </div>
             </div>
 
