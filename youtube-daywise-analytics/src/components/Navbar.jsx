@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Youtube,
   ShieldCheck,
@@ -24,17 +24,33 @@ export default function Navbar({
   onChangeAutoRefresh,
   onManualRefresh,
   lastRefreshedAt,
-  lastSyncStatus = 'success'
+  lastSyncStatus = 'success',
+  onSearchError
 }) {
   const [urlInput, setUrlInput] = useState('https://www.youtube.com/watch?v=CobjbCF-Rvw');
   const [showRefreshMenu, setShowRefreshMenu] = useState(false);
 
+  // Sync urlInput whenever videoData?.id changes (e.g. initial load, browser state change)
+  useEffect(() => {
+    if (videoData?.id) {
+      setUrlInput(`https://www.youtube.com/watch?v=${videoData.id}`);
+    }
+  }, [videoData?.id]);
+
   const handleSearch = (e) => {
     e.preventDefault();
-    if (!urlInput.trim()) return;
-    const vidId = extractVideoId(urlInput);
+    const clean = urlInput ? urlInput.trim() : '';
+    if (!clean) {
+      if (onSearchError) onSearchError('Please enter a YouTube video URL or 11-character video ID.');
+      return;
+    }
+    const vidId = extractVideoId(clean);
     if (vidId) {
       onSearchVideo(vidId);
+    } else {
+      if (onSearchError) {
+        onSearchError('Invalid YouTube URL or unsupported format. Please enter a valid YouTube video link (e.g., https://www.youtube.com/watch?v=... or https://youtu.be/...).');
+      }
     }
   };
 

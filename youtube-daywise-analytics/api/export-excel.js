@@ -1,5 +1,5 @@
 /**
- * Vercel Serverless Function: GET /api/export-excel
+ * Vercel Serverless Function: GET /api/export-excel?videoId=VIDEO_ID
  * Server-side fallback for generating and downloading the YouTube Analytics Excel report (.xlsx)
  */
 
@@ -18,8 +18,48 @@ export default async function handler(req, res) {
 
   try {
     const { videoId } = req.query;
-    const targetVideo = VERIFIED_VIDEO_METADATA;
-    const targetDaily = VERIFIED_DAILY_ANALYTICS;
+    const cleanId = (videoId && typeof videoId === 'string' && /^[a-zA-Z0-9_-]{11}$/.test(videoId.trim()))
+      ? videoId.trim()
+      : 'CobjbCF-Rvw';
+
+    let targetVideo = VERIFIED_VIDEO_METADATA;
+    let targetDaily = VERIFIED_DAILY_ANALYTICS;
+
+    const apiKey = process.env.YOUTUBE_API_KEY || process.env.VITE_YOUTUBE_API_KEY;
+
+    // If an arbitrary non-default video is requested, fetch genuine video metadata
+    if (cleanId !== 'CobjbCF-Rvw') {
+      targetDaily = []; // Day-wise breakdown requires channel OAuth
+      if (apiKey) {
+        try {
+          const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&id=${encodeURIComponent(cleanId)}&key=${encodeURIComponent(apiKey)}`;
+          const response = await fetch(url);
+          if (response.ok) {
+            const data = await response.json();
+            if (data.items && data.items.length > 0) {
+              const item = data.items[0];
+              const snippet = item.snippet || {};
+              const content = item.contentDetails || {};
+              const stats = item.statistics || {};
+              targetVideo = {
+                id: item.id,
+                title: snippet.title || 'YouTube Video',
+                channelTitle: snippet.channelTitle || 'Unknown Channel',
+                publishedAt: snippet.publishedAt,
+                duration: content.duration,
+                formattedDuration: content.duration,
+                viewCount: parseInt(stats.viewCount || 0, 10),
+                likeCount: parseInt(stats.likeCount || 0, 10),
+                commentCount: parseInt(stats.commentCount || 0, 10),
+                statistics: stats
+              };
+            }
+          }
+        } catch (fetchErr) {
+          console.warn('[Excel Export] Direct video details query failed:', fetchErr);
+        }
+      }
+    }
 
     const workbook = await generateYouTubeExcelWorkbook({
       videoData: targetVideo,
@@ -28,7 +68,7 @@ export default async function handler(req, res) {
     });
 
     const buffer = await workbook.xlsx.writeBuffer();
-    const filename = `YouTube_Analytics_Report_${videoId || 'CobjbCF-Rvw'}_${new Date().toISOString().split('T')[0]}.xlsx`;
+    const filename = `YouTube_Analytics_Report_${cleanId}_${new Date().toISOString().split('T')[0]}.xlsx`;
 
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);

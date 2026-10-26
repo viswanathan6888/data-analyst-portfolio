@@ -26,13 +26,80 @@ export default function LiveViewsTrendChart({
   lastRefreshedAt,
   lastSyncStatus = 'success',
   isLoading = false,
-  onManualRefresh
+  onManualRefresh,
+  lifetimeViews = 0
 }) {
   if (!dailyData || dailyData.length === 0) {
     return (
-      <div className="h-[47%] bg-[#0c1b32] panel-blue-neon-glow rounded-2xl p-3 flex flex-col items-center justify-center text-center text-[#8fa3bf]">
-        <Activity className="w-5 h-5 text-[#00f2fe] animate-pulse mb-1.5" />
-        <span className="text-xs">Connecting to YouTube live feed...</span>
+      <div
+        aria-label="Live YouTube Views Trend Line Chart"
+        className="h-[47%] bg-[#0c1b32] panel-blue-neon-glow rounded-2xl p-3 flex flex-col justify-between transition relative overflow-hidden group"
+      >
+        <div
+          className="absolute inset-0 pointer-events-none opacity-20 bg-[linear-gradient(90deg,transparent_0%,rgba(0,242,254,0.12)_50%,transparent_100%)] animate-[scanline_4s_linear_infinite]"
+          style={{ backgroundSize: '200% 100%' }}
+        />
+
+        {/* Top Header */}
+        <div className="w-full flex items-center justify-between text-[#8fa3bf] shrink-0 z-10">
+          <div className="flex items-center space-x-1.5">
+            <TrendingUp
+              className="w-3.5 h-3.5 text-[#00f2fe]"
+              style={{ filter: 'drop-shadow(0 0 6px rgba(0,242,254,0.8))' }}
+            />
+            <span className="text-xs font-semibold text-white">Views Trend</span>
+          </div>
+
+          <div className="flex items-center space-x-1.5 px-2 py-0.5 rounded-full bg-[#071324] border border-[#18345c]">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#00f2fe] opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#00f2fe]" />
+            </span>
+            <span className="text-[9px] font-mono uppercase font-bold tracking-wider text-[#00f2fe]">
+              LIVE
+            </span>
+          </div>
+        </div>
+
+        {/* Real Lifetime Views Display */}
+        <div className="my-auto z-10">
+          <div className="text-[10px] text-[#6296b8] uppercase font-semibold tracking-wider">
+            Lifetime Views Monitored
+          </div>
+          <div
+            className="text-lg lg:text-xl font-black font-mono leading-tight tracking-tight text-[#00f2fe]"
+            style={{ textShadow: '0 0 12px rgba(0,242,254,0.5)' }}
+          >
+            {lifetimeViews ? Number(lifetimeViews).toLocaleString() : 'Live Syncing'}
+          </div>
+          <p className="text-[10px] text-[#8fa3bf] mt-1">
+            Day-wise trend requires OAuth • Live view count active
+          </p>
+        </div>
+
+        {/* Bottom Sync Bar */}
+        <div className="w-full pt-1.5 border-t border-[#18345c]/70 flex items-center justify-between text-[9px] text-[#8fa3bf] shrink-0 z-10">
+          <div className="flex items-center space-x-1.5 truncate pr-1">
+            <span className={`w-1.5 h-1.5 rounded-full inline-block ${isLoading ? 'bg-amber-400 animate-ping' : lastSyncStatus === 'error' ? 'bg-rose-500' : 'bg-emerald-400 shadow-[0_0_6px_#10b981]'}`} />
+            <span className="text-[#6296b8] truncate">
+              {isLoading ? (
+                <span className="text-amber-400 font-mono">Syncing API v3...</span>
+              ) : (
+                <>Last Sync: <strong className="text-white font-mono font-normal">{lastRefreshedAt || 'Just now'}</strong></>
+              )}
+            </span>
+          </div>
+
+          <button
+            onClick={onManualRefresh}
+            disabled={isLoading}
+            className="px-2 py-0.5 rounded-lg bg-[#142e52] hover:bg-[#1b3d6e] active:scale-95 text-[#00f2fe] border border-[#1f4b85] text-[9px] font-bold transition flex items-center space-x-1 shrink-0"
+            title="Poll YouTube API for latest video views"
+          >
+            <RefreshCw className={`w-2.5 h-2.5 ${isLoading ? 'animate-spin' : ''}`} />
+            <span>Sync</span>
+          </button>
+        </div>
       </div>
     );
   }

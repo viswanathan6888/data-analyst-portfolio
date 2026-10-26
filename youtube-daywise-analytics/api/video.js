@@ -21,9 +21,11 @@ export default async function handler(req, res) {
   const { id } = req.query;
   const apiKey = process.env.YOUTUBE_API_KEY || process.env.VITE_YOUTUBE_API_KEY;
 
-  if (!id) {
-    return res.status(400).json({ error: 'Video ID parameter is required.' });
+  if (!id || typeof id !== 'string' || !/^[a-zA-Z0-9_-]{11}$/.test(id.trim())) {
+    return res.status(400).json({ error: 'Valid 11-character YouTube Video ID is required.' });
   }
+
+  const cleanId = id.trim();
 
   if (!apiKey) {
     return res.status(500).json({
@@ -32,7 +34,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&id=${encodeURIComponent(id)}&key=${encodeURIComponent(apiKey)}`;
+    const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&id=${encodeURIComponent(cleanId)}&key=${encodeURIComponent(apiKey)}`;
     const response = await fetch(url);
     const data = await response.json();
 
@@ -43,9 +45,10 @@ export default async function handler(req, res) {
     }
 
     if (!data.items || data.items.length === 0) {
-      return res.status(404).json({ error: `Video with ID "${id}" was not found.` });
+      return res.status(404).json({ error: `Video with ID "${cleanId}" was not found or is private/deleted.` });
     }
 
+    res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=120');
     return res.status(200).json(data.items[0]);
   } catch (error) {
     return res.status(500).json({ error: error.message || 'Internal server error' });

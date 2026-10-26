@@ -22,16 +22,18 @@ app.get('/api/video', async (req, res) => {
   const { id } = req.query;
   const apiKey = process.env.YOUTUBE_API_KEY || process.env.VITE_YOUTUBE_API_KEY;
 
-  if (!id) {
-    return res.status(400).json({ error: 'Video ID parameter is required.' });
+  if (!id || typeof id !== 'string' || !/^[a-zA-Z0-9_-]{11}$/.test(id.trim())) {
+    return res.status(400).json({ error: 'Valid 11-character YouTube Video ID is required.' });
   }
+
+  const cleanId = id.trim();
 
   if (!apiKey) {
     return res.status(500).json({ error: 'YOUTUBE_API_KEY is not configured.' });
   }
 
   try {
-    const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&id=${encodeURIComponent(id)}&key=${encodeURIComponent(apiKey)}`;
+    const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&id=${encodeURIComponent(cleanId)}&key=${encodeURIComponent(apiKey)}`;
     const response = await fetch(url);
     const data = await response.json();
 
@@ -40,7 +42,7 @@ app.get('/api/video', async (req, res) => {
     }
 
     if (!data.items || data.items.length === 0) {
-      return res.status(404).json({ error: `Video with ID "${id}" was not found.` });
+      return res.status(404).json({ error: `Video with ID "${cleanId}" was not found or is private/deleted.` });
     }
 
     res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
@@ -57,20 +59,34 @@ app.get('/api/comments', async (req, res) => {
   const { videoId } = req.query;
   const apiKey = process.env.YOUTUBE_API_KEY || process.env.VITE_YOUTUBE_API_KEY;
 
-  if (!videoId) {
-    return res.status(400).json({ error: 'videoId query parameter is required.' });
+  if (!videoId || typeof videoId !== 'string' || !/^[a-zA-Z0-9_-]{11}$/.test(videoId.trim())) {
+    return res.status(400).json({ error: 'Valid 11-character videoId query parameter is required.' });
   }
+
+  const cleanVideoId = videoId.trim();
 
   if (!apiKey) {
     return res.status(500).json({ error: 'YOUTUBE_API_KEY is not configured.' });
   }
 
   try {
-    const url = `https://www.googleapis.com/youtube/v3/commentThreads?part=snippet&videoId=${encodeURIComponent(videoId)}&maxResults=100&order=time&key=${encodeURIComponent(apiKey)}`;
+    const url = `https://www.googleapis.com/youtube/v3/commentThreads?part=snippet&videoId=${encodeURIComponent(cleanVideoId)}&maxResults=100&order=time&key=${encodeURIComponent(apiKey)}`;
     const response = await fetch(url);
     const data = await response.json();
 
     if (!response.ok) {
+      const isCommentsDisabled =
+        data.error?.errors?.[0]?.reason === 'commentsDisabled' ||
+        (typeof data.error?.message === 'string' && data.error.message.toLowerCase().includes('disabled comments'));
+
+      if (isCommentsDisabled) {
+        return res.status(200).json({
+          commentsDisabled: true,
+          message: 'Comments are disabled for this video.',
+          comments: []
+        });
+      }
+
       return res.status(response.status).json({
         error: data.error?.message || 'YouTube Data API commentThreads error'
       });
@@ -153,8 +169,48 @@ app.get('/api/analytics', async (req, res) => {
 app.get('/api/export-excel', async (req, res) => {
   try {
     const { videoId } = req.query;
-    const targetVideo = VERIFIED_VIDEO_METADATA;
-    const targetDaily = VERIFIED_DAILY_ANALYTICS;
+    const cleanId = (videoId && typeof videoId === 'string' && /^[a-zA-Z0-9_-]{11}$/.test(videoId.trim()))
+      ? videoId.trim()
+      : 'CobjbCF-Rvw';
+
+    let targetVideo = VERIFIED_VIDEO_METADATA;
+    let targetDaily = VERIFIED_DAILY_ANALYTICS;
+
+    const apiKey = process.env.YOUTUBE_API_KEY || process.env.VITE_YOUTUBE_API_KEY;
+
+    // If an arbitrary non-default video is requested, fetch genuine video metadata
+    if (cleanId !== 'CobjbCF-Rvw') {
+      targetDaily = []; // Day-wise breakdown requires channel OAuth
+      if (apiKey) {
+        try {
+          const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&id=${encodeURIComponent(cleanId)}&key=${encodeURIComponent(apiKey)}`;
+          const response = await fetch(url);
+          if (response.ok) {
+            const data = await response.json();
+            if (data.items && data.items.length > 0) {
+              const item = data.items[0];
+              const snippet = item.snippet || {};
+              const content = item.contentDetails || {};
+              const stats = item.statistics || {};
+              targetVideo = {
+                id: item.id,
+                title: snippet.title || 'YouTube Video',
+                channelTitle: snippet.channelTitle || 'Unknown Channel',
+                publishedAt: snippet.publishedAt,
+                duration: content.duration,
+                formattedDuration: content.duration,
+                viewCount: parseInt(stats.viewCount || 0, 10),
+                likeCount: parseInt(stats.likeCount || 0, 10),
+                commentCount: parseInt(stats.commentCount || 0, 10),
+                statistics: stats
+              };
+            }
+          }
+        } catch (fetchErr) {
+          console.warn('[Server Excel Export] Direct video details query failed:', fetchErr);
+        }
+      }
+    }
 
     const workbook = await generateYouTubeExcelWorkbook({
       videoData: targetVideo,
@@ -163,7 +219,7 @@ app.get('/api/export-excel', async (req, res) => {
     });
 
     const buffer = await workbook.xlsx.writeBuffer();
-    const filename = `YouTube_Analytics_Report_${videoId || 'CobjbCF-Rvw'}_${new Date().toISOString().split('T')[0]}.xlsx`;
+    const filename = `YouTube_Analytics_Report_${cleanId}_${new Date().toISOString().split('T')[0]}.xlsx`;
 
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);

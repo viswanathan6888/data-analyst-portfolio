@@ -4,29 +4,44 @@
 
 // Helper to extract video ID from various YouTube URL formats
 export function extractVideoId(input) {
-  if (!input) return null;
+  if (!input || typeof input !== 'string') return null;
   const clean = input.trim();
+  if (!clean) return null;
 
-  // If already an 11-character video ID
+  // Direct 11-character video ID (e.g. CobjbCF-Rvw, jNQXAC9IVRw, dQw4w9WgXcQ)
   if (/^[a-zA-Z0-9_-]{11}$/.test(clean)) {
     return clean;
   }
 
-  // Handle youtu.be/ID
+  // Handle youtu.be/ID (with optional query parameters like ?t=30s, ?si=...)
   const shortMatch = clean.match(/youtu\.be\/([a-zA-Z0-9_-]{11})/);
   if (shortMatch) return shortMatch[1];
 
-  // Handle youtube.com/watch?v=ID
+  // Handle youtube.com/watch?v=ID (or &v=ID with additional parameters before/after)
   const watchMatch = clean.match(/[?&]v=([a-zA-Z0-9_-]{11})/);
   if (watchMatch) return watchMatch[1];
 
   // Handle youtube.com/shorts/ID
-  const shortsMatch = clean.match(/youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/);
+  const shortsMatch = clean.match(/(?:youtube\.com|m\.youtube\.com)\/shorts\/([a-zA-Z0-9_-]{11})/);
   if (shortsMatch) return shortsMatch[1];
 
   // Handle youtube.com/embed/ID
-  const embedMatch = clean.match(/youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/);
+  const embedMatch = clean.match(/(?:youtube\.com|youtube-nocookie\.com)\/embed\/([a-zA-Z0-9_-]{11})/);
   if (embedMatch) return embedMatch[1];
+
+  // Handle youtube.com/live/ID
+  const liveMatch = clean.match(/(?:youtube\.com|m\.youtube\.com)\/live\/([a-zA-Z0-9_-]{11})/);
+  if (liveMatch) return liveMatch[1];
+
+  // Handle youtube.com/v/ID
+  const vMatch = clean.match(/(?:youtube\.com|m\.youtube\.com)\/v\/([a-zA-Z0-9_-]{11})/);
+  if (vMatch) return vMatch[1];
+
+  // General fallback regex matching any youtube URL with an 11-char ID
+  const generalMatch = clean.match(/(?:youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|\?v=)([^#&?/\s]{11})/);
+  if (generalMatch && /^[a-zA-Z0-9_-]{11}$/.test(generalMatch[1])) {
+    return generalMatch[1];
+  }
 
   return null;
 }
@@ -348,7 +363,7 @@ export function checkViewerEmailApiSupport() {
  * Filters and maps to commenter name, profile image, comment text, and published timestamp.
  */
 export async function fetchVideoComments(videoId, apiKey) {
-  if (!videoId) return [];
+  if (!videoId) return { comments: [], commentsDisabled: false };
 
   // 1. Try secure backend proxy endpoint first (/api/comments?videoId=...)
   // Keeps YouTube API key hidden securely on server side
@@ -359,15 +374,18 @@ export async function fetchVideoComments(videoId, apiKey) {
     });
     if (backendRes.ok) {
       const backendData = await backendRes.json();
+      if (backendData && backendData.commentsDisabled) {
+        return { comments: [], commentsDisabled: true };
+      }
       if (Array.isArray(backendData)) {
-        return backendData;
+        return { comments: backendData, commentsDisabled: false };
       }
     }
   } catch (backendErr) {
     // If backend proxy not reachable, continue to direct if apiKey provided
   }
 
-  if (!apiKey) return [];
+  if (!apiKey) return { comments: [], commentsDisabled: false };
 
   const url = `https://www.googleapis.com/youtube/v3/commentThreads?part=snippet&videoId=${encodeURIComponent(videoId)}&maxResults=100&order=time&key=${encodeURIComponent(apiKey)}`;
 
@@ -376,15 +394,23 @@ export async function fetchVideoComments(videoId, apiKey) {
     const data = await response.json();
 
     if (!response.ok) {
+      const isCommentsDisabled =
+        data.error?.errors?.[0]?.reason === 'commentsDisabled' ||
+        (typeof data.error?.message === 'string' && data.error.message.toLowerCase().includes('disabled comments'));
+
+      if (isCommentsDisabled) {
+        return { comments: [], commentsDisabled: true };
+      }
+
       console.warn('YouTube commentThreads API returned:', data.error?.message);
-      return null;
+      return { comments: [], commentsDisabled: false, error: data.error?.message };
     }
 
     if (!data.items || data.items.length === 0) {
-      return [];
+      return { comments: [], commentsDisabled: false };
     }
 
-    return data.items.map((item) => {
+    const comments = data.items.map((item) => {
       const top = item.snippet.topLevelComment.snippet;
       return {
         id: item.id,
@@ -398,9 +424,11 @@ export async function fetchVideoComments(videoId, apiKey) {
         publishedDate: top.publishedAt ? top.publishedAt.split('T')[0] : ''
       };
     }).sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
+
+    return { comments, commentsDisabled: false };
   } catch (err) {
     console.warn('Network error fetching YouTube comments:', err);
-    return null;
+    return { comments: [], commentsDisabled: false };
   }
 }
 

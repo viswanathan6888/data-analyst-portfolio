@@ -32,6 +32,7 @@ export default function DashboardGrid({
   videoData,
   dailyData = [],
   comments = [],
+  commentsDisabled = false,
   selectedDate,
   onSelectDate,
   autoRefreshInterval,
@@ -67,76 +68,97 @@ export default function DashboardGrid({
     }
   };
   const selectedIndex = dailyData.findIndex((d) => d.date === selectedDate);
-  const selectedRecord = (selectedIndex >= 0 ? dailyData[selectedIndex] : null) || dailyData[1] || dailyData[0];
+  const selectedRecord = (selectedIndex >= 0 ? dailyData[selectedIndex] : null) || dailyData[1] || dailyData[0] || null;
   const activeIndex = selectedIndex >= 0 ? selectedIndex : (dailyData.length > 1 ? 1 : 0);
-  const activeDate = selectedRecord?.date || selectedDate || '2026-10-18';
+  const activeDate = selectedRecord?.date || selectedDate || (dailyData.length > 0 ? dailyData[0].date : null);
 
-  // Overall Lifetime Metrics (mapped strictly from YouTube Data API v3 statistics.viewCount)
-  // Kept strictly separate from daily views and cumulative views
-  const totalViews = Number(
-    videoData?.statistics?.viewCount ??
-    videoData?.viewCount ??
-    187130
-  );
-  const totalLikes = Number(
-    videoData?.statistics?.likeCount ??
-    videoData?.likeCount ??
-    1194
-  );
-  const totalComments = Number(
-    videoData?.statistics?.commentCount ??
-    videoData?.commentCount ??
-    104
-  );
-  const totalShares = dailyData.reduce((acc, d) => acc + (d.shares || 0), 0) || 797;
-  const totalDailyViews = (dailyData || []).reduce((acc, d) => acc + (Number(d.views) || 0), 0) || 175678;
-  const pendingRollupViews = Math.max(0, totalViews - totalDailyViews);
-  const lifetimeEngagementRate = totalViews > 0
-    ? (((totalLikes + totalComments) / totalViews) * 100).toFixed(2)
-    : '0.69';
+  // Overall Lifetime Metrics (mapped strictly from YouTube Data API v3 statistics)
+  const rawTotalViews = videoData?.statistics?.viewCount ?? videoData?.viewCount;
+  const totalViews = rawTotalViews !== undefined && rawTotalViews !== null
+    ? Number(rawTotalViews)
+    : null;
 
-  // Format selected date
-  let formattedFullDate = activeDate;
-  let formattedShortDate = activeDate;
-  try {
-    const parsed = parseISO(activeDate);
-    formattedFullDate = format(parsed, 'EEEE, MMM d, yyyy');
-    formattedShortDate = format(parsed, 'MMM d, yyyy');
-  } catch (e) {}
+  const rawTotalLikes = videoData?.statistics?.likeCount ?? videoData?.likeCount;
+  const totalLikes = rawTotalLikes !== undefined && rawTotalLikes !== null
+    ? Number(rawTotalLikes)
+    : null;
 
-  // Filter comments published on the active date ONLY (newest first)
-  const filteredComments = (comments || [])
-    .filter((c) => (c.publishedAt || '').split('T')[0] === activeDate)
-    .sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
+  const rawTotalComments = videoData?.statistics?.commentCount ?? videoData?.commentCount;
+  const totalComments = rawTotalComments !== undefined && rawTotalComments !== null
+    ? Number(rawTotalComments)
+    : null;
 
-  // Selected Date Metrics (updating dynamically when clicking a bar)
-  const selectedViews = selectedRecord?.views !== undefined ? Number(selectedRecord.views) : 41200;
-  const selectedViewsPct = totalViews > 0 ? ((selectedViews / totalViews) * 100).toFixed(1) : '22.1';
+  const totalShares = (dailyData && dailyData.length > 0)
+    ? dailyData.reduce((acc, d) => acc + (d.shares || 0), 0)
+    : null;
+
+  const totalDailyViews = (dailyData && dailyData.length > 0)
+    ? dailyData.reduce((acc, d) => acc + (Number(d.views) || 0), 0)
+    : null;
+
+  const pendingRollupViews = (totalViews !== null && totalDailyViews !== null)
+    ? Math.max(0, totalViews - totalDailyViews)
+    : 0;
+
+  const lifetimeEngagementRate = (totalViews && totalViews > 0 && totalLikes !== null)
+    ? (((totalLikes + (totalComments || 0)) / totalViews) * 100).toFixed(2)
+    : null;
+
+  // Format selected date / header label
+  let formattedFullDate = activeDate || 'All Recent Comments';
+  let formattedShortDate = activeDate || 'Latest';
+  if (activeDate) {
+    try {
+      const parsed = parseISO(activeDate);
+      formattedFullDate = format(parsed, 'EEEE, MMM d, yyyy');
+      formattedShortDate = format(parsed, 'MMM d, yyyy');
+    } catch (e) {}
+  } else if (!dailyData || dailyData.length === 0) {
+    formattedFullDate = 'All Recent Comments';
+    formattedShortDate = 'Latest';
+  }
+
+  // Filter comments:
+  // If dailyData has dates and activeDate is selected, filter by date.
+  // If dailyData is empty (or no activeDate), display all video comments!
+  const filteredComments = (dailyData && dailyData.length > 0 && activeDate)
+    ? (comments || [])
+        .filter((c) => (c.publishedAt || '').split('T')[0] === activeDate)
+        .sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt))
+    : (comments || []).slice().sort((a, b) => new Date(b.publishedAt) - new Date(a.publishedAt));
+
+  // Selected Date Metrics
+  const selectedViews = selectedRecord?.views !== undefined ? Number(selectedRecord.views) : null;
+  const selectedViewsPct = (totalViews && totalViews > 0 && selectedViews !== null)
+    ? ((selectedViews / totalViews) * 100).toFixed(1)
+    : null;
   const selectedLikes = selectedRecord?.likes !== undefined ? Number(selectedRecord.likes) : null;
   const selectedShares = selectedRecord?.shares !== undefined ? Number(selectedRecord.shares) : null;
-  const selectedCommentsCount = filteredComments.length;
+  const selectedCommentsCount = (dailyData && dailyData.length > 0)
+    ? filteredComments.length
+    : (totalComments !== null ? totalComments : filteredComments.length);
 
   // Selected Date Engagement Rate
-  const dailyEngagementRate = selectedViews > 0 && selectedLikes !== null
-    ? (((selectedLikes + selectedCommentsCount) / selectedViews) * 100).toFixed(2)
+  const dailyEngagementRate = (selectedViews !== null && selectedViews > 0 && selectedLikes !== null)
+    ? (((selectedLikes + filteredComments.length) / selectedViews) * 100).toFixed(2)
     : null;
 
   // Growth Calculation vs Previous Day
-  const previousRecord = activeIndex > 0 ? dailyData[activeIndex - 1] : null;
+  const previousRecord = (dailyData && activeIndex > 0) ? dailyData[activeIndex - 1] : null;
   const previousViews = previousRecord ? Number(previousRecord.views || 0) : null;
-  const viewsDiff = previousViews !== null ? selectedViews - previousViews : null;
-  const growthPct = (previousViews && previousViews > 0)
+  const viewsDiff = (previousViews !== null && selectedViews !== null) ? selectedViews - previousViews : null;
+  const growthPct = (previousViews && previousViews > 0 && viewsDiff !== null)
     ? ((viewsDiff / previousViews) * 100).toFixed(1)
     : null;
 
-  // Peak views in dataset for radial dial percentage
-  const maxDailyViews = Math.max(...dailyData.map((d) => Number(d.views || 0)), 41200);
-  const dailyPeakPct = Math.min(100, Math.round((selectedViews / (maxDailyViews || 1)) * 100));
+  // Peak views in dataset
+  const maxDailyViews = dailyData.length > 0 ? Math.max(...dailyData.map((d) => Number(d.views || 0)), 1) : 1;
+  const dailyPeakPct = selectedViews !== null ? Math.min(100, Math.round((selectedViews / maxDailyViews) * 100)) : 0;
 
-  // Historical average daily views baseline across the video
+  // Historical average daily views baseline
   const avgDailyViews = dailyData.length > 0
     ? Math.round(dailyData.reduce((acc, d) => acc + Number(d.views || 0), 0) / dailyData.length)
-    : 17568;
+    : null;
 
   // Real YouTube Views Performance Calculations for Gauge Glows
   // 1. Growth Gauge Performance (Day-over-Day views growth vs previous equivalent period)
@@ -276,7 +298,7 @@ export default function DashboardGrid({
     <div className="flex-1 min-h-0 w-full p-2.5 sm:p-3 grid grid-cols-12 gap-2.5 sm:gap-3 overflow-hidden">
       
       {/* ========================================================= */}
-      {/* COLUMN 1: Activity, Activity Goal, Battery (Daily Comments) */}
+      {/* COLUMN 1: Activity, Activity Goal, Battery ({dailyData.length > 0 ? 'Daily Comments' : 'Recent Comments'}) */}
       {/* ========================================================= */}
       <div className="col-span-12 md:col-span-3 xl:col-span-2 flex flex-col gap-2.5 sm:gap-3 h-full min-h-0">
         
@@ -296,7 +318,7 @@ export default function DashboardGrid({
             <div className="flex items-center justify-between text-[10px] text-[#6296b8] uppercase font-semibold tracking-wider">
               <span>9-Column Daily Export</span>
               <span className="text-[#00d2c4] font-mono normal-case">
-                {dailyData.length || 10} Days Tracked
+                {dailyData.length > 0 ? `${dailyData.length} Days Tracked` : 'Lifetime Export'}
               </span>
             </div>
             
@@ -343,6 +365,7 @@ export default function DashboardGrid({
           lastSyncStatus={lastSyncStatus}
           isLoading={isLoading}
           onManualRefresh={onManualRefresh}
+          lifetimeViews={totalViews}
         />
 
         {/* 3. Battery Panel: Comments for Selected Date & Total Comments */}
@@ -375,7 +398,7 @@ export default function DashboardGrid({
                 Daily Comments
               </div>
               <div className="text-[9px] text-[#6296b8] font-mono mt-0.5">
-                Lifetime: {totalComments}
+                Lifetime: {totalComments !== null ? Number(totalComments).toLocaleString() : 'N/A'}
               </div>
             </div>
           </div>
@@ -407,15 +430,16 @@ export default function DashboardGrid({
           </div>
           <div className="my-auto">
             <div className="text-xl lg:text-2xl font-black text-white font-mono tracking-tight">
-              {Number(totalViews).toLocaleString()}
+              {totalViews !== null ? Number(totalViews).toLocaleString() : 'N/A'}
             </div>
             <div className="flex items-center justify-between text-[10px] text-[#6296b8] mt-0.5">
               <span className="uppercase font-semibold tracking-wider">Lifetime Plays</span>
               <span 
                 className="font-mono text-[#8fa3bf] text-[9.5px]" 
-                title={`Day-Wise Sum: ${totalDailyViews.toLocaleString()} • ${pendingRollupViews === 0 ? '100% Synced with Live YouTube API' : `Pending Rollup Latency: +${pendingRollupViews.toLocaleString()}`}`}
+                title={totalDailyViews !== null ? `Day-Wise Sum: ${totalDailyViews.toLocaleString()}` : 'Day-wise sum requires channel OAuth'}
               >
-                Tracked: {totalDailyViews.toLocaleString()} {pendingRollupViews === 0 && <span className="text-emerald-400 font-bold ml-1">✓ Synced</span>}
+                {totalDailyViews !== null ? `Tracked: ${totalDailyViews.toLocaleString()}` : 'Tracked: N/A (Requires OAuth)'}
+                {totalDailyViews !== null && pendingRollupViews === 0 && <span className="text-emerald-400 font-bold ml-1">✓ Synced</span>}
               </span>
             </div>
           </div>
@@ -438,7 +462,7 @@ export default function DashboardGrid({
             </div>
             <div className="flex items-center justify-between text-[10px] text-[#6296b8] mt-0.5">
               <span className="uppercase font-semibold tracking-wider">Daily Likes</span>
-              <span className="font-mono text-[#8fa3bf]">Lifetime: {Number(totalLikes).toLocaleString()}</span>
+              <span className="font-mono text-[#8fa3bf]">Lifetime: {totalLikes !== null ? Number(totalLikes).toLocaleString() : 'N/A'}</span>
             </div>
           </div>
         </div>
@@ -511,7 +535,7 @@ export default function DashboardGrid({
                 Daily Rate
               </div>
               <div className="text-[9px] text-[#8fa3bf] font-mono mt-0.5">
-                Lifetime: {lifetimeEngagementRate}%
+                Lifetime: {lifetimeEngagementRate !== null ? `${lifetimeEngagementRate}%` : 'N/A'}
               </div>
             </div>
           </div>
@@ -544,7 +568,7 @@ export default function DashboardGrid({
               </div>
               <div className="flex items-center justify-between text-[10px] text-[#6296b8]">
                 <span className="uppercase font-semibold">Daily Metric</span>
-                <span className="font-mono text-[#8fa3bf] ml-2">Lifetime: {totalShares}</span>
+                <span className="font-mono text-[#8fa3bf] ml-2">Lifetime: {totalShares !== null ? totalShares.toLocaleString() : 'N/A'}</span>
               </div>
             </div>
           </div>
@@ -572,7 +596,7 @@ export default function DashboardGrid({
                 {videoData?.title || 'YouTube Video Analytics'}
               </h2>
               <div className="flex items-center space-x-1.5 text-[10px] text-[#8fa3bf] mt-0.5 font-mono truncate">
-                <span className="text-[#00d2c4] font-semibold">{videoData?.channelTitle || '@chatwithKC'}</span>
+                <span className="text-[#00d2c4] font-semibold">{videoData?.channelTitle || 'YouTube Channel'}</span>
                 <span>•</span>
                 <span>{videoData?.formattedDuration || '36 min'}</span>
                 <span>•</span>
@@ -585,13 +609,12 @@ export default function DashboardGrid({
           <div className="relative shrink-0 h-full aspect-video rounded-lg overflow-hidden bg-[#070e1c] border border-[#1b3e70] shadow-[0_0_8px_rgba(0,242,254,0.2)]">
             <img
               src={
-                videoData?.bestThumbnailUrl ||
-                `https://i.ytimg.com/vi/${videoData?.id || 'CobjbCF-Rvw'}/hqdefault.jpg`
+                videoData?.bestThumbnailUrl || (videoData?.id ? `https://i.ytimg.com/vi/${videoData.id}/hqdefault.jpg` : 'https://i.ytimg.com/vi/CobjbCF-Rvw/hqdefault.jpg')
               }
               alt={videoData?.title}
               className="w-full h-full object-cover"
               onError={(e) => {
-                e.currentTarget.src = `https://i.ytimg.com/vi/${videoData?.id || 'CobjbCF-Rvw'}/hqdefault.jpg`;
+                if (videoData?.id) { e.currentTarget.src = `https://i.ytimg.com/vi/${videoData.id}/hqdefault.jpg`; }
               }}
             />
             <div className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-[#00f2fe] shadow-[0_0_6px_#00f2fe]" />
@@ -672,19 +695,19 @@ export default function DashboardGrid({
                   />
                 </svg>
                 <span className="text-[10px] font-bold text-[#00f2fe] font-mono absolute">
-                  {selectedViewsPct}%
+                  {selectedViewsPct !== null ? `${selectedViewsPct}%` : 'N/A'}
                 </span>
               </div>
 
               <div className="min-w-0">
                 <div className="text-base sm:text-lg font-black text-white font-mono leading-none truncate">
-                  {Number(selectedViews).toLocaleString()}
+                  {selectedViews !== null ? Number(selectedViews).toLocaleString() : 'N/A'}
                 </div>
                 <div className="text-[10px] text-[#6296b8] uppercase font-semibold truncate mt-0.5">
                   {formattedShortDate}
                 </div>
                 <div className="text-[9px] text-[#8fa3bf] font-mono truncate">
-                  {selectedViewsPct}% of Lifetime Views
+                  {selectedViewsPct !== null ? `${selectedViewsPct}% of Lifetime Views` : 'Requires Channel OAuth'}
                 </div>
               </div>
             </div>
@@ -780,14 +803,14 @@ export default function DashboardGrid({
                 }`}>
                   {growthPct !== null
                     ? `${Number(growthPct) >= 0 ? '+' : ''}${growthPct}%`
-                    : 'Launch Base'}
+                    : (dailyData.length > 0 ? 'Launch Base' : 'N/A')}
                 </div>
 
                 <div className="text-[10px] text-[#6296b8] font-mono truncate mt-0.5">
                   {viewsDiff !== null ? (
                     `${viewsDiff >= 0 ? '+' : ''}${Number(viewsDiff).toLocaleString()} views`
                   ) : (
-                    'First recorded date'
+                    dailyData.length > 0 ? 'First recorded date' : 'OAuth Required'
                   )}
                 </div>
 
@@ -838,14 +861,18 @@ export default function DashboardGrid({
         <div className="flex-1 overflow-y-auto min-h-0 space-y-2 pr-1 custom-scrollbar">
           {filteredComments.length === 0 ? (
             <div className="h-full min-h-[220px] flex flex-col items-center justify-center text-center p-4 text-[#8fa3bf]">
-              <div className="w-10 h-10 rounded-full bg-[#071324] border border-[#18345c] flex items-center justify-center mb-2 text-[#5fa5c8]">
+              <div className={`w-10 h-10 rounded-full bg-[#071324] border border-[#18345c] flex items-center justify-center mb-2 ${commentsDisabled ? 'text-amber-400' : 'text-[#5fa5c8]'}`}>
                 <MessageSquare className="w-5 h-5 stroke-[1.5]" />
               </div>
               <p className="text-xs font-semibold text-white">
-                No comments for this date
+                {commentsDisabled ? 'Comments Disabled' : 'No comments found'}
               </p>
               <p className="text-[10px] text-[#6296b8] mt-1 max-w-[180px]">
-                No YouTube viewers published comments on {activeDate}.
+                {commentsDisabled
+                  ? 'Comments are disabled for this video by the creator.'
+                  : (dailyData.length > 0 && activeDate
+                      ? `No comments published on ${activeDate}.`
+                      : 'No comments currently available for this video.')}
               </p>
             </div>
           ) : (

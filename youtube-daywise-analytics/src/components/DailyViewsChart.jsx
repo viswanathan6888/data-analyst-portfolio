@@ -12,6 +12,8 @@ import {
 } from 'recharts';
 import {
   Calendar,
+  ShieldCheck,
+  Activity,
   MousePointerClick,
   ChevronLeft,
   ChevronRight,
@@ -208,8 +210,49 @@ export default function DailyViewsChart({
 
   if (!dailyData || dailyData.length === 0) {
     return (
-      <div className="bg-[#0c1b32] border border-[#18345c] rounded-2xl p-8 text-center text-[#8fa3bf] flex-1 flex flex-col items-center justify-center">
-        No day-wise views available.
+      <div
+        aria-label="Daily Views Bar Chart"
+        className="bg-[#0c1b32] panel-blue-neon-glow rounded-2xl p-4 sm:p-5 flex-1 min-h-0 h-full flex flex-col justify-between transition relative overflow-hidden"
+      >
+        {/* Subtle Cyan Ambient Radial Glow at top */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-24 bg-[radial-gradient(ellipse_at_top,rgba(0,242,254,0.08)_0%,transparent_70%)] pointer-events-none" />
+
+        {/* Top Header */}
+        <div className="flex items-center justify-between pb-2 mb-1.5 border-b border-[#18345c] shrink-0 z-10">
+          <div className="flex items-center space-x-2 text-xs text-[#8fa3bf]">
+            <Calendar className="w-3.5 h-3.5 text-[#00f2fe]" />
+            <span className="font-semibold text-white">Day-Wise Historical Views</span>
+          </div>
+          <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#071324] border border-[#1b3e70] text-[#00f2fe] font-mono">
+            {lifetimeViews ? `${Number(lifetimeViews).toLocaleString()} Lifetime Views` : 'Live API'}
+          </span>
+        </div>
+
+        {/* Center informative placeholder */}
+        <div className="my-auto flex flex-col items-center justify-center text-center p-4 max-w-md mx-auto z-10">
+          <div className="w-12 h-12 rounded-2xl bg-[#071324] border border-[#1b3e70] flex items-center justify-center text-[#00f2fe] shadow-[0_0_15px_rgba(0,242,254,0.25)] mb-3">
+            <ShieldCheck className="w-6 h-6 stroke-[1.8]" />
+          </div>
+
+          <h3 className="text-sm sm:text-base font-bold text-white mb-1.5">
+            Day-Wise Breakdown Requires Channel Owner OAuth
+          </h3>
+
+          <p className="text-xs text-[#8fa3bf] leading-relaxed mb-3">
+            The YouTube Analytics API restricts day-by-day historical curves to the channel's verified owner. Public lifetime views, likes, comments, and video metadata are live synced above.
+          </p>
+
+          <div className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-[#071324] border border-[#18345c] text-[11px] text-[#5fa5c8] font-mono">
+            <Activity className="w-3.5 h-3.5 text-[#00d2c4] animate-pulse" />
+            <span>Public metrics for this video are fully synchronized</span>
+          </div>
+        </div>
+
+        {/* Slim Footer */}
+        <div className="pt-2 mt-1 border-t border-[#18345c] flex items-center justify-between text-[10px] text-[#8fa3bf] shrink-0 z-10">
+          <span className="text-[#6296b8]">Click OAuth in top toolbar to query private daily reports</span>
+          <span className="font-mono text-[#00d2c4]">YouTube Data API v3</span>
+        </div>
       </div>
     );
   }

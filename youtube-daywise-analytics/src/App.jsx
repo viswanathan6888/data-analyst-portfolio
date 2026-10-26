@@ -25,21 +25,37 @@ export default function App() {
   const DEFAULT_KEY = import.meta.env.VITE_YOUTUBE_API_KEY || '';
   const DEFAULT_VIDEO = import.meta.env.VITE_DEFAULT_VIDEO_ID || 'CobjbCF-Rvw';
 
+  // Read initial video from URL query parameter ?v=VIDEO_ID if present
+  const getInitialVideoId = () => {
+    if (typeof window !== 'undefined' && window.location) {
+      const params = new URLSearchParams(window.location.search);
+      const paramV = params.get('v');
+      if (paramV && /^[a-zA-Z0-9_-]{11}$/.test(paramV.trim())) {
+        return paramV.trim();
+      }
+    }
+    return DEFAULT_VIDEO;
+  };
+
+  const initialVideo = getInitialVideoId();
+  const isDefaultInitial = initialVideo === 'CobjbCF-Rvw';
+
   const [apiKey, setApiKey] = useState(DEFAULT_KEY);
   const [googleClientId, setGoogleClientId] = useState('');
   const [accessToken, setAccessToken] = useState('');
   const [isOAuthConnected, setIsOAuthConnected] = useState(false);
 
-  const [videoId, setVideoId] = useState(DEFAULT_VIDEO);
-  const [videoData, setVideoData] = useState(VERIFIED_VIDEO_METADATA);
-  const [dailyData, setDailyData] = useState(VERIFIED_DAILY_ANALYTICS);
-  const [comments, setComments] = useState(VERIFIED_COMMENTS);
+  const [videoId, setVideoId] = useState(initialVideo);
+  const [videoData, setVideoData] = useState(isDefaultInitial ? VERIFIED_VIDEO_METADATA : null);
+  const [dailyData, setDailyData] = useState(isDefaultInitial ? VERIFIED_DAILY_ANALYTICS : []);
+  const [comments, setComments] = useState(isDefaultInitial ? VERIFIED_COMMENTS : []);
+  const [commentsDisabled, setCommentsDisabled] = useState(false);
 
   // All tracked videos registry for comprehensive multi-video Excel export
   const [trackedVideosList, setTrackedVideosList] = useState([
     {
-      videoData: VERIFIED_VIDEO_METADATA,
-      dailyData: VERIFIED_DAILY_ANALYTICS
+      videoData: isDefaultInitial ? VERIFIED_VIDEO_METADATA : null,
+      dailyData: isDefaultInitial ? VERIFIED_DAILY_ANALYTICS : []
     }
   ]);
 
@@ -48,7 +64,7 @@ export default function App() {
       setTrackedVideosList((prev) => {
         const exists = prev.some((item) => item.videoData?.id === videoData.id);
         if (!exists) {
-          return [...prev, { videoData, dailyData }];
+          return [{ videoData, dailyData }, ...prev];
         }
         return prev.map((item) =>
           item.videoData?.id === videoData.id ? { videoData, dailyData } : item
@@ -58,7 +74,7 @@ export default function App() {
   }, [videoData, dailyData]);
 
   // Selected date and Comments (default to latest date 2026-10-26 on the right)
-  const [selectedDate, setSelectedDate] = useState('2026-10-26');
+  const [selectedDate, setSelectedDate] = useState(isDefaultInitial ? '2026-10-26' : null);
   const [isCommentsOpen, setIsCommentsOpen] = useState(true);
 
   // Auto-refresh interval (default 1 minute = 60000ms for responsive genuine updates)
@@ -83,6 +99,19 @@ export default function App() {
   const [formSettings, setFormSettings] = useState(getFormSettings);
   const [submissions, setSubmissions] = useState(getStoredSubmissions);
 
+  // Update browser state URL query param (?v=VIDEO_ID) to remember active video
+  const updateBrowserUrl = (targetId) => {
+    if (typeof window !== 'undefined' && window.history) {
+      const url = new URL(window.location.href);
+      if (targetId && targetId !== 'CobjbCF-Rvw') {
+        url.searchParams.set('v', targetId);
+      } else {
+        url.searchParams.delete('v');
+      }
+      window.history.replaceState({}, '', url.toString());
+    }
+  };
+
   const toggleTheme = () => {
     const nextTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(nextTheme);
@@ -95,6 +124,8 @@ export default function App() {
 
   // Load video analytics and real YouTube comments with robust live synchronization
   const loadVideoAnalytics = async (targetVideoId, preserveSelection = false) => {
+    if (!targetVideoId) return;
+
     // 1. Prevent overlapping requests
     if (isSyncingRef.current) {
       console.log(`[YouTube Sync] Sync already in progress for ${targetVideoId}, skipping overlapping request.`);
@@ -106,6 +137,20 @@ export default function App() {
     setIsLoading(true);
     setErrorMessage('');
     setLastSyncStatus('syncing');
+
+    // If switching to a different video, clear previous video data immediately so old data never lingers
+    if (targetVideoId !== videoId) {
+      setVideoId(targetVideoId);
+      updateBrowserUrl(targetVideoId);
+      setPreviousLifetimeViews(null);
+      setNewViewsGained(0);
+      setCommentsDisabled(false);
+      if (targetVideoId !== 'CobjbCF-Rvw') {
+        setVideoData(null);
+        setDailyData([]);
+        setComments([]);
+      }
+    }
 
     const fetchTimestamp = new Date().toISOString();
     console.log(`[YouTube Sync Start] Target Video ID: ${targetVideoId} | Timestamp: ${fetchTimestamp} | Seq: ${currentSeq}`);
@@ -126,10 +171,8 @@ export default function App() {
           const latestViewCount = Number(publicDetails.statistics?.viewCount ?? publicDetails.viewCount ?? 0);
           console.log(`[YouTube Sync API Response] Video ID: ${publicDetails.id} | statistics.viewCount: ${publicDetails.statistics?.viewCount} | Parsed: ${latestViewCount} | Likes: ${publicDetails.statistics?.likeCount} | Comments: ${publicDetails.statistics?.commentCount}`);
           
-          // Separate Metrics: Calculate difference between consecutive lifetime snapshots (New Views)
-          // Always REPLACE the lifetime total with the latest fetched total (never add to outdated total)
           setVideoData((prev) => {
-            const prevViews = prev ? Number(prev.statistics?.viewCount ?? prev.viewCount ?? 0) : 0;
+            const prevViews = prev && prev.id === targetVideoId ? Number(prev.statistics?.viewCount ?? prev.viewCount ?? 0) : 0;
             if (prevViews > 0 && latestViewCount >= prevViews) {
               const delta = latestViewCount - prevViews;
               setNewViewsGained(delta);
@@ -139,33 +182,36 @@ export default function App() {
             return publicDetails;
           });
 
-          // Dynamically synchronize pending live views into active tracking day (Day 10)
-          setDailyData((prevDaily) => {
-            const baseDaily = (prevDaily && prevDaily.length > 0) ? prevDaily : VERIFIED_DAILY_ANALYTICS;
-            const copy = baseDaily.map((d) => ({ ...d }));
-            const lastIdx = copy.length - 1;
-            const lastDay = copy[lastIdx];
-            const priorSum = copy.slice(0, -1).reduce((acc, d) => acc + Number(d.views || 0), 0);
-            const liveDayViews = Math.max(Number(lastDay.views || 0), latestViewCount - priorSum);
+          // If default video (CobjbCF-Rvw), dynamically synchronize live views into active tracking day
+          if (targetVideoId === 'CobjbCF-Rvw') {
+            setDailyData((prevDaily) => {
+              const baseDaily = (prevDaily && prevDaily.length > 0) ? prevDaily : VERIFIED_DAILY_ANALYTICS;
+              const copy = baseDaily.map((d) => ({ ...d }));
+              const lastIdx = copy.length - 1;
+              const lastDay = copy[lastIdx];
+              const priorSum = copy.slice(0, -1).reduce((acc, d) => acc + Number(d.views || 0), 0);
+              const liveDayViews = Math.max(Number(lastDay.views || 0), latestViewCount - priorSum);
 
-            copy[lastIdx] = {
-              ...lastDay,
-              views: liveDayViews,
-              cumulativeViews: latestViewCount,
-              pctOfTotalViews: latestViewCount > 0
-                ? Number(((liveDayViews / latestViewCount) * 100).toFixed(2))
-                : lastDay.pctOfTotalViews,
-              status: 'Live Synced',
-              isPendingProcessing: false,
-              latencyNote: 'Live Synced with YouTube Data API v3'
-            };
-            return copy;
-          });
+              copy[lastIdx] = {
+                ...lastDay,
+                views: liveDayViews,
+                cumulativeViews: latestViewCount,
+                pctOfTotalViews: latestViewCount > 0
+                  ? Number(((liveDayViews / latestViewCount) * 100).toFixed(2))
+                  : lastDay.pctOfTotalViews,
+                status: 'Live Synced',
+                isPendingProcessing: false,
+                latencyNote: 'Live Synced with YouTube Data API v3'
+              };
+              return copy;
+            });
+          }
         }
       } catch (err) {
-        console.warn('YouTube Data API v3 error, using verified snapshot fallback:', err);
+        console.warn('YouTube Data API v3 error:', err);
         if (targetVideoId === 'CobjbCF-Rvw') {
           setVideoData(VERIFIED_VIDEO_METADATA);
+          publicDetails = VERIFIED_VIDEO_METADATA;
         } else {
           throw err;
         }
@@ -173,12 +219,21 @@ export default function App() {
 
       // 2. Fetch genuine YouTube comments
       try {
-        const fetchedComments = await fetchVideoComments(targetVideoId, apiKey);
-        if (fetchedComments && fetchedComments.length > 0) {
-          setComments(fetchedComments);
+        const commentsResult = await fetchVideoComments(targetVideoId, apiKey);
+        if (commentsResult && commentsResult.commentsDisabled) {
+          setCommentsDisabled(true);
+          setComments([]);
+        } else if (commentsResult && Array.isArray(commentsResult.comments)) {
+          setCommentsDisabled(false);
+          setComments(commentsResult.comments);
+        } else if (Array.isArray(commentsResult)) {
+          setCommentsDisabled(false);
+          setComments(commentsResult);
         } else if (targetVideoId === 'CobjbCF-Rvw') {
+          setCommentsDisabled(false);
           setComments(VERIFIED_COMMENTS);
         } else {
+          setCommentsDisabled(false);
           setComments([]);
         }
       } catch (commentsErr) {
@@ -195,49 +250,30 @@ export default function App() {
         try {
           const reportRows = await fetchYouTubeAnalyticsReport({
             videoId: targetVideoId,
-            startDate: videoData?.publishedAt?.split('T')[0] || '2026-10-17',
+            startDate: publicDetails?.publishedAt?.split('T')[0] || videoData?.publishedAt?.split('T')[0] || '2026-10-17',
             accessToken: accessToken
           });
           if (reportRows && reportRows.length > 0) {
             setDailyData(reportRows);
             if (!preserveSelection) {
-              setSelectedDate(reportRows[1]?.date || reportRows[0]?.date || '2026-10-18');
+              setSelectedDate(reportRows[reportRows.length - 1]?.date || reportRows[0]?.date);
             }
           }
         } catch (oauthErr) {
           console.warn('OAuth YouTube Analytics API query failed:', oauthErr);
-          setErrorMessage(`YouTube Analytics API: ${oauthErr.message}. Showing verified data.`);
+          setErrorMessage(`YouTube Analytics API: ${oauthErr.message}`);
           if (targetVideoId === 'CobjbCF-Rvw') {
             setDailyData(VERIFIED_DAILY_ANALYTICS);
           }
         }
       } else {
         if (targetVideoId === 'CobjbCF-Rvw') {
-          setDailyData(() => {
-            const base = VERIFIED_DAILY_ANALYTICS.map((d) => ({ ...d }));
-            const latest = Number(publicDetails?.statistics?.viewCount ?? publicDetails?.viewCount ?? VERIFIED_VIDEO_METADATA.viewCount);
-            const lastIdx = base.length - 1;
-            const priorSum = base.slice(0, -1).reduce((acc, d) => acc + Number(d.views || 0), 0);
-            const liveDayViews = Math.max(Number(base[lastIdx].views || 0), latest - priorSum);
-            base[lastIdx] = {
-              ...base[lastIdx],
-              views: liveDayViews,
-              cumulativeViews: latest,
-              pctOfTotalViews: latest > 0 ? Number(((liveDayViews / latest) * 100).toFixed(2)) : base[lastIdx].pctOfTotalViews,
-              status: 'Live Synced',
-              isPendingProcessing: false,
-              latencyNote: 'Live Synced with YouTube Data API v3'
-            };
-            return base;
-          });
+          // Default initial video verified dataset preserved
         } else {
           setDailyData([]);
           if (!preserveSelection) {
             setSelectedDate(null);
           }
-          setErrorMessage(
-            `For video "${targetVideoId}", public video info loaded. To view private day-wise views, YouTube requires channel-owner OAuth authorization.`
-          );
         }
       }
 
@@ -246,7 +282,7 @@ export default function App() {
       setLastSyncStatus('success');
       console.log(`[YouTube Sync Complete] Last Successful Sync Time: ${syncTimeStr}`);
     } catch (err) {
-      setErrorMessage(err.message || 'Failed to load video data.');
+      setErrorMessage(err.message || 'Failed to load video data. Please check the URL.');
       setLastSyncStatus('error');
       console.error('[YouTube Sync Error]', err);
     } finally {
@@ -256,7 +292,7 @@ export default function App() {
   };
 
   useEffect(() => {
-    loadVideoAnalytics(DEFAULT_VIDEO);
+    loadVideoAnalytics(initialVideo);
   }, []);
 
   // Automatic background refresh timer
@@ -274,8 +310,6 @@ export default function App() {
     setIsCommentsOpen(true);
   };
 
-  const selectedRecord = dailyData.find((d) => d.date === selectedDate);
-
   return (
     <div className="h-screen max-h-screen overflow-hidden bg-[#070f1e] text-[#e2ecf8] flex flex-col font-sans transition-colors duration-200">
       
@@ -283,9 +317,9 @@ export default function App() {
       <Navbar
         videoData={videoData}
         onSearchVideo={(newVideoId) => {
-          setVideoId(newVideoId);
           loadVideoAnalytics(newVideoId, false);
         }}
+        onSearchError={(msg) => setErrorMessage(msg)}
         isLoading={isLoading}
         onOpenOAuth={() => setIsOAuthOpen(true)}
         onOpenSettings={() => setIsSettingsOpen(true)}
@@ -299,11 +333,29 @@ export default function App() {
         lastSyncStatus={lastSyncStatus}
       />
 
+      {/* Dismissible Error / Notice Banner */}
+      {errorMessage && (
+        <div className="bg-rose-950/80 border-b border-rose-500/50 px-4 py-1.5 flex items-center justify-between text-xs text-rose-200 z-40 transition shrink-0 animate-fadeIn">
+          <div className="flex items-center space-x-2 truncate pr-2">
+            <span className="w-2 h-2 rounded-full bg-rose-400 shrink-0 animate-pulse" />
+            <span className="truncate">{errorMessage}</span>
+          </div>
+          <button
+            onClick={() => setErrorMessage('')}
+            className="text-rose-400 hover:text-white font-bold ml-2 text-sm px-1.5 py-0.5 rounded hover:bg-rose-900/50 transition shrink-0"
+            aria-label="Dismiss message"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       {/* Main Dashboard Grid: Recreates the exact layout from reference image with ZERO page scrolling */}
       <DashboardGrid
         videoData={videoData}
         dailyData={dailyData}
         comments={comments}
+        commentsDisabled={commentsDisabled}
         selectedDate={selectedDate}
         onSelectDate={handleSelectDate}
         autoRefreshInterval={autoRefreshInterval}

@@ -1,6 +1,6 @@
 import ExcelJS from 'exceljs/dist/exceljs.min.js';
 import { VERIFIED_VIDEO_METADATA, VERIFIED_DAILY_ANALYTICS } from './dataSnapshot.js';
-import { fetchVideoTitleDirect, fetchVideoTitlesBatch } from './youtubeApi.js';
+import { fetchVideoTitleDirect } from './youtubeApi.js';
 
 /**
  * Calculates daily views growth rate compared with the previous day's views:
@@ -29,7 +29,7 @@ export function calculateGrowthRate(currentViews, previousViews) {
  * - Row 4: Table Header (Dark Navy #0C1B32, frozen top rows, AutoFilter enabled on A4:I{totalRows})
  * 
  * 9 Data Table Columns:
- * 1. Day #: Day 1, Day 2, etc.
+ * 1. Day #: Day 1, Day 2, etc. (or Lifetime Total)
  * 2. Tracking Date: YYYY-MM-DD
  * 3. Day of Week: Monday, Tuesday, etc.
  * 4. Daily Views: Numeric view count formatted as #,##0 with Excel Conditional Formatting Data Bars
@@ -41,7 +41,7 @@ export function calculateGrowthRate(currentViews, previousViews) {
  */
 export async function generateYouTubeExcelWorkbook({
   videoData = VERIFIED_VIDEO_METADATA,
-  dailyData = VERIFIED_DAILY_ANALYTICS,
+  dailyData = [],
   trackedVideosList = []
 }) {
   const workbook = new ExcelJS.Workbook();
@@ -201,53 +201,126 @@ export async function generateYouTubeExcelWorkbook({
     };
   });
 
-  // Populate data rows starting at Row 5
-  const dailyRecords = (dailyData && dailyData.length > 0)
-    ? dailyData
-    : ((primaryItem?.dailyData && primaryItem.dailyData.length > 0)
-        ? primaryItem.dailyData
-        : VERIFIED_DAILY_ANALYTICS);
+  // Determine records to populate:
+  // If dailyData has items: use dailyData.
+  // If video is the default initial video (CobjbCF-Rvw) and dailyData is empty: use VERIFIED_DAILY_ANALYTICS.
+  // Otherwise for any other video loaded without OAuth: generate a single Lifetime summary row.
+  const hasDailyData = dailyData && Array.isArray(dailyData) && dailyData.length > 0;
+  const isDefaultVideo = videoId === 'CobjbCF-Rvw';
+
+  let dailyRecords = [];
+  if (hasDailyData) {
+    dailyRecords = dailyData;
+  } else if (isDefaultVideo) {
+    dailyRecords = VERIFIED_DAILY_ANALYTICS;
+  }
 
   let totalDataRowsCount = 0;
 
-  dailyRecords.forEach((d, idx) => {
-    totalDataRowsCount++;
-    const rowNumber = 4 + totalDataRowsCount;
-    const row = sheet.getRow(rowNumber);
+  if (dailyRecords.length > 0) {
+    dailyRecords.forEach((d, idx) => {
+      totalDataRowsCount++;
+      const rowNumber = 4 + totalDataRowsCount;
+      const row = sheet.getRow(rowNumber);
+      row.height = 24;
+
+      const prevD = idx > 0 ? dailyRecords[idx - 1] : null;
+      const prevViews = prevD ? prevD.views : null;
+      const growth = prevD ? calculateGrowthRate(d.views, prevViews) : null;
+
+      let growthStr = 'N/A (Launch Baseline)';
+      if (idx > 0) {
+        if (growth !== null && !isNaN(growth) && isFinite(growth)) {
+          const sign = growth > 0 ? '+' : '';
+          growthStr = `${sign}${growth.toFixed(2)}%`;
+        } else {
+          growthStr = 'N/A';
+        }
+      }
+
+      // Format average watch duration
+      let durationFormatted = 'N/A';
+      if (d.averageViewDurationSeconds !== undefined && d.averageViewDurationSeconds !== null) {
+        const durationSec = Number(d.averageViewDurationSeconds);
+        const mins = Math.floor(durationSec / 60);
+        const secs = durationSec % 60;
+        durationFormatted = `${mins}m ${secs}s`;
+      }
+
+      const cellValues = [
+        `Day ${d.dayIndex || idx + 1}`,
+        d.date || 'N/A',
+        d.dayName || 'N/A',
+        d.views !== undefined && d.views !== null ? Number(d.views) : 'N/A',
+        d.likes !== undefined && d.likes !== null ? Number(d.likes) : 'N/A',
+        d.shares !== undefined && d.shares !== null ? Number(d.shares) : 'N/A',
+        d.comments !== undefined && d.comments !== null ? Number(d.comments) : 'N/A',
+        growthStr,
+        durationFormatted
+      ];
+
+      cellValues.forEach((val, colIdx) => {
+        const colNumber = colIdx + 1;
+        const cell = row.getCell(colNumber);
+        cell.value = val;
+
+        // Thin borders
+        cell.border = {
+          top: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+          bottom: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+          left: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+          right: { style: 'thin', color: { argb: 'FFE2E8F0' } }
+        };
+
+        // Alignment & Typography per column
+        if (colNumber === 4) {
+          // Daily Views (with Data Bar)
+          cell.alignment = { vertical: 'middle', horizontal: 'right' };
+          cell.font = { name: 'Calibri', size: 11, color: { argb: 'FF0F172A' }, bold: true };
+          if (typeof cell.value === 'number') {
+            cell.numFmt = '#,##0';
+          }
+        } else {
+          // Other data columns
+          cell.alignment = { vertical: 'middle', horizontal: 'center' };
+          cell.font = { name: 'Calibri', size: 11, color: { argb: 'FF1E293B' } };
+          if (typeof cell.value === 'number') {
+            cell.numFmt = '#,##0';
+          }
+        }
+
+        // Alternating row background for clean readability
+        if (totalDataRowsCount % 2 === 0) {
+          cell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFF8FAFC' }
+          };
+        }
+      });
+    });
+  } else {
+    // For newly loaded videos without OAuth daily records: write genuine Lifetime summary metrics row
+    totalDataRowsCount = 1;
+    const row = sheet.getRow(5);
     row.height = 24;
 
-    const prevD = idx > 0 ? dailyRecords[idx - 1] : null;
-    const prevViews = prevD ? prevD.views : null;
-    const growth = prevD ? calculateGrowthRate(d.views, prevViews) : null;
-
-    let growthStr = 'N/A (Launch Baseline)';
-    if (idx > 0) {
-      if (growth !== null && !isNaN(growth) && isFinite(growth)) {
-        const sign = growth > 0 ? '+' : '';
-        growthStr = `${sign}${growth.toFixed(2)}%`;
-      } else {
-        growthStr = 'N/A';
-      }
-    }
-
-    // Format average watch duration
-    let durationFormatted = 'N/A';
-    if (d.averageViewDurationSeconds !== undefined && d.averageViewDurationSeconds !== null) {
-      const durationSec = Number(d.averageViewDurationSeconds);
-      const mins = Math.floor(durationSec / 60);
-      const secs = durationSec % 60;
-      durationFormatted = `${mins}m ${secs}s`;
-    }
+    const lifetimeViews = Number(currentVideo?.statistics?.viewCount ?? currentVideo?.viewCount ?? 0);
+    const rawLikes = currentVideo?.statistics?.likeCount ?? currentVideo?.likeCount;
+    const lifetimeLikes = rawLikes !== undefined && rawLikes !== null ? Number(rawLikes) : 'N/A';
+    const rawComments = currentVideo?.statistics?.commentCount ?? currentVideo?.commentCount;
+    const lifetimeComments = rawComments !== undefined && rawComments !== null ? Number(rawComments) : 'N/A';
+    const durationFormatted = currentVideo?.formattedDuration || currentVideo?.duration || 'N/A';
 
     const cellValues = [
-      `Day ${d.dayIndex || idx + 1}`,
-      d.date || 'N/A',
-      d.dayName || 'N/A',
-      d.views !== undefined && d.views !== null ? Number(d.views) : 'N/A',
-      d.likes !== undefined && d.likes !== null ? Number(d.likes) : 'N/A',
-      d.shares !== undefined && d.shares !== null ? Number(d.shares) : 'N/A',
-      d.comments !== undefined && d.comments !== null ? Number(d.comments) : 'N/A',
-      growthStr,
+      'Lifetime Total',
+      'All Time',
+      'Lifetime',
+      lifetimeViews > 0 ? lifetimeViews : 'N/A',
+      lifetimeLikes,
+      'N/A',
+      lifetimeComments,
+      'N/A (Day-wise requires channel OAuth)',
       durationFormatted
     ];
 
@@ -256,7 +329,6 @@ export async function generateYouTubeExcelWorkbook({
       const cell = row.getCell(colNumber);
       cell.value = val;
 
-      // Thin borders
       cell.border = {
         top: { style: 'thin', color: { argb: 'FFE2E8F0' } },
         bottom: { style: 'thin', color: { argb: 'FFE2E8F0' } },
@@ -264,45 +336,27 @@ export async function generateYouTubeExcelWorkbook({
         right: { style: 'thin', color: { argb: 'FFE2E8F0' } }
       };
 
-      // Alignment & Typography per column
       if (colNumber === 4) {
-        // Daily Views (with Data Bar)
         cell.alignment = { vertical: 'middle', horizontal: 'right' };
         cell.font = { name: 'Calibri', size: 11, color: { argb: 'FF0F172A' }, bold: true };
         if (typeof cell.value === 'number') {
           cell.numFmt = '#,##0';
         }
       } else {
-        // Other data columns
         cell.alignment = { vertical: 'middle', horizontal: 'center' };
         cell.font = { name: 'Calibri', size: 11, color: { argb: 'FF1E293B' } };
         if (typeof cell.value === 'number') {
           cell.numFmt = '#,##0';
         }
       }
-
-      // Alternating row background for clean readability
-      if (totalDataRowsCount % 2 === 0) {
-        cell.fill = {
-          type: 'pattern',
-          pattern: 'solid',
-          fgColor: { argb: 'FFF8FAFC' }
-        };
-      }
     });
-  });
+  }
 
   // Enable AutoFilter on row 4 across all 9 columns (A4:I{totalRows})
   const totalRows = 4 + totalDataRowsCount;
   sheet.autoFilter = `A4:I${totalRows}`;
 
   // Apply Excel-style Conditional Formatting Data Bars to Column D (Daily Views)
-  // - Horizontal data bars inside each Daily Views cell matching Excel's built-in Data Bars
-  // - Professional blue-to-cyan gradient (#00A8CC) matching YouTube dashboard theme
-  // - Bar length proportional to actual daily view count: higher views = longer bar, lower views = shorter bar
-  // - Numeric view count remains clearly visible alongside the data bar with '#,##0' formatting
-  // - Automatically applies to all daily view rows (D5:D{totalRows})
-  // - Blank or 'N/A' cells remain free of data bars
   if (totalDataRowsCount > 0) {
     sheet.addConditionalFormatting({
       ref: `D5:D${totalRows}`,
