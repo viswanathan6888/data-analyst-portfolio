@@ -28,13 +28,13 @@ export const VERIFIED_VIDEO_METADATA = {
     standard: 'https://i.ytimg.com/vi/CobjbCF-Rvw/sddefault.jpg',
     maxres: 'https://i.ytimg.com/vi/CobjbCF-Rvw/maxresdefault.jpg'
   },
-  viewCount: 187275,
-  likeCount: 1194,
+  viewCount: 188499,
+  likeCount: 1204,
   commentCount: 104,
   favoriteCount: 0,
   statistics: {
-    viewCount: '187275',
-    likeCount: '1194',
+    viewCount: '188499',
+    likeCount: '1204',
     commentCount: '104',
     favoriteCount: '0'
   },
@@ -398,7 +398,10 @@ export const VERIFIED_DAILY_ANALYTICS = [
 export const LAST_PROCESSED_DATE = '2026-10-26';
 export const LAST_PROCESSED_DAY_INDEX = 10;
 export const FINALIZED_DAILY_VIEWS_SUM = 187275;
+export const TOTAL_DAILY_VIEWS_SUM = 187275;
 
-export const TOTAL_LIFETIME_VIEWS = 187275;
-export const TOTAL_LIFETIME_LIKES = 1194;
+export const TOTAL_LIFETIME_VIEWS = 188499;
+export const TOTAL_LIFETIME_LIKES = 1204;
 export const TOTAL_LIFETIME_COMMENTS = 104;
+export const IN_FLIGHT_VARIANCE = 1224; // 188,499 - 187,275
+

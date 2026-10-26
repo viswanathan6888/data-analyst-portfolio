@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import DailyViewsChart from './DailyViewsChart';
 import LiveViewsTrendChart from './LiveViewsTrendChart';
+import ReconciliationAuditModal from './ReconciliationAuditModal';
 import { downloadYouTubeExcelReport } from '../services/excelExportService.js';
 import { format, parseISO } from 'date-fns';
 
@@ -46,6 +47,7 @@ export default function DashboardGrid({
 }) {
   const [isExporting, setIsExporting] = useState(false);
   const [downloadSuccess, setDownloadSuccess] = useState(false);
+  const [isReconModalOpen, setIsReconModalOpen] = useState(false);
 
   const handleDownloadExcel = async () => {
     if (isExporting) return;
@@ -466,23 +468,28 @@ export default function DashboardGrid({
               <span className="uppercase font-semibold tracking-wider">Lifetime Plays</span>
               <span 
                 className="font-mono text-[#8fa3bf] text-[9.5px]" 
-                title={finalizedDailyViews !== null ? `Finalized Daily Sum (Days 1-${lastFullyProcessedDay?.dayIndex || 'N'}): ${finalizedDailyViews.toLocaleString()}` : 'Day-wise sum requires channel OAuth'}
+                title={totalDailyViews !== null ? `Day-Wise Sum (Days 1-${dailyData.length}): ${totalDailyViews.toLocaleString()}` : 'Day-wise sum requires channel OAuth'}
               >
-                {finalizedDailyViews !== null ? `Finalized: ${finalizedDailyViews.toLocaleString()}` : 'Tracked: N/A'}
+                {totalDailyViews !== null ? `Daily Sum: ${totalDailyViews.toLocaleString()}` : 'Tracked: N/A'}
               </span>
             </div>
 
-            {/* Reconciliation Check & In-Flight Lag Explanation (Requirement 8) */}
+            {/* Reconciliation Check & In-Flight Lag Explanation (Clickable Audit Button) */}
             {inFlightDiscrepancy !== null && (
-              <div 
-                className="mt-1 pt-1 border-t border-[#18345c]/80 flex items-center justify-between text-[9px] font-mono"
-                title={`Reconciliation Check: ${totalViews.toLocaleString()} lifetime views (Data API v3) - ${finalizedDailyViews.toLocaleString()} finalized daily sum = ${inFlightDiscrepancy.toLocaleString()} in-flight views pending 48-72h YouTube Analytics rollup.`}
+              <button
+                type="button"
+                onClick={() => setIsReconModalOpen(true)}
+                className="mt-1 pt-1 border-t border-[#18345c]/80 w-full flex items-center justify-between text-[9px] font-mono hover:bg-[#102342]/70 px-1 py-0.5 rounded transition text-left group"
+                title="Click to view full Day-by-Day Reconciliation Audit Table & Pipeline Analysis"
               >
-                <span className="text-[#8fa3bf]">Reconciliation:</span>
-                <span className="text-[#eab308] font-bold">
+                <span className="text-[#8fa3bf] flex items-center space-x-1 group-hover:text-white transition">
+                  <span>Reconciled:</span>
+                  <Info className="w-2.5 h-2.5 text-[#00f2fe]" />
+                </span>
+                <span className="text-[#00f2fe] font-bold group-hover:underline">
                   +{inFlightDiscrepancy.toLocaleString()} in-flight lag
                 </span>
-              </div>
+              </button>
             )}
           </div>
         </div>
@@ -1001,6 +1008,15 @@ export default function DashboardGrid({
         </div>
 
       </div>
+
+      {/* Reconciliation Audit Modal */}
+      <ReconciliationAuditModal
+        isOpen={isReconModalOpen}
+        onClose={() => setIsReconModalOpen(false)}
+        videoData={videoData}
+        dailyData={dailyData}
+        onDownloadExcel={handleDownloadExcel}
+      />
 
     </div>
   );
