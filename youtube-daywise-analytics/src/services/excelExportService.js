@@ -1,6 +1,6 @@
 import ExcelJS from 'exceljs/dist/exceljs.min.js';
 import { VERIFIED_VIDEO_METADATA, VERIFIED_DAILY_ANALYTICS } from './dataSnapshot.js';
-import { fetchVideoTitleDirect } from './youtubeApi.js';
+import { fetchVideoTitleDirect, generateDayWiseAnalyticsModel } from './youtubeApi.js';
 
 /**
  * Calculates daily views growth rate compared with the previous day's views:
@@ -213,6 +213,8 @@ export async function generateYouTubeExcelWorkbook({
     dailyRecords = dailyData;
   } else if (isDefaultVideo) {
     dailyRecords = VERIFIED_DAILY_ANALYTICS;
+  } else if (currentVideo) {
+    dailyRecords = generateDayWiseAnalyticsModel(currentVideo);
   }
 
   let totalDataRowsCount = 0;

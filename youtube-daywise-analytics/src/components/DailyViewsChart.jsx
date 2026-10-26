@@ -318,6 +318,9 @@ export default function DailyViewsChart({
   // Format on-chart label above each bar
   const formatOnBarCount = (val) => {
     const num = Number(val || 0);
+    if (num >= 1000000) {
+      return `${(num / 1000000).toFixed(1)}M`;
+    }
     if (num >= 1000) {
       return `${(num / 1000).toFixed(1)}k`;
     }
@@ -333,9 +336,11 @@ export default function DailyViewsChart({
   const totalTrackedViews = dailyData.reduce((acc, d) => acc + Number(d.views || 0), 0);
   const pendingRollupViews = Math.max(0, Number(lifetimeViews || 0) - totalTrackedViews);
 
-  // Stable Y-Axis Max Domain
-  const maxDataViews = Math.max(...dailyData.map((d) => Number(d.views || 0)), 42000);
-  const yMax = Math.ceil(maxDataViews / 10000) * 10000 + 10000; // e.g. 60000
+  // Dynamic Adaptive Y-Axis Max Domain for any scale (from 10 to 100M+)
+  const rawMaxViews = Math.max(...dailyData.map((d) => Number(d.views || 0)), 10);
+  const magnitude = Math.pow(10, Math.floor(Math.log10(rawMaxViews)));
+  const step = magnitude >= 10000 ? magnitude / 2 : (magnitude || 10);
+  const yMax = Math.ceil((rawMaxViews * 1.18) / step) * step;
 
   // Custom on-bar count label (highlighted in bold white/cyan for selected bar)
   const CustomBarLabel = (props) => {
@@ -398,7 +403,7 @@ export default function DailyViewsChart({
     );
   };
 
-  // Custom Chart Hover Tooltip
+  // Custom Chart Hover Tooltip with Full Performance Metrics
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
@@ -411,8 +416,14 @@ export default function DailyViewsChart({
         ? ((Number(data.views || 0) / lifetimeViews) * 100).toFixed(1)
         : data.pctOfTotalViews || '0';
 
+      const avgDurSec = Number(data.averageViewDurationSeconds || 0);
+      const avgDurMin = Math.floor(avgDurSec / 60);
+      const avgDurRemSec = avgDurSec % 60;
+      const watchMins = Number(data.estimatedMinutesWatched || 0);
+      const watchHours = (watchMins / 60).toFixed(1);
+
       return (
-        <div className="bg-[#0c1b32]/95 backdrop-blur-md border border-[#1f4273] p-2.5 rounded-xl shadow-card-navy text-xs text-white pointer-events-none space-y-1 z-50">
+        <div className="bg-[#0c1b32]/95 backdrop-blur-md border border-[#1f4273] p-2.5 rounded-xl shadow-card-navy text-xs text-white pointer-events-none space-y-1.5 z-50 min-w-[210px]">
           <div className="font-semibold text-white flex items-center justify-between gap-3">
             <span>{dateLabel}</span>
             {data.dayLabel && (
@@ -427,8 +438,21 @@ export default function DailyViewsChart({
           <div className="text-[10px] text-[#8fa3bf]">
             {itemPct}% of {Number(lifetimeViews).toLocaleString()} Lifetime Views
           </div>
-          <div className="text-[10px] text-[#00d2c4] pt-1 border-t border-[#18345c]">
-            Click to focus & inspect comments
+
+          {/* Detailed Performance Metrics */}
+          <div className="pt-1.5 border-t border-[#18345c] grid grid-cols-2 gap-x-2 gap-y-1 text-[10px] font-mono">
+            <span className="text-[#8fa3bf]">Watch Time:</span>
+            <span className="text-[#00d2c4] text-right font-semibold">{watchMins.toLocaleString()}m ({watchHours}h)</span>
+            <span className="text-[#8fa3bf]">Avg Duration:</span>
+            <span className="text-[#00d2c4] text-right font-semibold">{avgDurMin}m {avgDurRemSec}s {data.averageViewPercentage ? `(${data.averageViewPercentage}%)` : ''}</span>
+            <span className="text-[#8fa3bf]">Daily Shares:</span>
+            <span className="text-[#00d2c4] text-right font-semibold">{Number(data.shares || 0).toLocaleString()}</span>
+            <span className="text-[#8fa3bf]">Net Subs:</span>
+            <span className="text-emerald-400 text-right font-semibold">+{Number(data.netSubscribers || (data.subscribersGained || 0)).toLocaleString()}</span>
+          </div>
+
+          <div className="text-[9.5px] text-[#6296b8] pt-1 border-t border-[#18345c]/60">
+            Click bar to inspect day details & comments
           </div>
         </div>
       );
@@ -444,7 +468,7 @@ export default function DailyViewsChart({
       {/* Subtle Cyan Ambient Radial Glow at top */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-20 bg-[radial-gradient(ellipse_at_top,rgba(0,242,254,0.06)_0%,transparent_70%)] pointer-events-none" />
 
-      {/* Top Header: Selected date, views count, lifetime badge, and sliding timeline navigation controls */}
+      {/* Top Header: Selected date, views count, lifetime badge, metrics pills, and sliding timeline navigation controls */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-2 mb-1.5 border-b border-[#18345c] gap-1.5 shrink-0 z-10">
         {selectedRecord ? (
           <div>
@@ -473,6 +497,43 @@ export default function DailyViewsChart({
               <span className="text-[10px] px-2 py-0.2 rounded-full bg-[#071324] border border-[#1b3e70] text-[#7eb3d6] font-mono">
                 {pctOfLifetime}% of {Number(lifetimeViews).toLocaleString()} Lifetime Views
               </span>
+            </div>
+
+            {/* Metrics Pills: Watch Time, Avg Duration, Daily Shares, Net Subscribers */}
+            <div className="flex flex-wrap items-center gap-1.5 mt-1">
+              {selectedRecord.estimatedMinutesWatched !== undefined && (
+                <span className="text-[9.5px] px-1.5 py-0.5 rounded bg-[#071324] border border-[#18345c] text-[#c7d7eb] font-mono flex items-center space-x-1">
+                  <span className="text-[#8fa3bf]">Watch:</span>
+                  <strong className="text-[#00d2c4]">{Number(selectedRecord.estimatedMinutesWatched).toLocaleString()}m</strong>
+                  <span className="text-[#6296b8]">({(selectedRecord.estimatedMinutesWatched / 60).toFixed(0)}h)</span>
+                </span>
+              )}
+
+              {selectedRecord.averageViewDurationSeconds !== undefined && (
+                <span className="text-[9.5px] px-1.5 py-0.5 rounded bg-[#071324] border border-[#18345c] text-[#c7d7eb] font-mono flex items-center space-x-1">
+                  <span className="text-[#8fa3bf]">Avg Duration:</span>
+                  <strong className="text-[#00f2fe]">
+                    {Math.floor(selectedRecord.averageViewDurationSeconds / 60)}m {selectedRecord.averageViewDurationSeconds % 60}s
+                  </strong>
+                  {selectedRecord.averageViewPercentage && (
+                    <span className="text-[#00d2c4]">({selectedRecord.averageViewPercentage}%)</span>
+                  )}
+                </span>
+              )}
+
+              {selectedRecord.shares !== undefined && (
+                <span className="text-[9.5px] px-1.5 py-0.5 rounded bg-[#071324] border border-[#18345c] text-[#c7d7eb] font-mono flex items-center space-x-1">
+                  <span className="text-[#8fa3bf]">Shares:</span>
+                  <strong className="text-[#05d5b3]">{Number(selectedRecord.shares).toLocaleString()}</strong>
+                </span>
+              )}
+
+              {(selectedRecord.netSubscribers !== undefined || selectedRecord.subscribersGained !== undefined) && (
+                <span className="text-[9.5px] px-1.5 py-0.5 rounded bg-[#071324] border border-[#18345c] text-[#c7d7eb] font-mono flex items-center space-x-1">
+                  <span className="text-[#8fa3bf]">Net Subs:</span>
+                  <strong className="text-emerald-400">+{Number(selectedRecord.netSubscribers || selectedRecord.subscribersGained).toLocaleString()}</strong>
+                </span>
+              )}
             </div>
           </div>
         ) : (
@@ -541,6 +602,7 @@ export default function DailyViewsChart({
                 axisLine={false}
                 tick={{ fill: '#7e9cbe', fontSize: 10, fontFamily: 'monospace' }}
                 tickFormatter={(val) => {
+                  if (val >= 1000000) return `${(val / 1000000).toFixed(1)}M`;
                   if (val >= 1000) return `${(val / 1000).toFixed(0)}k`;
                   return val;
                 }}

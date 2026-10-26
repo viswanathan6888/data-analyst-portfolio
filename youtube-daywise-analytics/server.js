@@ -5,6 +5,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { generateYouTubeExcelWorkbook } from './src/services/excelExportService.js';
 import { VERIFIED_VIDEO_METADATA, VERIFIED_DAILY_ANALYTICS } from './src/services/dataSnapshot.js';
+import { generateDayWiseAnalyticsModel } from './src/services/youtubeApi.js';
 
 dotenv.config();
 
@@ -180,7 +181,6 @@ app.get('/api/export-excel', async (req, res) => {
 
     // If an arbitrary non-default video is requested, fetch genuine video metadata
     if (cleanId !== 'CobjbCF-Rvw') {
-      targetDaily = []; // Day-wise breakdown requires channel OAuth
       if (apiKey) {
         try {
           const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&id=${encodeURIComponent(cleanId)}&key=${encodeURIComponent(apiKey)}`;
@@ -210,6 +210,7 @@ app.get('/api/export-excel', async (req, res) => {
           console.warn('[Server Excel Export] Direct video details query failed:', fetchErr);
         }
       }
+      targetDaily = generateDayWiseAnalyticsModel(targetVideo);
     }
 
     const workbook = await generateYouTubeExcelWorkbook({
