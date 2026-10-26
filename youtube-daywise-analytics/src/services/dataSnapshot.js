@@ -363,41 +363,31 @@ export const VERIFIED_DAILY_ANALYTICS = [
     dayIndex: 10,
     dayName: 'Monday',
     dayLabel: 'Day 10 (Today)',
-    views: 1114,
-    cumulativeViews: 175902,
-    pctOfTotalViews: 0.63,
-    likes: 7,
-    cumulativeLikes: 1139,
-    comments: 1,
-    cumulativeComments: 99,
-    estimatedMinutesWatched: 8355,
-    averageViewDurationSeconds: 450, // 7m 30s
-    averageViewPercentage: 20.8,
-    shares: 4,
-    subscribersGained: 5,
-    subscribersLost: 0,
-    netSubscribers: 5,
-    trafficSources: [
-      { source: 'Suggested Videos', percentage: 47.0 },
-      { source: 'YouTube Recommendations', percentage: 31.0 },
-      { source: 'YouTube Search', percentage: 14.5 },
-      { source: 'External', percentage: 7.5 }
-    ],
-    deviceDistribution: [
-      { device: 'Mobile Phone', percentage: 87.0 },
-      { device: 'Connected TV', percentage: 7.5 },
-      { device: 'Computer / Desktop', percentage: 4.5 },
-      { device: 'Tablet', percentage: 1.0 }
-    ],
-    status: 'Finalized',
-    isPendingProcessing: false,
-    latencyNote: 'Verified Analytics Finalized'
+    views: null,
+    cumulativeViews: null,
+    pctOfTotalViews: null,
+    likes: null,
+    cumulativeLikes: null,
+    comments: null,
+    cumulativeComments: null,
+    estimatedMinutesWatched: null,
+    averageViewDurationSeconds: null,
+    averageViewPercentage: null,
+    shares: null,
+    subscribersGained: null,
+    subscribersLost: null,
+    netSubscribers: null,
+    trafficSources: [],
+    deviceDistribution: [],
+    status: 'Pending',
+    isPendingProcessing: true,
+    latencyNote: 'Pending YouTube Analytics Rollup (48-72h Processing Delay)'
   }
 ];
 
-export const LAST_PROCESSED_DATE = '2026-10-26';
-export const LAST_PROCESSED_DAY_INDEX = 10;
-export const FINALIZED_DAILY_VIEWS_SUM = 175902;
+export const LAST_PROCESSED_DATE = '2026-10-25';
+export const LAST_PROCESSED_DAY_INDEX = 9;
+export const FINALIZED_DAILY_VIEWS_SUM = 174788;
 
 export const TOTAL_LIFETIME_VIEWS = 187275;
 export const TOTAL_LIFETIME_LIKES = 1194;
