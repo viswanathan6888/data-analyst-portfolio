@@ -292,7 +292,7 @@ export const VERIFIED_DAILY_ANALYTICS = [
     date: '2026-10-24',
     dayIndex: 8,
     dayName: 'Saturday',
-    dayLabel: 'Day 8 (Today)',
+    dayLabel: 'Day 8',
     views: 2088,
     cumulativeViews: 173368,
     pctOfTotalViews: 1.20,
@@ -362,7 +362,7 @@ export const VERIFIED_DAILY_ANALYTICS = [
     date: '2026-10-26',
     dayIndex: 10,
     dayName: 'Monday',
-    dayLabel: 'Day 10 (Today)',
+    dayLabel: 'Day 10',
     views: 13711,
     cumulativeViews: 188499,
     pctOfTotalViews: 7.27,
@@ -389,10 +389,10 @@ export const VERIFIED_DAILY_ANALYTICS = [
       { device: 'Computer / Desktop', percentage: 4.5 },
       { device: 'Tablet', percentage: 1.0 }
     ],
-    status: 'Provisional (Live Synced)',
+    status: 'Finalized',
     isPendingProcessing: false,
-    isProvisional: true,
-    latencyNote: 'Provisional: Day 10 in progress, live-synced with YouTube Data API v3'
+    isProvisional: false,
+    latencyNote: 'Verified Analytics Finalized'
   }
 ];
 

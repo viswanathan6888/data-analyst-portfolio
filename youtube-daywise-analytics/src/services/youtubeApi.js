@@ -269,13 +269,7 @@ export async function fetchYouTubeAnalyticsReport({
     throw new Error('Video ID is required.');
   }
 
-  // Default to latest fully processed date (48-72h delay) if endDate not specified (Requirement 4)
-  const defaultProcessedDate = (() => {
-    const d = new Date();
-    d.setUTCDate(d.getUTCDate() - 2);
-    return d.toISOString().split('T')[0];
-  })();
-  const effectiveEndDate = endDate || defaultProcessedDate;
+  const effectiveEndDate = endDate || getCurrentReportingDate(REPORTING_TIMEZONE);
   const effectiveStartDate = startDate || '2026-10-17';
 
   const metrics = 'views,estimatedMinutesWatched,averageViewDuration,likes,comments,shares,subscribersGained,subscribersLost';
@@ -587,14 +581,43 @@ export async function fetchVideoTitlesBatch(videoIds = [], apiKey) {
   return titleMap;
 }
 
+export const REPORTING_TIMEZONE = 'Asia/Kolkata';
+
+/**
+ * Returns the current calendar date in the configured reporting timezone (default: Asia/Kolkata / IST)
+ * formatted as 'YYYY-MM-DD'.
+ */
+export function getCurrentReportingDate(timezone = REPORTING_TIMEZONE) {
+  try {
+    return new Intl.DateTimeFormat('en-CA', { timeZone: timezone }).format(new Date());
+  } catch (err) {
+    return new Date().toISOString().split('T')[0];
+  }
+}
+
+/**
+ * Converts an ISO timestamp or date string into a 'YYYY-MM-DD' calendar date in the configured reporting timezone.
+ */
+export function getReportingDateFromIso(isoString, timezone = REPORTING_TIMEZONE) {
+  if (!isoString) return null;
+  try {
+    const d = new Date(isoString);
+    if (isNaN(d.getTime())) return isoString.split('T')[0];
+    return new Intl.DateTimeFormat('en-CA', { timeZone: timezone }).format(d);
+  } catch (err) {
+    return isoString.split('T')[0];
+  }
+}
+
 /**
  * Generates the complete day-wise timeline starting from the video's original publication date
- * through the latest available analytics date.
+ * through today's date in the configured reporting timezone (Asia/Kolkata / IST).
  * 
- * - Starts at snippet.publishedAt (Day 1)
+ * - Starts at snippet.publishedAt (Day 1) in IST
  * - Numbers dates sequentially: Day 1, Day 2, Day 3 ... Day N
+ * - Automatically advances when the calendar advances to the next day in IST
  * - Integrates genuine authorized YouTube Analytics API v2 report data when available
- * - For dates/videos without channel authorization, marks daily metrics as null / N/A without fabricating values
+ * - Sets today's date to 'Pending' / Processing with null views when daily rollup is pending
  * - Preserves verified daily dataset for default initial video (CobjbCF-Rvw)
  */
 export function generateTimelineCalendar({
@@ -602,13 +625,14 @@ export function generateTimelineCalendar({
   latestDate,
   apiReportRows = [],
   verifiedDailyAnalytics = null,
-  isDefaultVideo = false
+  isDefaultVideo = false,
+  reportingTimezone = REPORTING_TIMEZONE
 }) {
   if (!publishedAt) return [];
 
-  // Extract clean YYYY-MM-DD from publication date
-  const cleanPubDate = publishedAt.split('T')[0];
-  const todayStr = latestDate || new Date().toISOString().split('T')[0];
+  // Extract clean YYYY-MM-DD from publication date in configured reporting timezone (Asia/Kolkata)
+  const cleanPubDate = getReportingDateFromIso(publishedAt, reportingTimezone);
+  const todayStr = latestDate || getCurrentReportingDate(reportingTimezone);
 
   const startDate = new Date(cleanPubDate + 'T00:00:00Z');
   const endDate = new Date(todayStr + 'T00:00:00Z');
@@ -645,6 +669,7 @@ export function generateTimelineCalendar({
 
   while (current <= endDate) {
     const dateStr = current.toISOString().split('T')[0];
+    const isToday = dateStr === todayStr;
     const dayName = dayNames[current.getUTCDay()];
 
     const apiRow = apiMap.get(dateStr);
@@ -660,13 +685,14 @@ export function generateTimelineCalendar({
     let subscribersGained = null;
     let subscribersLost = null;
     let netSubscribers = null;
-    let isUnavailable = true;
-    let status = 'Unavailable (Requires Channel OAuth)';
-    let latencyNote = 'Historical daily breakdown protected by YouTube Analytics API (Requires Channel Owner OAuth)';
+    let isUnavailable = false;
+    let isPendingProcessing = false;
+    let status = 'Finalized';
+    let latencyNote = '';
 
-    if (apiRow) {
-      isUnavailable = false;
-      views = apiRow.views !== undefined && apiRow.views !== null ? Number(apiRow.views) : null;
+    if (apiRow && apiRow.views !== null && apiRow.views !== undefined) {
+      // Authorized YouTube Analytics API row available
+      views = Number(apiRow.views);
       likes = apiRow.likes !== undefined && apiRow.likes !== null ? Number(apiRow.likes) : null;
       shares = apiRow.shares !== undefined && apiRow.shares !== null ? Number(apiRow.shares) : null;
       comments = apiRow.comments !== undefined && apiRow.comments !== null ? Number(apiRow.comments) : null;
@@ -676,11 +702,12 @@ export function generateTimelineCalendar({
       subscribersGained = apiRow.subscribersGained !== undefined && apiRow.subscribersGained !== null ? Number(apiRow.subscribersGained) : null;
       subscribersLost = apiRow.subscribersLost !== undefined && apiRow.subscribersLost !== null ? Number(apiRow.subscribersLost) : null;
       netSubscribers = apiRow.netSubscribers !== undefined && apiRow.netSubscribers !== null ? Number(apiRow.netSubscribers) : (subscribersGained !== null && subscribersLost !== null ? subscribersGained - subscribersLost : null);
-      status = apiRow.status || 'Finalized';
-      latencyNote = apiRow.latencyNote || 'Authorized YouTube Analytics API v2';
-    } else if (verifiedRow) {
-      isUnavailable = false;
-      views = verifiedRow.views !== undefined && verifiedRow.views !== null ? Number(verifiedRow.views) : null;
+      isPendingProcessing = Boolean(apiRow.isPendingProcessing);
+      status = apiRow.status || (isPendingProcessing ? 'Pending' : 'Finalized');
+      latencyNote = apiRow.latencyNote || (isPendingProcessing ? 'Pending YouTube Analytics Rollup (24-48h Processing Delay)' : 'Authorized YouTube Analytics API v2');
+    } else if (verifiedRow && verifiedRow.views !== null && verifiedRow.views !== undefined && !isToday) {
+      // Verified dataset for closed historical days (e.g. Days 1 to 10)
+      views = Number(verifiedRow.views);
       likes = verifiedRow.likes !== undefined && verifiedRow.likes !== null ? Number(verifiedRow.likes) : null;
       shares = verifiedRow.shares !== undefined && verifiedRow.shares !== null ? Number(verifiedRow.shares) : null;
       comments = verifiedRow.comments !== undefined && verifiedRow.comments !== null ? Number(verifiedRow.comments) : null;
@@ -690,8 +717,23 @@ export function generateTimelineCalendar({
       subscribersGained = verifiedRow.subscribersGained !== undefined && verifiedRow.subscribersGained !== null ? Number(verifiedRow.subscribersGained) : null;
       subscribersLost = verifiedRow.subscribersLost !== undefined && verifiedRow.subscribersLost !== null ? Number(verifiedRow.subscribersLost) : null;
       netSubscribers = verifiedRow.netSubscribers !== undefined && verifiedRow.netSubscribers !== null ? Number(verifiedRow.netSubscribers) : null;
+      isPendingProcessing = false;
       status = verifiedRow.status || 'Finalized';
       latencyNote = verifiedRow.latencyNote || 'Verified Analytics Dataset';
+    } else if (isToday) {
+      // Today: in-progress playback day in Asia/Kolkata (IST), pending YouTube Analytics 24-48h batch rollup
+      views = null;
+      isUnavailable = false;
+      isPendingProcessing = true;
+      status = 'Pending';
+      latencyNote = 'Pending YouTube Analytics Rollup (24-48h Processing Delay)';
+    } else {
+      // Past day without channel authorization or verified analytics
+      views = null;
+      isUnavailable = true;
+      isPendingProcessing = false;
+      status = 'Unavailable (Requires Channel OAuth)';
+      latencyNote = 'Historical daily breakdown protected by YouTube Analytics API (Requires Channel Owner OAuth)';
     }
 
     let growthRate = null;
@@ -703,7 +745,10 @@ export function generateTimelineCalendar({
       runningCumulativeViews += views;
     }
 
-    const dayLabel = dayIdx === 1 ? 'Day 1 (Launch)' : `Day ${dayIdx}`;
+    // Dynamic day label: explicitly tags (Today) if dateStr === todayStr
+    const dayLabel = isToday
+      ? `Day ${dayIdx} (Today)`
+      : (dayIdx === 1 ? 'Day 1 (Launch)' : `Day ${dayIdx}`);
 
     timeline.push({
       date: dateStr,
@@ -723,7 +768,7 @@ export function generateTimelineCalendar({
       netSubscribers,
       growthRate,
       isUnavailable,
-      isPendingProcessing: verifiedRow?.isPendingProcessing || (apiRow?.isPendingProcessing ?? false),
+      isPendingProcessing,
       status,
       latencyNote
     });

@@ -1,6 +1,6 @@
 import ExcelJS from 'exceljs/dist/exceljs.min.js';
 import { VERIFIED_VIDEO_METADATA, VERIFIED_DAILY_ANALYTICS } from './dataSnapshot.js';
-import { fetchVideoTitleDirect, generateTimelineCalendar } from './youtubeApi.js';
+import { fetchVideoTitleDirect, generateTimelineCalendar, REPORTING_TIMEZONE, getCurrentReportingDate } from './youtubeApi.js';
 
 /**
  * Calculates daily views growth rate compared with the previous day's views:
@@ -214,15 +214,17 @@ export async function generateYouTubeExcelWorkbook({
   } else if (isDefaultVideo) {
     dailyRecords = generateTimelineCalendar({
       publishedAt: currentVideo?.publishedAt || VERIFIED_VIDEO_METADATA.publishedAt,
-      latestDate: new Date().toISOString().split('T')[0],
+      latestDate: getCurrentReportingDate(REPORTING_TIMEZONE),
       verifiedDailyAnalytics: VERIFIED_DAILY_ANALYTICS,
-      isDefaultVideo: true
+      isDefaultVideo: true,
+      reportingTimezone: REPORTING_TIMEZONE
     });
   } else if (currentVideo && currentVideo.publishedAt) {
     dailyRecords = generateTimelineCalendar({
       publishedAt: currentVideo.publishedAt,
-      latestDate: new Date().toISOString().split('T')[0],
-      isDefaultVideo: false
+      latestDate: getCurrentReportingDate(REPORTING_TIMEZONE),
+      isDefaultVideo: false,
+      reportingTimezone: REPORTING_TIMEZONE
     });
   }
 
@@ -696,7 +698,7 @@ export async function downloadYouTubeExcelReport({
   const anchor = document.createElement('a');
   anchor.href = url;
   const videoId = videoData?.id || 'video';
-  const today = new Date().toISOString().split('T')[0];
+  const today = getCurrentReportingDate(REPORTING_TIMEZONE);
   const defaultName = `YouTube_Daily_Analytics_${videoId}_${today}.xlsx`;
   anchor.download = fileName || defaultName;
   document.body.appendChild(anchor);

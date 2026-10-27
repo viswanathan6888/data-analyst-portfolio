@@ -10,7 +10,10 @@ import {
   fetchVideoDetails,
   fetchYouTubeAnalyticsReport,
   fetchVideoComments,
-  generateTimelineCalendar
+  generateTimelineCalendar,
+  REPORTING_TIMEZONE,
+  getCurrentReportingDate,
+  getReportingDateFromIso
 } from './services/youtubeApi';
 import {
   VERIFIED_VIDEO_METADATA,
@@ -237,8 +240,8 @@ export default function App() {
       // 3. Fetch or load day-wise analytics starting from the video's original published date
       let apiReportRows = [];
       const effectivePublishedAt = publicDetails?.publishedAt || (cleanTargetId === 'CobjbCF-Rvw' ? VERIFIED_VIDEO_METADATA.publishedAt : null);
-      const originalPublishDate = effectivePublishedAt ? effectivePublishedAt.split('T')[0] : '2026-10-17';
-      const todayStr = new Date().toISOString().split('T')[0];
+      const originalPublishDate = getReportingDateFromIso(effectivePublishedAt, REPORTING_TIMEZONE) || '2026-10-17';
+      const todayStr = getCurrentReportingDate(REPORTING_TIMEZONE);
 
       if (isOAuthConnected && accessToken) {
         try {
@@ -263,46 +266,9 @@ export default function App() {
           latestDate: todayStr,
           apiReportRows,
           verifiedDailyAnalytics: cleanTargetId === 'CobjbCF-Rvw' ? VERIFIED_DAILY_ANALYTICS : null,
-          isDefaultVideo: cleanTargetId === 'CobjbCF-Rvw'
+          isDefaultVideo: cleanTargetId === 'CobjbCF-Rvw',
+          reportingTimezone: REPORTING_TIMEZONE
         });
-      }
-
-      // Dynamic Live Sync for Day 10 on default video CobjbCF-Rvw:
-      // Prevents background refresh or initial load from overwriting Day 10 with a stale snapshot.
-      // Day 10 views = latestLifetimeViews - sum(Days 1 to 9).
-      if (cleanTargetId === 'CobjbCF-Rvw' && loadedDailyData && loadedDailyData.length > 0) {
-        const liveTotalViews = Number(publicDetails?.viewCount || publicDetails?.statistics?.viewCount || 188499);
-        const liveLikes = Number(publicDetails?.likeCount || publicDetails?.statistics?.likeCount || 1204);
-        const liveComments = Number(publicDetails?.commentCount || publicDetails?.statistics?.commentCount || 104);
-        const CLOSED_DAYS_1_TO_9_VIEWS = 174788;
-
-        const day10Index = loadedDailyData.findIndex(d => d.date === '2026-10-26' || d.dayIndex === 10);
-        if (day10Index !== -1 && liveTotalViews >= CLOSED_DAYS_1_TO_9_VIEWS) {
-          const liveDay10Views = liveTotalViews - CLOSED_DAYS_1_TO_9_VIEWS;
-          const liveDay10Likes = Math.max(0, liveLikes - 1132);
-          const liveDay10Comments = Math.max(0, liveComments - 98);
-          const liveDay10EstimatedMinutes = Math.round(liveDay10Views * 7.5);
-
-          const prevDayViews = day10Index > 0 ? (loadedDailyData[day10Index - 1]?.views || 1420) : 1420;
-          const calculatedGrowthRate = Number((((liveDay10Views - prevDayViews) / prevDayViews) * 100).toFixed(2));
-
-          loadedDailyData[day10Index] = {
-            ...loadedDailyData[day10Index],
-            views: liveDay10Views,
-            cumulativeViews: liveTotalViews,
-            pctOfTotalViews: Number(((liveDay10Views / liveTotalViews) * 100).toFixed(2)),
-            likes: liveDay10Likes,
-            cumulativeLikes: liveLikes,
-            comments: liveDay10Comments,
-            cumulativeComments: liveComments,
-            estimatedMinutesWatched: liveDay10EstimatedMinutes,
-            growthRate: calculatedGrowthRate,
-            status: 'Provisional (Live Synced)',
-            isProvisional: true,
-            isPendingProcessing: false,
-            latencyNote: 'Provisional: Day 10 in progress, live-synced with YouTube Data API v3'
-          };
-        }
       }
 
       if (currentSeq !== requestSeqRef.current) return;
@@ -310,9 +276,8 @@ export default function App() {
       if (loadedDailyData && loadedDailyData.length > 0) {
         setDailyData(loadedDailyData);
         if (!preserveSelection) {
-          // Focus by default on the latest fully processed date (where metrics are finalized, not pending)
-          const lastProcessed = [...loadedDailyData].reverse().find(d => !d.isPendingProcessing && d.views !== null && d.views !== undefined);
-          setSelectedDate(lastProcessed?.date || loadedDailyData[loadedDailyData.length - 1]?.date || loadedDailyData[0]?.date);
+          // Default to today's date (latest calendar day in timeline)
+          setSelectedDate(loadedDailyData[loadedDailyData.length - 1]?.date || loadedDailyData[0]?.date);
         }
       } else {
         setDailyData([]);

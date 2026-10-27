@@ -3,6 +3,8 @@
  * Securely proxies YouTube Analytics API v2 requests using the Channel Owner's OAuth Bearer Token
  */
 
+import { REPORTING_TIMEZONE, getCurrentReportingDate } from '../src/services/youtubeApi.js';
+
 export default async function handler(req, res) {
   // Set CORS headers
   res.setHeader('Access-Control-Allow-Credentials', true);
@@ -32,7 +34,7 @@ export default async function handler(req, res) {
   }
 
   const effectiveStartDate = startDate || '2026-10-17';
-  const effectiveEndDate = endDate || new Date().toISOString().split('T')[0];
+  const effectiveEndDate = endDate || getCurrentReportingDate(REPORTING_TIMEZONE);
 
   const metrics = 'views,estimatedMinutesWatched,averageViewDuration,likes,comments,shares,subscribersGained,subscribersLost';
   const channelParam = channelId === 'MINE' ? 'channel==MINE' : `channel==${channelId}`;

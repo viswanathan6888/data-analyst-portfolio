@@ -178,29 +178,48 @@ export default function ReconciliationAuditModal({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[#18345c]/50 font-mono">
-                  {dailyData.map((d) => (
-                    <tr key={d.date} className="hover:bg-[#102342]/50 transition">
-                      <td className="py-2 px-3 font-semibold text-white">{d.dayLabel || `Day ${d.dayIndex}`}</td>
-                      <td className="py-2 px-3 text-[#6296b8]">{d.date}</td>
-                      <td className="py-2 px-3 text-right text-white font-bold">{Number(d.views || 0).toLocaleString()}</td>
-                      <td className="py-2 px-3 text-right text-[#00f2fe]">{Number(d.views || 0).toLocaleString()}</td>
-                      <td className="py-2 px-3 text-right text-[#00d2c4]">{Number(d.views || 0).toLocaleString()}</td>
-                      <td className="py-2 px-3 text-center">
-                        <span className="inline-flex items-center space-x-1 px-1.5 py-0.5 rounded text-[10px] bg-emerald-950/60 border border-emerald-500/30 text-emerald-400">
-                          <CheckCircle2 className="w-2.5 h-2.5" />
-                          <span>0</span>
-                        </span>
-                      </td>
-                      <td className="py-2 px-3 text-right text-[#8fa3bf] text-[10px]">
-                        {d.status || 'Finalized'}
-                      </td>
-                    </tr>
-                  ))}
+                  {dailyData.map((d) => {
+                    const isPending = d.isPendingProcessing || d.views === null;
+                    return (
+                      <tr key={d.date} className="hover:bg-[#102342]/50 transition">
+                        <td className="py-2 px-3 font-semibold text-white">{d.dayLabel || `Day ${d.dayIndex}`}</td>
+                        <td className="py-2 px-3 text-[#6296b8]">{d.date}</td>
+                        <td className={`py-2 px-3 text-right font-bold ${isPending ? 'text-amber-400' : 'text-white'}`}>
+                          {isPending ? 'Pending' : Number(d.views).toLocaleString()}
+                        </td>
+                        <td className={`py-2 px-3 text-right ${isPending ? 'text-amber-400' : 'text-[#00f2fe]'}`}>
+                          {isPending ? 'Pending' : Number(d.views).toLocaleString()}
+                        </td>
+                        <td className={`py-2 px-3 text-right ${isPending ? 'text-amber-400' : 'text-[#00d2c4]'}`}>
+                          {isPending ? 'Pending' : Number(d.views).toLocaleString()}
+                        </td>
+                        <td className="py-2 px-3 text-center">
+                          {isPending ? (
+                            <span className="inline-flex items-center space-x-1 px-1.5 py-0.5 rounded text-[10px] bg-amber-950/60 border border-amber-500/30 text-amber-400">
+                              <span>Pending</span>
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center space-x-1 px-1.5 py-0.5 rounded text-[10px] bg-emerald-950/60 border border-emerald-500/30 text-emerald-400">
+                              <CheckCircle2 className="w-2.5 h-2.5" />
+                              <span>0</span>
+                            </span>
+                          )}
+                        </td>
+                        <td className="py-2 px-3 text-right text-[10px]">
+                          <span className={isPending ? 'text-amber-400 font-semibold' : 'text-[#8fa3bf]'}>
+                            {d.status || (isPending ? 'Pending' : 'Finalized')}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
                   
                   {/* Summary Total Row */}
                   <tr className="bg-[#081528] font-bold text-white border-t-2 border-[#1b3e70]">
-                    <td className="py-2.5 px-3 text-[#00f2fe]">Total (Days 1–{dailyData.length})</td>
-                    <td className="py-2.5 px-3 text-[#8fa3bf]">All Tracked Days</td>
+                    <td className="py-2.5 px-3 text-[#00f2fe]">
+                      Total Finalized ({dailyData.filter(d => !d.isPendingProcessing && d.views !== null).length} Days)
+                    </td>
+                    <td className="py-2.5 px-3 text-[#8fa3bf]">Processed Days</td>
                     <td className="py-2.5 px-3 text-right">{dailySum.toLocaleString()}</td>
                     <td className="py-2.5 px-3 text-right text-[#00f2fe]">{dailySum.toLocaleString()}</td>
                     <td className="py-2.5 px-3 text-right text-[#00d2c4]">{dailySum.toLocaleString()}</td>
