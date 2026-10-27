@@ -67,7 +67,9 @@ export default async function handler(req, res) {
         apiReportRows: [],
         verifiedDailyAnalytics: VERIFIED_DAILY_ANALYTICS,
         isDefaultVideo: true,
-        reportingTimezone: REPORTING_TIMEZONE
+        reportingTimezone: REPORTING_TIMEZONE,
+        lifetimeViews: targetVideo.viewCount,
+        liveStats: targetVideo.statistics
       });
 
       console.log(`[API /api/export-excel] Requested Video ID: ${cleanId} | Title: "${targetVideo.title}" | Views: ${targetVideo.viewCount} | Days: ${targetDaily.length} | Today: ${todayStr} | Channel: ${targetVideo.channelId} | Verified Dataset Used`);

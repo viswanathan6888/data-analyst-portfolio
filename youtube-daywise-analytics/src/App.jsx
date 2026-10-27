@@ -62,7 +62,9 @@ export default function App() {
       apiReportRows: [],
       verifiedDailyAnalytics: VERIFIED_DAILY_ANALYTICS,
       isDefaultVideo: true,
-      reportingTimezone: REPORTING_TIMEZONE
+      reportingTimezone: REPORTING_TIMEZONE,
+      lifetimeViews: VERIFIED_VIDEO_METADATA.viewCount,
+      liveStats: VERIFIED_VIDEO_METADATA.statistics
     });
   };
 
@@ -102,10 +104,15 @@ export default function App() {
     return verified?.date || timeline[timeline.length - 1]?.date;
   };
 
-  // Selected date defaults to latest verified reporting date (e.g. Day 10 / 2026-10-26) so verified daily views are displayed immediately upon open
-  const [selectedDate, setSelectedDate] = useState(
-    getLatestVerifiedDate(initialDailyTimeline)
-  );
+  // Selected date defaults to today if genuine live views are available, or latest verified reporting date
+  const [selectedDate, setSelectedDate] = useState(() => {
+    if (!initialDailyTimeline || initialDailyTimeline.length === 0) return null;
+    const todayItem = initialDailyTimeline[initialDailyTimeline.length - 1];
+    if (todayItem && todayItem.views !== null && todayItem.views !== undefined) {
+      return todayItem.date;
+    }
+    return getLatestVerifiedDate(initialDailyTimeline);
+  });
   const [isCommentsOpen, setIsCommentsOpen] = useState(true);
 
   // Auto-refresh interval (default 1 minute = 60000ms for responsive genuine updates)
@@ -287,13 +294,16 @@ export default function App() {
 
       let loadedDailyData = [];
       if (effectivePublishedAt) {
+        const liveLifetime = Number(publicDetails?.statistics?.viewCount ?? publicDetails?.viewCount ?? (cleanTargetId === 'CobjbCF-Rvw' ? VERIFIED_VIDEO_METADATA.viewCount : 0));
         loadedDailyData = generateTimelineCalendar({
           publishedAt: effectivePublishedAt,
           latestDate: todayStr,
           apiReportRows,
           verifiedDailyAnalytics: cleanTargetId === 'CobjbCF-Rvw' ? VERIFIED_DAILY_ANALYTICS : null,
           isDefaultVideo: cleanTargetId === 'CobjbCF-Rvw',
-          reportingTimezone: REPORTING_TIMEZONE
+          reportingTimezone: REPORTING_TIMEZONE,
+          lifetimeViews: liveLifetime,
+          liveStats: publicDetails?.statistics
         });
       }
 
@@ -302,8 +312,13 @@ export default function App() {
       if (loadedDailyData && loadedDailyData.length > 0) {
         setDailyData(loadedDailyData);
         if (!preserveSelection) {
-          // Default to latest verified date so verified daily metrics show immediately
-          setSelectedDate(getLatestVerifiedDate(loadedDailyData));
+          // If today has live views accrued, default to today's date so today's views appear immediately upon synchronization
+          const todayItem = loadedDailyData[loadedDailyData.length - 1];
+          if (todayItem && todayItem.views !== null && todayItem.views !== undefined) {
+            setSelectedDate(todayItem.date);
+          } else {
+            setSelectedDate(getLatestVerifiedDate(loadedDailyData));
+          }
         }
       } else {
         setDailyData([]);

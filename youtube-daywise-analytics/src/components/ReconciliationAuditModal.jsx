@@ -91,10 +91,10 @@ export default function ReconciliationAuditModal({
               </div>
             </div>
 
-            {/* Card 2: 10-Day Historical Sum */}
+            {/* Card 2: Daily Historical Sum */}
             <div className="bg-[#0c1b32] p-3 rounded-xl border border-[#18345c] flex flex-col justify-between">
               <div className="flex items-center justify-between text-[#8fa3bf]">
-                <span className="text-[10px] font-semibold uppercase tracking-wider">10-Day Historical Sum</span>
+                <span className="text-[10px] font-semibold uppercase tracking-wider">{dailyData.length}-Day Tracked Sum</span>
                 <Calendar className="w-3.5 h-3.5 text-[#00d2c4]" />
               </div>
               <div className="my-2">
@@ -102,7 +102,7 @@ export default function ReconciliationAuditModal({
                   {dailySum.toLocaleString()}
                 </div>
                 <div className="text-[9.5px] text-[#6296b8] mt-0.5">
-                  YouTube Analytics API (<span className="text-[#00d2c4]">Days 1–10</span>)
+                  YouTube Analytics API (<span className="text-[#00d2c4]">Days 1–{dailyData.length}</span>)
                 </div>
               </div>
               <div className="text-[9px] text-[#8fa3bf] border-t border-[#18345c]/50 pt-1">

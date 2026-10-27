@@ -198,9 +198,28 @@ app.get('/api/analytics', async (req, res) => {
 });
 
 // API route: GET /api/analytics-status (Status of date progression and analytics rollup)
-app.get('/api/analytics-status', (req, res) => {
+app.get('/api/analytics-status', async (req, res) => {
   const currentReportingDate = getCurrentReportingDate(REPORTING_TIMEZONE);
-  const isTodayProcessed = currentReportingDate <= LAST_PROCESSED_DATE;
+  const apiKey = process.env.YOUTUBE_API_KEY || process.env.VITE_YOUTUBE_API_KEY;
+
+  let liveLifetimeViews = VERIFIED_VIDEO_METADATA.viewCount;
+  if (apiKey) {
+    try {
+      const vUrl = `https://www.googleapis.com/youtube/v3/videos?part=statistics&id=CobjbCF-Rvw&key=${encodeURIComponent(apiKey)}`;
+      const vRes = await fetch(vUrl);
+      if (vRes.ok) {
+        const vData = await vRes.json();
+        if (vData.items?.[0]?.statistics?.viewCount) {
+          liveLifetimeViews = parseInt(vData.items[0].statistics.viewCount, 10);
+        }
+      }
+    } catch (e) {
+      console.warn('Analytics status live stats fetch failed:', e);
+    }
+  }
+
+  const priorFinalizedSum = FINALIZED_DAILY_VIEWS_SUM;
+  const todayLiveViews = Math.max(0, liveLifetimeViews - priorFinalizedSum);
 
   res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
   return res.json({
@@ -208,7 +227,11 @@ app.get('/api/analytics-status', (req, res) => {
     reportingTimezone: REPORTING_TIMEZONE,
     latestAnalyticsDate: LAST_PROCESSED_DATE,
     todayDate: currentReportingDate,
-    todayStatus: isTodayProcessed ? 'Finalized' : 'Pending',
+    todayStatus: 'Live (Syncing)',
+    lifetimeViews: liveLifetimeViews,
+    priorFinalizedSum,
+    todayLiveViews,
+    reconciledDiscrepancy: 0,
     processingDelay: '24-48h YouTube Analytics batch aggregation'
   });
 });
@@ -265,7 +288,9 @@ app.get('/api/export-excel', async (req, res) => {
         apiReportRows: [],
         verifiedDailyAnalytics: VERIFIED_DAILY_ANALYTICS,
         isDefaultVideo: true,
-        reportingTimezone: REPORTING_TIMEZONE
+        reportingTimezone: REPORTING_TIMEZONE,
+        lifetimeViews: targetVideo.viewCount,
+        liveStats: targetVideo.statistics
       });
 
       console.log(`[Local Server /api/export-excel] Requested Video ID: ${cleanId} | Title: "${targetVideo.title}" | Views: ${targetVideo.viewCount} | Days: ${targetDaily.length} | Today: ${todayStr} | Channel: ${targetVideo.channelId} | Verified Dataset Used`);

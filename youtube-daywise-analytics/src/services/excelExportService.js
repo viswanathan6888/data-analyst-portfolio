@@ -212,13 +212,16 @@ export async function generateYouTubeExcelWorkbook({
   // Guarantee that dailyRecords ALWAYS spans from the video's original publication date through today's date in Asia/Kolkata
   let dailyRecords = [];
   if (effectivePublishedAt) {
+    const liveLifetime = Number(currentVideo?.statistics?.viewCount ?? currentVideo?.viewCount ?? (isDefaultVideo ? VERIFIED_VIDEO_METADATA.viewCount : 0));
     dailyRecords = generateTimelineCalendar({
       publishedAt: effectivePublishedAt,
       latestDate: todayStr,
       apiReportRows: (dailyData && Array.isArray(dailyData) && dailyData.length > 0) ? dailyData : [],
       verifiedDailyAnalytics: isDefaultVideo ? VERIFIED_DAILY_ANALYTICS : null,
       isDefaultVideo,
-      reportingTimezone: REPORTING_TIMEZONE
+      reportingTimezone: REPORTING_TIMEZONE,
+      lifetimeViews: liveLifetime,
+      liveStats: currentVideo?.statistics
     });
   } else if (hasDailyData) {
     dailyRecords = dailyData;

@@ -380,10 +380,12 @@ export default function DailyViewsChart({
     ? ((selectedRecord.views / lifetimeViews) * 100).toFixed(1)
     : selectedRecord?.pctOfTotalViews || '0';
 
-  // Latest verified / fully processed day in timeline
+  // Latest verified / fully processed day in timeline (Day 10)
   const lastProcessedRecord = [...dailyData].reverse().find(
-    (d) => !d.isPendingProcessing && d.views !== null && d.views !== undefined
+    (d) => !d.isPendingProcessing && !d.isLiveToday && d.views !== null && d.views !== undefined
   );
+  // Live today record (Day 11)
+  const liveTodayRecord = dailyData.find((d) => d.isLiveToday);
   // In-flight / pending today record
   const todayPendingRecord = dailyData.find((d) => d.isPendingProcessing);
 
@@ -413,6 +415,7 @@ export default function DailyViewsChart({
     if (!item) return null;
     const isSelected = selectedDate === item.date;
     const isPending = item.isPendingProcessing;
+    const isLiveToday = item.isLiveToday;
     const isProtected = (item.isProtected || item.views === null) && !isPending;
     const labelText = isPending ? 'Pending' : (isProtected ? 'N/A' : formatOnBarCount(item.views));
 
@@ -421,12 +424,12 @@ export default function DailyViewsChart({
         x={x + width / 2}
         y={isProtected || isPending ? y - 4 : y - 6}
         textAnchor="middle"
-        fill={isSelected ? (isPending ? '#facc15' : '#00f2fe') : (isPending ? '#eab308' : (isProtected ? '#5fa5c8' : '#7e9cbe'))}
+        fill={isSelected ? (isPending ? '#facc15' : '#00f2fe') : (isPending ? '#eab308' : isLiveToday ? '#38bdf8' : (isProtected ? '#5fa5c8' : '#7e9cbe'))}
         fontSize={isSelected ? 11 : 9.5}
-        fontWeight={isSelected || isPending ? 700 : 500}
+        fontWeight={isSelected || isPending || isLiveToday ? 700 : 500}
         fontFamily="monospace"
         style={{
-          filter: isSelected ? `drop-shadow(0 0 6px ${isPending ? 'rgba(250, 204, 21, 0.85)' : 'rgba(0,242,254,0.85)'})` : 'none',
+          filter: isSelected ? `drop-shadow(0 0 6px ${isPending ? 'rgba(250, 204, 21, 0.85)' : 'rgba(0,242,254,0.85)'})` : isLiveToday ? 'drop-shadow(0 0 4px rgba(0,242,254,0.5))' : 'none',
           pointerEvents: 'none'
         }}
       >
@@ -607,11 +610,17 @@ export default function DailyViewsChart({
                   {Number(selectedRecord.views || 0).toLocaleString()}
                 </span>
                 <span className="text-xs font-semibold text-white">
-                  Actual Daily Views
+                  {selectedRecord.isLiveToday ? 'Live Daily Views (Today)' : 'Actual Daily Views'}
                 </span>
                 <span className="text-[10px] px-2 py-0.2 rounded-full bg-[#071324] border border-[#1b3e70] text-[#7eb3d6] font-mono">
                   {pctOfLifetime}% of {Number(lifetimeViews).toLocaleString()} Lifetime Views
                 </span>
+                {selectedRecord.isLiveToday && (
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-cyan-950/80 border border-cyan-400/60 text-cyan-300 font-mono flex items-center gap-1.5 shadow-[0_0_10px_rgba(0,242,254,0.35)] animate-pulse">
+                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
+                    Live Today (Syncing)
+                  </span>
+                )}
               </div>
             ) : selectedRecord.isPendingProcessing ? (
               <div>
@@ -704,6 +713,29 @@ export default function DailyViewsChart({
 
         {/* Timeline Navigation Controls */}
         <div className="flex items-center space-x-1.5 self-start sm:self-auto shrink-0">
+          {liveTodayRecord && selectedRecord?.date !== liveTodayRecord.date && (
+            <button
+              type="button"
+              onClick={() => handleSelectDateAndFocus(liveTodayRecord.date)}
+              className="flex items-center space-x-1 px-2 py-1 rounded-lg bg-cyan-950/80 hover:bg-cyan-900/80 text-cyan-300 border border-cyan-400/50 text-[10px] font-mono transition cursor-pointer shadow-[0_0_8px_rgba(0,242,254,0.25)]"
+              title={`Jump to Today's Live Views (${Number(liveTodayRecord.views || 0).toLocaleString()})`}
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
+              <span>Today Live ({Number(liveTodayRecord.views || 0).toLocaleString()}) ›</span>
+            </button>
+          )}
+
+          {liveTodayRecord && selectedRecord?.date === liveTodayRecord.date && lastProcessedRecord && (
+            <button
+              type="button"
+              onClick={() => handleSelectDateAndFocus(lastProcessedRecord.date)}
+              className="flex items-center space-x-1 px-2 py-1 rounded-lg bg-[#0c2438] hover:bg-[#133550] text-[#00f2fe] border border-[#00f2fe]/40 text-[10px] font-mono transition cursor-pointer"
+              title={`Jump to Day 10 Verified Analytics (${lastProcessedRecord.date})`}
+            >
+              <span>‹ Day 10 ({Number(lastProcessedRecord.views || 0).toLocaleString()})</span>
+            </button>
+          )}
+
           {todayPendingRecord && selectedRecord?.date !== todayPendingRecord.date && (
             <button
               type="button"
@@ -900,27 +932,30 @@ export default function DailyViewsChart({
                   {chartData.map((entry) => {
                     const isSelected = selectedDate === entry.date;
                     const isPending = entry.isPendingProcessing;
+                    const isLiveToday = entry.isLiveToday;
                     const isProtected = (entry.isProtected || entry.views === null) && !isPending;
                     return (
                       <Cell
                         key={`cell-${entry.date}`}
                         fill={
                           isSelected
-                            ? (isPending ? '#eab308' : (isProtected ? 'rgba(0, 242, 254, 0.45)' : '#00f2fe'))
-                            : (isPending ? 'rgba(234, 179, 8, 0.25)' : (isProtected ? 'rgba(16, 35, 66, 0.7)' : '#00a8cc'))
+                            ? (isPending ? '#eab308' : isLiveToday ? '#00f2fe' : (isProtected ? 'rgba(0, 242, 254, 0.45)' : '#00f2fe'))
+                            : (isPending ? 'rgba(234, 179, 8, 0.25)' : isLiveToday ? '#00c4df' : (isProtected ? 'rgba(16, 35, 66, 0.7)' : '#00a8cc'))
                         }
                         stroke={
                           isSelected
                             ? (isPending ? '#facc15' : '#00f2fe')
-                            : (isPending ? '#ca8a04' : (isProtected ? '#1e3a64' : 'transparent'))
+                            : (isPending ? '#ca8a04' : isLiveToday ? '#00f2fe' : (isProtected ? '#1e3a64' : 'transparent'))
                         }
-                        strokeWidth={isSelected ? 1.5 : (isPending || isProtected ? 1 : 0)}
-                        strokeDasharray={isPending || isProtected ? '3 2' : undefined}
+                        strokeWidth={isSelected ? 1.5 : (isLiveToday ? 1.5 : (isPending || isProtected ? 1 : 0))}
+                        strokeDasharray={isPending || isProtected ? '3 2' : (isLiveToday && !isSelected ? '4 2' : undefined)}
                         className="transition-all duration-200 hover:opacity-90"
                         style={{
                           cursor: 'pointer',
                           filter: isSelected
                             ? `drop-shadow(0px 0px 14px ${isPending ? 'rgba(250, 204, 21, 0.95)' : 'rgba(0, 242, 254, 0.95)'})`
+                            : isLiveToday
+                            ? 'drop-shadow(0px 0px 8px rgba(0, 242, 254, 0.6))'
                             : undefined
                         }}
                         onClick={(e) => {
