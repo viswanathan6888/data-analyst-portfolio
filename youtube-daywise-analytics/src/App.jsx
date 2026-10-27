@@ -161,7 +161,7 @@ export default function App() {
   };
 
   // Load video analytics and real YouTube comments with robust live synchronization
-  const loadVideoAnalytics = async (targetVideoId, preserveSelection = false) => {
+  const loadVideoAnalytics = async (targetVideoId, preserveSelection = false, syncSource = 'client') => {
     if (!targetVideoId) return;
     const cleanTargetId = targetVideoId.trim();
 
@@ -191,11 +191,82 @@ export default function App() {
     }
 
     const fetchTimestamp = new Date().toISOString();
-    console.log(`[YouTube Sync Start] Target Video ID: ${cleanTargetId} | Timestamp: ${fetchTimestamp} | Seq: ${currentSeq}`);
+    console.log(`[YouTube Sync Start] Target Video ID: ${cleanTargetId} | Source: ${syncSource} | Timestamp: ${fetchTimestamp} | Seq: ${currentSeq}`);
+
+    // 1. Try unified backend synchronization endpoint /api/sync first
+    try {
+      const syncRes = await fetch(`/api/sync?videoId=${encodeURIComponent(cleanTargetId)}&source=${encodeURIComponent(syncSource)}`, {
+        cache: 'no-store',
+        headers: { 'Accept': 'application/json' }
+      });
+      if (syncRes.ok) {
+        const syncData = await syncRes.json();
+        if (syncData && syncData.success && syncData.dailyData && syncData.dailyData.length > 0) {
+          if (currentSeq !== requestSeqRef.current) return;
+
+          const latestViewCount = Number(syncData.lifetimeViews || syncData.videoData?.viewCount || 0);
+          setVideoData((prev) => {
+            const prevViews = prev && prev.id === cleanTargetId ? Number(prev.statistics?.viewCount ?? prev.viewCount ?? 0) : 0;
+            if (prevViews > 0 && latestViewCount >= prevViews) {
+              const delta = latestViewCount - prevViews;
+              setNewViewsGained(delta);
+              setPreviousLifetimeViews(prevViews);
+            }
+            return syncData.videoData;
+          });
+
+          setDailyData(syncData.dailyData);
+
+          if (!preserveSelection) {
+            const todayItem = syncData.dailyData[syncData.dailyData.length - 1];
+            if (todayItem && todayItem.views !== null && todayItem.views !== undefined) {
+              setSelectedDate(todayItem.date);
+            } else {
+              setSelectedDate(getLatestVerifiedDate(syncData.dailyData));
+            }
+          }
+
+          try {
+            localStorage.setItem(`yt_sync_data_${cleanTargetId}`, JSON.stringify(syncData));
+          } catch (e) {}
+
+          const syncTimeStr = syncData.formattedSyncTime || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+          setLastRefreshedAt(syncTimeStr);
+          setLastSyncStatus('success');
+
+          // Concurrently fetch comments
+          try {
+            const commentsResult = await fetchVideoComments(cleanTargetId, apiKey);
+            if (currentSeq === requestSeqRef.current) {
+              if (commentsResult && commentsResult.commentsDisabled) {
+                setCommentsDisabled(true);
+                setComments([]);
+              } else if (commentsResult && Array.isArray(commentsResult.comments)) {
+                setCommentsDisabled(false);
+                setComments(commentsResult.comments);
+              } else if (Array.isArray(commentsResult)) {
+                setCommentsDisabled(false);
+                setComments(commentsResult);
+              } else if (cleanTargetId === 'CobjbCF-Rvw') {
+                setCommentsDisabled(false);
+                setComments(VERIFIED_COMMENTS);
+              }
+            }
+          } catch (cErr) {
+            if (cleanTargetId === 'CobjbCF-Rvw') setComments(VERIFIED_COMMENTS);
+          }
+
+          console.log(`[YouTube Sync Complete via /api/sync] Video: ${cleanTargetId} | Total Days: ${syncData.dailyData.length} | Synced At: ${syncTimeStr}`);
+          return;
+        }
+      }
+    } catch (syncErr) {
+      console.warn('[YouTube Sync] /api/sync call error, using direct API pipeline fallback:', syncErr.message);
+    }
 
     let publicDetails = null;
     try {
-      // 1. Fetch live public video details using videos.list with part=snippet,contentDetails,statistics
+      // Direct pipeline fallback if /api/sync is unreachable
       try {
         publicDetails = await fetchVideoDetails(cleanTargetId, apiKey);
 
@@ -346,14 +417,14 @@ export default function App() {
   };
 
   useEffect(() => {
-    loadVideoAnalytics(initialVideo);
+    loadVideoAnalytics(initialVideo, false, 'initial');
   }, []);
 
   // Automatic background refresh timer
   useEffect(() => {
     if (!autoRefreshInterval || autoRefreshInterval <= 0) return;
     const interval = setInterval(() => {
-      loadVideoAnalytics(videoId, true);
+      loadVideoAnalytics(videoId, true, 'auto-refresh');
     }, autoRefreshInterval);
     return () => clearInterval(interval);
   }, [autoRefreshInterval, videoId, apiKey, isOAuthConnected, accessToken]);
@@ -371,7 +442,7 @@ export default function App() {
       <Navbar
         videoData={videoData}
         onSearchVideo={(newVideoId) => {
-          loadVideoAnalytics(newVideoId, false);
+          loadVideoAnalytics(newVideoId, false, 'search');
         }}
         onSearchError={(msg) => setErrorMessage(msg)}
         isLoading={isLoading}
@@ -382,7 +453,7 @@ export default function App() {
         hasApiKey={Boolean(apiKey)}
         autoRefreshInterval={autoRefreshInterval}
         onChangeAutoRefresh={setAutoRefreshInterval}
-        onManualRefresh={() => loadVideoAnalytics(videoId, true)}
+        onManualRefresh={() => loadVideoAnalytics(videoId, true, 'manual')}
         lastRefreshedAt={lastRefreshedAt}
         lastSyncStatus={lastSyncStatus}
       />

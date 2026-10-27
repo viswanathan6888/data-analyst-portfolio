@@ -6,6 +6,7 @@ import { fileURLToPath } from 'url';
 import { generateYouTubeExcelWorkbook } from './src/services/excelExportService.js';
 import { VERIFIED_VIDEO_METADATA, VERIFIED_DAILY_ANALYTICS, LAST_PROCESSED_DATE } from './src/services/dataSnapshot.js';
 import { generateTimelineCalendar, parseDuration, REPORTING_TIMEZONE, getCurrentReportingDate } from './src/services/youtubeApi.js';
+import syncHandler from './api/sync.js';
 
 dotenv.config();
 
@@ -17,6 +18,62 @@ const PORT = process.env.PORT || 3001;
 
 app.use(cors());
 app.use(express.json());
+
+// API route: GET/POST /api/sync (Automatic and On-Demand Synchronization Engine)
+app.all('/api/sync', syncHandler);
+
+// API route alias: GET /api/video-details
+app.get('/api/video-details', async (req, res) => {
+  const cleanId = (req.query.id || req.query.videoId || '').trim();
+  const apiKey = process.env.YOUTUBE_API_KEY || process.env.VITE_YOUTUBE_API_KEY;
+  if (!cleanId || !/^[a-zA-Z0-9_-]{11}$/.test(cleanId)) {
+    return res.status(400).json({ error: 'Valid 11-character YouTube Video ID is required.' });
+  }
+  if (!apiKey) return res.status(500).json({ error: 'YOUTUBE_API_KEY is not configured.' });
+  try {
+    const url = `https://www.googleapis.com/youtube/v3/videos?part=snippet,contentDetails,statistics&id=${encodeURIComponent(cleanId)}&key=${encodeURIComponent(apiKey)}`;
+    const response = await fetch(url);
+    const data = await response.json();
+    if (!response.ok) return res.status(response.status).json({ error: data.error?.message });
+    if (!data.items || data.items.length === 0) return res.status(404).json({ error: 'Video not found' });
+    return res.json(data.items[0]);
+  } catch (e) {
+    return res.status(500).json({ error: e.message });
+  }
+});
+
+// API route alias: GET /api/youtube-analytics
+app.get('/api/youtube-analytics', async (req, res) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Bearer token is required for YouTube Analytics API.' });
+  }
+  const { videoId, startDate = '2026-10-17', endDate, channelId = 'MINE' } = req.query;
+  if (!videoId) return res.status(400).json({ error: 'videoId query parameter is required.' });
+  const effectiveEndDate = endDate || getCurrentReportingDate(REPORTING_TIMEZONE);
+  const metrics = 'views,estimatedMinutesWatched,averageViewDuration,likes,comments,shares,subscribersGained,subscribersLost';
+  const channelParam = channelId === 'MINE' ? 'channel==MINE' : `channel==${channelId}`;
+  const queryParams = new URLSearchParams({
+    ids: channelParam,
+    startDate,
+    endDate: effectiveEndDate,
+    metrics,
+    dimensions: 'day',
+    filters: `video==${videoId}`,
+    sort: 'day'
+  });
+  try {
+    const url = `https://youtubeanalytics.googleapis.com/v2/reports?${queryParams.toString()}`;
+    const response = await fetch(url, {
+      headers: { Authorization: authHeader, Accept: 'application/json' }
+    });
+    const data = await response.json();
+    if (!response.ok) return res.status(response.status).json({ error: data.error?.message });
+    return res.json(data);
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
 
 // API route: GET /api/video
 app.get('/api/video', async (req, res) => {
