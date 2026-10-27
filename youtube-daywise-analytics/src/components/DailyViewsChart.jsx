@@ -380,6 +380,13 @@ export default function DailyViewsChart({
     ? ((selectedRecord.views / lifetimeViews) * 100).toFixed(1)
     : selectedRecord?.pctOfTotalViews || '0';
 
+  // Latest verified / fully processed day in timeline
+  const lastProcessedRecord = [...dailyData].reverse().find(
+    (d) => !d.isPendingProcessing && d.views !== null && d.views !== undefined
+  );
+  // In-flight / pending today record
+  const todayPendingRecord = dailyData.find((d) => d.isPendingProcessing);
+
   // Dynamic Adaptive Y-Axis Max Domain
   const numericViews = dailyData
     .filter((d) => d.views !== null && d.views !== undefined)
@@ -607,16 +614,35 @@ export default function DailyViewsChart({
                 </span>
               </div>
             ) : selectedRecord.isPendingProcessing ? (
-              <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-0.5">
-                <span className="text-xl sm:text-2xl font-extrabold text-[#eab308] font-mono tracking-tight">
-                  Pending
-                </span>
-                <span className="text-xs font-semibold text-[#facc15]">
-                  Daily Views In Progress
-                </span>
-                <span className="text-[10px] px-2 py-0.2 rounded-full bg-[#291e07] border border-amber-500/40 text-amber-300 font-mono">
-                  48-72h YouTube Analytics Lag
-                </span>
+              <div>
+                <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-0.5">
+                  <span className="text-xl sm:text-2xl font-extrabold text-[#eab308] font-mono tracking-tight">
+                    Today's Analytics Data Pending
+                  </span>
+                  <span className="text-xs font-semibold text-[#facc15]">
+                    Daily Views In Progress
+                  </span>
+                  <span className="text-[10px] px-2 py-0.2 rounded-full bg-[#291e07] border border-amber-500/40 text-amber-300 font-mono">
+                    24–48h Aggregation Lag
+                  </span>
+                </div>
+                {lastProcessedRecord && (
+                  <div className="text-[11px] text-[#8fa3bf] mt-0.5 flex flex-wrap items-center gap-1.5">
+                    <span>Latest Available Reporting Date:</span>
+                    <button
+                      type="button"
+                      onClick={() => handleSelectDateAndFocus(lastProcessedRecord.date)}
+                      className="text-[#00f2fe] font-mono font-bold underline hover:text-[#38bdf8] cursor-pointer"
+                      title="Click to view latest verified daily views"
+                    >
+                      {lastProcessedRecord.date} ({Number(lastProcessedRecord.views || 0).toLocaleString()} views)
+                    </button>
+                    <span className="text-[#6296b8]">•</span>
+                    <span className="text-[#6296b8] font-mono text-[10px]">
+                      Live in-flight plays accumulating on YouTube player
+                    </span>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-0.5">
@@ -678,6 +704,29 @@ export default function DailyViewsChart({
 
         {/* Timeline Navigation Controls */}
         <div className="flex items-center space-x-1.5 self-start sm:self-auto shrink-0">
+          {todayPendingRecord && selectedRecord?.date !== todayPendingRecord.date && (
+            <button
+              type="button"
+              onClick={() => handleSelectDateAndFocus(todayPendingRecord.date)}
+              className="flex items-center space-x-1 px-2 py-1 rounded-lg bg-[#291e07] hover:bg-[#3d2c0a] text-amber-300 border border-amber-500/40 text-[10px] font-mono transition cursor-pointer"
+              title={`Today (${todayPendingRecord.date}) is pending YouTube Analytics aggregation. Click to view pending status.`}
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+              <span>Today Pending</span>
+            </button>
+          )}
+
+          {todayPendingRecord && selectedRecord?.date === todayPendingRecord.date && lastProcessedRecord && (
+            <button
+              type="button"
+              onClick={() => handleSelectDateAndFocus(lastProcessedRecord.date)}
+              className="flex items-center space-x-1 px-2 py-1 rounded-lg bg-[#0c2438] hover:bg-[#133550] text-[#00f2fe] border border-[#00f2fe]/40 text-[10px] font-mono transition cursor-pointer"
+              title={`Jump to latest verified reporting date (${lastProcessedRecord.date})`}
+            >
+              <span>‹ View Verified ({Number(lastProcessedRecord.views || 0).toLocaleString()})</span>
+            </button>
+          )}
+
           {isWindowed && (
             <button
               onClick={handleJumpToDay1}

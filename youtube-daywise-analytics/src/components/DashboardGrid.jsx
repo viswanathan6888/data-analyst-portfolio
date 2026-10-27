@@ -182,7 +182,7 @@ export default function DashboardGrid({
     if (selectedRecord?.isPendingProcessing) {
       return {
         status: 'pending',
-        label: 'Processing: Metrics accumulating. 48-72h YouTube Analytics processing delay.',
+        label: `Today's Analytics Pending: 24-48h YouTube Analytics batch aggregation delay. Latest verified date: ${lastFullyProcessedDay?.date || 'Oct 26'} (${Number(lastFullyProcessedDay?.views || 0).toLocaleString()} views)`,
         color: '#eab308',
         glowClass: 'gauge-glow-average'
       };
@@ -225,7 +225,7 @@ export default function DashboardGrid({
     if (selectedRecord?.isPendingProcessing) {
       return {
         status: 'pending',
-        label: 'Pending: Daily views currently accumulating in YouTube Analytics processing window',
+        label: `Today's Analytics Pending: Daily views currently accumulating in real time. Latest verified: ${Number(lastFullyProcessedDay?.views || 0).toLocaleString()} views on ${lastFullyProcessedDay?.date || 'Oct 26'}.`,
         color: '#eab308',
         glowClass: 'gauge-glow-average'
       };
@@ -761,10 +761,10 @@ export default function DashboardGrid({
                   {selectedViews !== null ? Number(selectedViews).toLocaleString() : (selectedRecord?.isPendingProcessing ? 'Pending' : (selectedRecord?.isUnavailable ? 'N/A' : (totalViews !== null ? Number(totalViews).toLocaleString() : 'N/A')))}
                 </div>
                 <div className="text-[10px] text-[#6296b8] uppercase font-semibold truncate mt-0.5">
-                  {selectedRecord?.isPendingProcessing ? 'Processing Lag' : (selectedRecord?.isUnavailable ? 'Protected Metric' : (dailyData.length > 0 ? formattedShortDate : 'Lifetime Total'))}
+                  {selectedRecord?.isPendingProcessing ? "Today's Analytics Pending" : (selectedRecord?.isUnavailable ? 'Protected Metric' : (dailyData.length > 0 ? formattedShortDate : 'Lifetime Total'))}
                 </div>
                 <div className="text-[9px] text-[#8fa3bf] font-mono truncate">
-                  {selectedRecord?.isPendingProcessing ? '48-72h Analytics Delay' : (selectedRecord?.isUnavailable ? 'Requires Channel OAuth' : (selectedViewsPct !== null ? `${selectedViewsPct}% of Lifetime Views` : 'Public Data API v3'))}
+                  {selectedRecord?.isPendingProcessing ? `Latest Verified: ${Number(lastFullyProcessedDay?.views || 0).toLocaleString()} views (${lastFullyProcessedDay?.date || 'Oct 26'})` : (selectedRecord?.isUnavailable ? 'Requires Channel OAuth' : (selectedViewsPct !== null ? `${selectedViewsPct}% of Lifetime Views` : 'Public Data API v3'))}
                 </div>
               </div>
             </div>

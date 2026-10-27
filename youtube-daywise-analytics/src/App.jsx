@@ -93,9 +93,18 @@ export default function App() {
     }
   }, [videoData, dailyData]);
 
-  // Selected date and Comments (default to latest calendar day in timeline, i.e. todayStr)
+  // Helper: Returns the date of the latest fully processed / verified daily record
+  const getLatestVerifiedDate = (timeline) => {
+    if (!timeline || timeline.length === 0) return null;
+    const verified = [...timeline].reverse().find(
+      (d) => !d.isPendingProcessing && d.views !== null && d.views !== undefined
+    );
+    return verified?.date || timeline[timeline.length - 1]?.date;
+  };
+
+  // Selected date defaults to latest verified reporting date (e.g. Day 10 / 2026-10-26) so verified daily views are displayed immediately upon open
   const [selectedDate, setSelectedDate] = useState(
-    initialDailyTimeline.length > 0 ? initialDailyTimeline[initialDailyTimeline.length - 1]?.date : null
+    getLatestVerifiedDate(initialDailyTimeline)
   );
   const [isCommentsOpen, setIsCommentsOpen] = useState(true);
 
@@ -293,8 +302,8 @@ export default function App() {
       if (loadedDailyData && loadedDailyData.length > 0) {
         setDailyData(loadedDailyData);
         if (!preserveSelection) {
-          // Default to today's date (latest calendar day in timeline)
-          setSelectedDate(loadedDailyData[loadedDailyData.length - 1]?.date || loadedDailyData[0]?.date);
+          // Default to latest verified date so verified daily metrics show immediately
+          setSelectedDate(getLatestVerifiedDate(loadedDailyData));
         }
       } else {
         setDailyData([]);
