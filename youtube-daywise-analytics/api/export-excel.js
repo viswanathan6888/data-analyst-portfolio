@@ -6,6 +6,7 @@
 import { generateYouTubeExcelWorkbook } from '../src/services/excelExportService.js';
 import { VERIFIED_VIDEO_METADATA, VERIFIED_DAILY_ANALYTICS } from '../src/services/dataSnapshot.js';
 import { generateTimelineCalendar, parseDuration, REPORTING_TIMEZONE, getCurrentReportingDate } from '../src/services/youtubeApi.js';
+import { readPersistentStore } from './sync.js';
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Credentials', true);
@@ -31,9 +32,18 @@ export default async function handler(req, res) {
     let targetVideo = null;
     let targetDaily = [];
 
+    // Check persistent store first for exact synchronized parity
+    const persistentStore = await readPersistentStore(cleanId);
+    if (persistentStore && persistentStore.dailyData && persistentStore.dailyData.length > 0) {
+      targetVideo = persistentStore.videoData || null;
+      targetDaily = persistentStore.dailyData || [];
+    }
+
     if (cleanId === 'CobjbCF-Rvw') {
       // Default initial video verified dataset with live Data API v3 statistics
-      targetVideo = { ...VERIFIED_VIDEO_METADATA };
+      if (!targetVideo) {
+        targetVideo = { ...VERIFIED_VIDEO_METADATA };
+      }
 
       if (apiKey) {
         try {
@@ -59,20 +69,22 @@ export default async function handler(req, res) {
         }
       }
 
-      const publishedAt = targetVideo.publishedAt || VERIFIED_VIDEO_METADATA.publishedAt;
-      const todayStr = getCurrentReportingDate(REPORTING_TIMEZONE);
-      targetDaily = generateTimelineCalendar({
-        publishedAt,
-        latestDate: todayStr,
-        apiReportRows: [],
-        verifiedDailyAnalytics: VERIFIED_DAILY_ANALYTICS,
-        isDefaultVideo: true,
-        reportingTimezone: REPORTING_TIMEZONE,
-        lifetimeViews: targetVideo.viewCount,
-        liveStats: targetVideo.statistics
-      });
+      if (!targetDaily || targetDaily.length === 0) {
+        const publishedAt = targetVideo.publishedAt || VERIFIED_VIDEO_METADATA.publishedAt;
+        const todayStr = getCurrentReportingDate(REPORTING_TIMEZONE);
+        targetDaily = generateTimelineCalendar({
+          publishedAt,
+          latestDate: todayStr,
+          apiReportRows: [],
+          verifiedDailyAnalytics: VERIFIED_DAILY_ANALYTICS,
+          isDefaultVideo: true,
+          reportingTimezone: REPORTING_TIMEZONE,
+          lifetimeViews: targetVideo.viewCount,
+          liveStats: targetVideo.statistics
+        });
+      }
 
-      console.log(`[API /api/export-excel] Requested Video ID: ${cleanId} | Title: "${targetVideo.title}" | Views: ${targetVideo.viewCount} | Days: ${targetDaily.length} | Today: ${todayStr} | Channel: ${targetVideo.channelId} | Verified Dataset Used`);
+      console.log(`[API /api/export-excel] Requested Video ID: ${cleanId} | Title: "${targetVideo.title}" | Views: ${targetVideo.viewCount} | Days: ${targetDaily.length} | Channel: ${targetVideo.channelId} | Verified Dataset Used`);
     } else {
       // Fetch genuine video metadata for the requested video from YouTube Data API v3
       if (!apiKey) {

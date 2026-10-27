@@ -17,6 +17,8 @@ import { VERIFIED_VIDEO_METADATA, VERIFIED_DAILY_ANALYTICS, LAST_PROCESSED_DATE,
 import fs from 'fs';
 import path from 'path';
 
+import { put } from '@vercel/blob';
+
 // In-memory module cache to persist state across warm serverless container invocations
 let memorySyncStore = {};
 
@@ -32,10 +34,27 @@ function getLocalStorePath(videoId) {
   }
 }
 
-function readPersistentStore(videoId) {
+export async function readPersistentStore(videoId) {
   if (memorySyncStore[videoId]) {
     return memorySyncStore[videoId];
   }
+
+  // 1. Try Vercel Blob Cloud Storage
+  try {
+    const blobStoreUrl = `https://0puxw7msutxjzqn3.public.blob.vercel-storage.com/analytics_${videoId}.json`;
+    const res = await fetch(blobStoreUrl, { cache: 'no-store' });
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.dailyData && data.dailyData.length > 0) {
+        memorySyncStore[videoId] = data;
+        return data;
+      }
+    }
+  } catch (blobErr) {
+    // Non-fatal, proceed to next tier
+  }
+
+  // 2. Try local filesystem cache
   const storePath = getLocalStorePath(videoId);
   if (storePath && fs.existsSync(storePath)) {
     try {
@@ -47,19 +66,79 @@ function readPersistentStore(videoId) {
       console.warn(`[Sync Store] Could not read persistent store for ${videoId}:`, e.message);
     }
   }
+
+  // 3. Fallback to committed base database snapshot
+  if (videoId === 'CobjbCF-Rvw') {
+    try {
+      const baseDbPath = path.join(process.cwd(), 'src', 'data', 'persistentAnalyticsDb.json');
+      if (fs.existsSync(baseDbPath)) {
+        const baseContent = fs.readFileSync(baseDbPath, 'utf8');
+        const parsedBase = JSON.parse(baseContent);
+        if (parsedBase && parsedBase.dailyRecords) {
+          const snapshot = {
+            success: true,
+            videoId: parsedBase.videoId,
+            title: parsedBase.title,
+            channelId: parsedBase.channelId,
+            channelTitle: parsedBase.channelTitle,
+            publishedAt: parsedBase.publishedAt,
+            reportingTimezone: parsedBase.reportingTimezone,
+            lifetimeViews: parsedBase.lifetimeViews,
+            dailyData: parsedBase.dailyRecords,
+            videoData: {
+              id: parsedBase.videoId,
+              title: parsedBase.title,
+              channelId: parsedBase.channelId,
+              channelTitle: parsedBase.channelTitle,
+              publishedAt: parsedBase.publishedAt,
+              viewCount: parsedBase.lifetimeViews,
+              statistics: {
+                viewCount: String(parsedBase.lifetimeViews)
+              }
+            }
+          };
+          memorySyncStore[videoId] = snapshot;
+          return snapshot;
+        }
+      }
+    } catch (baseErr) {
+      console.warn('[Sync Store] Could not read base DB snapshot:', baseErr.message);
+    }
+  }
+
   return null;
 }
 
-function writePersistentStore(videoId, data) {
+export async function writePersistentStore(videoId, data) {
   memorySyncStore[videoId] = data;
+
+  // 1. Local filesystem cache
   const storePath = getLocalStorePath(videoId);
   if (storePath) {
     try {
       fs.writeFileSync(storePath, JSON.stringify(data, null, 2), 'utf8');
     } catch (e) {
-      console.warn(`[Sync Store] Could not write persistent store for ${videoId}:`, e.message);
+      console.warn(`[Sync Store] Could not write local persistent store for ${videoId}:`, e.message);
     }
   }
+
+  // 2. Vercel Blob cloud storage
+  let blobUrl = null;
+  if (process.env.BLOB_READ_WRITE_TOKEN || process.env.VERCEL_OIDC_TOKEN) {
+    try {
+      const blob = await put(`analytics_${videoId}.json`, JSON.stringify(data, null, 2), {
+        access: 'public',
+        addRandomSuffix: false,
+        allowOverwrite: true
+      });
+      blobUrl = blob.url;
+      console.log(`[Sync Store] Successfully persisted ${videoId} to Vercel Blob: ${blob.url}`);
+    } catch (blobErr) {
+      console.warn(`[Sync Store] Vercel Blob write error for ${videoId}:`, blobErr.message);
+    }
+  }
+
+  return blobUrl;
 }
 
 /**
@@ -185,7 +264,7 @@ export default async function handler(req, res) {
     }
 
     if (!videoData) {
-      const cached = readPersistentStore(cleanId);
+      const cached = await readPersistentStore(cleanId);
       if (cached && cached.videoData) {
         videoData = cached.videoData;
         liveLifetimeViews = cached.lifetimeViews;
@@ -258,7 +337,10 @@ export default async function handler(req, res) {
     };
 
     // 6. Persist to storage for dashboard, Excel export, and offline resilience
-    writePersistentStore(cleanId, syncResult);
+    const blobUrl = await writePersistentStore(cleanId, syncResult);
+    if (blobUrl) {
+      syncResult.blobStoreUrl = blobUrl;
+    }
 
     console.log(`[API /api/sync Complete] Video: ${cleanId} | Total Days: ${timeline.length} | Lifetime: ${liveLifetimeViews.toLocaleString()} | Day 11 (Today): ${todayLiveViews.toLocaleString()} | Discrepancy: ${discrepancy}`);
 
@@ -269,7 +351,7 @@ export default async function handler(req, res) {
     return res.status(200).json(syncResult);
   } catch (error) {
     console.error(`[API /api/sync Failure] Video: ${cleanId} | Error:`, error.message);
-    const cached = readPersistentStore(cleanId);
+    const cached = await readPersistentStore(cleanId);
     if (cached) {
       console.log(`[API /api/sync Fallback] Returning last known verified persistent snapshot for ${cleanId}`);
       return res.status(200).json({ ...cached, fallback: true, warning: error.message });
