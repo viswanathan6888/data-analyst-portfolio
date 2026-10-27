@@ -52,7 +52,22 @@ export default function App() {
 
   const [videoId, setVideoId] = useState(initialVideo);
   const [videoData, setVideoData] = useState(isDefaultInitial ? VERIFIED_VIDEO_METADATA : null);
-  const [dailyData, setDailyData] = useState(isDefaultInitial ? VERIFIED_DAILY_ANALYTICS : []);
+
+  // Compute initial timeline dynamically so today's date (Asia/Kolkata) is present from the very first frame
+  const getInitialDailyTimeline = () => {
+    if (!isDefaultInitial) return [];
+    return generateTimelineCalendar({
+      publishedAt: VERIFIED_VIDEO_METADATA.publishedAt,
+      latestDate: getCurrentReportingDate(REPORTING_TIMEZONE),
+      apiReportRows: [],
+      verifiedDailyAnalytics: VERIFIED_DAILY_ANALYTICS,
+      isDefaultVideo: true,
+      reportingTimezone: REPORTING_TIMEZONE
+    });
+  };
+
+  const initialDailyTimeline = getInitialDailyTimeline();
+  const [dailyData, setDailyData] = useState(initialDailyTimeline);
   const [comments, setComments] = useState(isDefaultInitial ? VERIFIED_COMMENTS : []);
   const [commentsDisabled, setCommentsDisabled] = useState(false);
 
@@ -60,7 +75,7 @@ export default function App() {
   const [trackedVideosList, setTrackedVideosList] = useState([
     {
       videoData: isDefaultInitial ? VERIFIED_VIDEO_METADATA : null,
-      dailyData: isDefaultInitial ? VERIFIED_DAILY_ANALYTICS : []
+      dailyData: initialDailyTimeline
     }
   ]);
 
@@ -78,8 +93,10 @@ export default function App() {
     }
   }, [videoData, dailyData]);
 
-  // Selected date and Comments (default to latest fully processed date)
-  const [selectedDate, setSelectedDate] = useState(isDefaultInitial ? (LAST_PROCESSED_DATE || '2026-10-25') : null);
+  // Selected date and Comments (default to latest calendar day in timeline, i.e. todayStr)
+  const [selectedDate, setSelectedDate] = useState(
+    initialDailyTimeline.length > 0 ? initialDailyTimeline[initialDailyTimeline.length - 1]?.date : null
+  );
   const [isCommentsOpen, setIsCommentsOpen] = useState(true);
 
   // Auto-refresh interval (default 1 minute = 60000ms for responsive genuine updates)
@@ -147,7 +164,7 @@ export default function App() {
     // Whenever a new video is requested or explicitly reloaded, CLEAR old state immediately (Requirement 5)
     setVideoId(cleanTargetId);
     updateBrowserUrl(cleanTargetId);
-    if (!preserveSelection || cleanTargetId !== videoId) {
+    if (cleanTargetId !== videoId) {
       setVideoData(null);
       setDailyData([]);
       setComments([]);

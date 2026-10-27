@@ -327,7 +327,7 @@ export async function fetchYouTubeAnalyticsReport({
   let runningCumulativeLikes = 0;
   let runningCumulativeComments = 0;
 
-  const today = new Date().toISOString().split('T')[0];
+  const today = getCurrentReportingDate(REPORTING_TIMEZONE);
 
   return data.rows.map((row, index) => {
     const dateStr = row[dayIdx];

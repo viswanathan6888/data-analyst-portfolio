@@ -205,27 +205,23 @@ export async function generateYouTubeExcelWorkbook({
   // If dailyData has items: use dailyData.
   // If video is the default initial video (CobjbCF-Rvw) and dailyData is empty: use VERIFIED_DAILY_ANALYTICS.
   // Otherwise for any other video loaded without OAuth: generate a single Lifetime summary row.
-  const hasDailyData = dailyData && Array.isArray(dailyData) && dailyData.length > 0;
+  const todayStr = getCurrentReportingDate(REPORTING_TIMEZONE);
   const isDefaultVideo = videoId === 'CobjbCF-Rvw';
+  const effectivePublishedAt = currentVideo?.publishedAt || (isDefaultVideo ? VERIFIED_VIDEO_METADATA.publishedAt : null);
 
+  // Guarantee that dailyRecords ALWAYS spans from the video's original publication date through today's date in Asia/Kolkata
   let dailyRecords = [];
-  if (hasDailyData) {
+  if (effectivePublishedAt) {
+    dailyRecords = generateTimelineCalendar({
+      publishedAt: effectivePublishedAt,
+      latestDate: todayStr,
+      apiReportRows: (dailyData && Array.isArray(dailyData) && dailyData.length > 0) ? dailyData : [],
+      verifiedDailyAnalytics: isDefaultVideo ? VERIFIED_DAILY_ANALYTICS : null,
+      isDefaultVideo,
+      reportingTimezone: REPORTING_TIMEZONE
+    });
+  } else if (hasDailyData) {
     dailyRecords = dailyData;
-  } else if (isDefaultVideo) {
-    dailyRecords = generateTimelineCalendar({
-      publishedAt: currentVideo?.publishedAt || VERIFIED_VIDEO_METADATA.publishedAt,
-      latestDate: getCurrentReportingDate(REPORTING_TIMEZONE),
-      verifiedDailyAnalytics: VERIFIED_DAILY_ANALYTICS,
-      isDefaultVideo: true,
-      reportingTimezone: REPORTING_TIMEZONE
-    });
-  } else if (currentVideo && currentVideo.publishedAt) {
-    dailyRecords = generateTimelineCalendar({
-      publishedAt: currentVideo.publishedAt,
-      latestDate: getCurrentReportingDate(REPORTING_TIMEZONE),
-      isDefaultVideo: false,
-      reportingTimezone: REPORTING_TIMEZONE
-    });
   }
 
   let totalDataRowsCount = 0;
