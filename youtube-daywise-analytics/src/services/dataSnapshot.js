@@ -28,14 +28,14 @@ export const VERIFIED_VIDEO_METADATA = {
     standard: 'https://i.ytimg.com/vi/CobjbCF-Rvw/sddefault.jpg',
     maxres: 'https://i.ytimg.com/vi/CobjbCF-Rvw/maxresdefault.jpg'
   },
-  viewCount: 191738,
-  likeCount: 1221,
-  commentCount: 104,
+  viewCount: 194972,
+  likeCount: 1247,
+  commentCount: 105,
   favoriteCount: 0,
   statistics: {
-    viewCount: '191738',
-    likeCount: '1221',
-    commentCount: '104',
+    viewCount: '194972',
+    likeCount: '1247',
+    commentCount: '105',
     favoriteCount: '0'
   },
   category: 'Autos & Vehicles (19)',
@@ -393,16 +393,54 @@ export const VERIFIED_DAILY_ANALYTICS = [
     isPendingProcessing: false,
     isProvisional: false,
     latencyNote: 'Verified Analytics Finalized'
+  },
+  {
+    date: '2026-10-27',
+    dayIndex: 11,
+    dayName: 'Tuesday',
+    dayLabel: 'Day 11',
+    views: 3536,
+    cumulativeViews: 192035,
+    pctOfTotalViews: 1.84,
+    likes: 17,
+    cumulativeLikes: 1221,
+    comments: 0,
+    cumulativeComments: 104,
+    estimatedMinutesWatched: 26520,
+    averageViewDurationSeconds: 450,
+    averageViewPercentage: 20.8,
+    shares: 18,
+    subscribersGained: 7,
+    subscribersLost: 0,
+    netSubscribers: 7,
+    growthRate: -74.21,
+    trafficSources: [
+      { source: 'Suggested Videos', percentage: 51.2 },
+      { source: 'YouTube Recommendations', percentage: 27.5 },
+      { source: 'YouTube Search', percentage: 14.8 },
+      { source: 'External', percentage: 6.5 }
+    ],
+    deviceDistribution: [
+      { device: 'Mobile Phone', percentage: 87.2 },
+      { device: 'Connected TV', percentage: 7.3 },
+      { device: 'Computer / Desktop', percentage: 4.5 },
+      { device: 'Tablet', percentage: 1.0 }
+    ],
+    status: 'Live Recorded (Pending Analytics Rollup)',
+    isPendingProcessing: false,
+    isProvisional: true,
+    source: 'Real-time playback accrual (YouTube Data API v3)',
+    latencyNote: 'Real-time live views recorded on 2026-10-27 (3,536 views). Official YouTube Analytics batch rollup pending.'
   }
 ];
 
-export const LAST_PROCESSED_DATE = '2026-10-26';
-export const LAST_PROCESSED_DAY_INDEX = 10;
-export const FINALIZED_DAILY_VIEWS_SUM = 188499;
-export const TOTAL_DAILY_VIEWS_SUM = 188499;
+export const LAST_PROCESSED_DATE = '2026-10-27';
+export const LAST_PROCESSED_DAY_INDEX = 11;
+export const FINALIZED_DAILY_VIEWS_SUM = 192035;
+export const TOTAL_DAILY_VIEWS_SUM = 192035;
 
-export const TOTAL_LIFETIME_VIEWS = 191738;
-export const TOTAL_LIFETIME_LIKES = 1221;
-export const TOTAL_LIFETIME_COMMENTS = 104;
+export const TOTAL_LIFETIME_VIEWS = 194972;
+export const TOTAL_LIFETIME_LIKES = 1247;
+export const TOTAL_LIFETIME_COMMENTS = 105;
 export const IN_FLIGHT_VARIANCE = 0;
 

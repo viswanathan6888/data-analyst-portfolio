@@ -72,11 +72,13 @@ export default async function handler(req, res) {
       if (!targetDaily || targetDaily.length === 0) {
         const publishedAt = targetVideo.publishedAt || VERIFIED_VIDEO_METADATA.publishedAt;
         const todayStr = getCurrentReportingDate(REPORTING_TIMEZONE);
+        const savedDailyRecords = persistentStore?.dailyRecordsMap || persistentStore?.dailyData || [];
         targetDaily = generateTimelineCalendar({
           publishedAt,
           latestDate: todayStr,
           apiReportRows: [],
           verifiedDailyAnalytics: VERIFIED_DAILY_ANALYTICS,
+          savedDailyRecords,
           isDefaultVideo: true,
           reportingTimezone: REPORTING_TIMEZONE,
           lifetimeViews: targetVideo.viewCount,

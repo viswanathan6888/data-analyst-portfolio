@@ -5,10 +5,10 @@
   "channelTitle": "News7 Tamil",
   "publishedAt": "2026-10-17T04:30:14Z",
   "reportingTimezone": "Asia/Kolkata",
-  "lastAuditedDate": "2026-10-27",
-  "latestAnalyticsDate": "2026-10-26",
-  "lifetimeViews": 191897,
-  "finalizedDailyViewsSum": 188499,
+  "lastAuditedDate": "2026-10-28",
+  "latestAnalyticsDate": "2026-10-27",
+  "lifetimeViews": 194972,
+  "finalizedDailyViewsSum": 192035,
   "storageType": "Vercel Blob + Committed Base DB",
   "blobStoreUrl": "https://0puxw7msutxjzqn3.public.blob.vercel-storage.com/analytics_CobjbCF-Rvw.json",
   "dailyRecords": [
@@ -215,22 +215,23 @@
     {
       "date": "2026-10-27",
       "dayIndex": 11,
-      "dayLabel": "Day 11 (Today)",
+      "dayLabel": "Day 11",
       "dayName": "Tuesday",
-      "views": 3398,
-      "cumulativeViews": 191897,
+      "views": 3536,
+      "cumulativeViews": 192035,
       "likes": 17,
-      "shares": 17,
+      "shares": 18,
       "comments": 0,
-      "estimatedMinutesWatched": 25485,
+      "estimatedMinutesWatched": 26520,
       "averageViewDurationSeconds": 450,
       "averageViewPercentage": 20.8,
       "subscribersGained": 7,
       "subscribersLost": 0,
       "netSubscribers": 7,
-      "growthRate": -75.22,
-      "status": "Live (Syncing)",
-      "source": "Real-time playback accrual (YouTube Data API v3)"
+      "growthRate": -74.21,
+      "status": "Live Recorded (Pending Analytics Rollup)",
+      "source": "Real-time playback accrual (YouTube Data API v3)",
+      "recordedAt": "2026-10-27T18:29:59.000Z"
     }
   ]
 }
