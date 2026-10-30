@@ -28,7 +28,7 @@ export const personalInfo = {
   linkedin: "https://www.linkedin.com/in/viswanathan-m-434b55309/", // Verified from resume
   github: "https://github.com/viswanathan6888", // Verified from repository origin
   profileImage: "/profile.jpg", // Verified portrait photo
-  resumePdfUrl: "/resume.pdf", // Real resume PDF in public/resume.pdf
+  resumePdfUrl: "/Viswanathan_M_Resume.pdf", // Real resume PDF in public/Viswanathan_M_Resume.pdf
   coreExpertise: [
     "Data Analytics & Business Intelligence",
     "Python, SQL & Excel",
@@ -175,7 +175,7 @@ export const internshipExperience = [
   {
     role: "Web Development Intern",
     company: "Nxt Logic Software Solutions",
-    period: "[Dates Editable]", // Replace with actual tenure e.g. "Jun 2024 – Jul 2024"
+    period: "[Dates Editable]", // Replace with actual tenure e.g. "Jun 2024 ΓÇô Jul 2024"
     type: "Internship",
     badge: "Web Applications",
     summary:
@@ -618,7 +618,7 @@ export const achievementsData = [
 ];
 
 export const resumeData = {
-  fileName: "Resume_Viswanathan_M.pdf",
+  fileName: "Viswanathan_M_Resume.pdf",
   lastUpdated: "Current",
   downloadNote: "Download official resume PDF (Kathir College of Engineering &bull; B.Tech AI & DS)",
   highlights: [

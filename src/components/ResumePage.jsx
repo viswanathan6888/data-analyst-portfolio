@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import {
   personalInfo,
   resumeData,
@@ -102,7 +102,7 @@ export default function ResumePage({ onNavigate }) {
               <FileText size={20} className="text-cyan flex-shrink-0" />
               <div>
                 <span className="meta-ribbon-label">File Details</span>
-                <span className="meta-ribbon-val">290 KB &bull; PDF-1.4 &bull; Verified</span>
+                <span className="meta-ribbon-val">268 KB &bull; PDF &bull; Verified</span>
               </div>
             </div>
           </div>
@@ -192,7 +192,7 @@ export default function ResumePage({ onNavigate }) {
                   <div className="pdf-format-badge">PDF</div>
                   <div>
                     <h4 className="pdf-doc-title">{resumeData.fileName}</h4>
-                    <span className="pdf-doc-sub">Official Resume Document &bull; 290 KB &bull; Verified</span>
+                    <span className="pdf-doc-sub">Official Resume Document &bull; 268 KB &bull; Verified</span>
                   </div>
                 </div>
                 <div className="pdf-header-controls">
