@@ -43,13 +43,9 @@ export default function Hero({ onNavigate, onOpenResume }) {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  const scrollToSection = (id) => {
-    const el = document.getElementById(id);
-    if (el) {
-      const headerOffset = 76;
-      const elementPosition = el.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-      window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+  const handleNavigate = (id) => {
+    if (onNavigate) {
+      onNavigate(id);
     }
   };
 
@@ -109,7 +105,7 @@ export default function Hero({ onNavigate, onOpenResume }) {
             {/* 4 Action Buttons as requested */}
             <div className="hero-actions">
               <button
-                onClick={() => onNavigate ? onNavigate('projects') : scrollToSection('projects')}
+                onClick={() => handleNavigate('projects')}
                 className="btn btn-primary glow-hover-btn"
                 aria-label="Explore Projects Section"
               >
@@ -140,7 +136,7 @@ export default function Hero({ onNavigate, onOpenResume }) {
               </a>
 
               <button
-                onClick={() => onNavigate ? onNavigate('contact') : scrollToSection('contact')}
+                onClick={() => handleNavigate('contact')}
                 className="btn btn-secondary glow-hover-btn"
                 aria-label="Go to Contact Section"
               >

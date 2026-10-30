@@ -13,7 +13,7 @@ import PresentationSlideControls from './components/PresentationSlideControls';
 import FuturisticAmbientGlow from './components/FuturisticAmbientGlow';
 import { BackgroundOrganicBlobs } from './components/AbstractDecorations';
 
-export const SLIDES = [
+export const SECTIONS = [
   { id: 'home', label: 'Home' },
   { id: 'about', label: 'About' },
   { id: 'skills', label: 'Skills' },
@@ -24,6 +24,8 @@ export const SLIDES = [
   { id: 'contact', label: 'Contact' },
   { id: 'resume', label: 'Resume' },
 ];
+
+export const SLIDES = SECTIONS;
 
 export default function App() {
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
@@ -55,7 +57,7 @@ export default function App() {
     setCurrentSlideIndex(clamped);
     const targetHash = `#${SLIDES[clamped].id}`;
     if (window.location.hash !== targetHash) {
-      window.history.pushState(null, '', targetHash);
+      window.history.replaceState(null, '', targetHash);
     }
   };
 
@@ -137,60 +139,60 @@ export default function App() {
       {/* Full-Screen Horizontal Slide Deck Viewport */}
       <main
         id="main-presentation"
-        className="presentation-viewport"
+        className="horizontal-presentation-viewport presentation-viewport"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
         role="main"
       >
         <div
-          className="presentation-track"
+          className="horizontal-track presentation-track"
           style={{
-            transform: `translateX(-${currentSlideIndex * 100}vw)`,
+            transform: `translateX(-${(currentSlideIndex * 100) / SLIDES.length}%)`,
             transition: 'transform 0.52s cubic-bezier(0.22, 1, 0.36, 1)'
           }}
         >
           {/* Slide 0: Home */}
-          <section id="slide-home" className="presentation-slide" aria-label="Home Section">
+          <section id="slide-home" className="horizontal-section-slide presentation-slide" aria-label="Home Section">
             <Hero onNavigate={goToSlideById} onOpenResume={() => goToSlideById('resume')} />
           </section>
 
           {/* Slide 1: About */}
-          <section id="slide-about" className="presentation-slide" aria-label="About Section">
+          <section id="slide-about" className="horizontal-section-slide presentation-slide" aria-label="About Section">
             <About onNavigate={goToSlideById} />
           </section>
 
           {/* Slide 2: Skills */}
-          <section id="slide-skills" className="presentation-slide" aria-label="Skills Section">
+          <section id="slide-skills" className="horizontal-section-slide presentation-slide" aria-label="Skills Section">
             <Skills onNavigate={goToSlideById} />
           </section>
 
           {/* Slide 3: Experience */}
-          <section id="slide-experience" className="presentation-slide" aria-label="Experience Section">
+          <section id="slide-experience" className="horizontal-section-slide presentation-slide" aria-label="Experience Section">
             <Experience onNavigate={goToSlideById} />
           </section>
 
           {/* Slide 4: Projects */}
-          <section id="slide-projects" className="presentation-slide" aria-label="Projects Section">
+          <section id="slide-projects" className="horizontal-section-slide presentation-slide" aria-label="Projects Section">
             <Projects onNavigate={goToSlideById} />
           </section>
 
           {/* Slide 5: Certifications */}
-          <section id="slide-certifications" className="presentation-slide" aria-label="Certifications Section">
+          <section id="slide-certifications" className="horizontal-section-slide presentation-slide" aria-label="Certifications Section">
             <Certifications onNavigate={goToSlideById} />
           </section>
 
           {/* Slide 6: Achievements */}
-          <section id="slide-achievements" className="presentation-slide" aria-label="Achievements Section">
+          <section id="slide-achievements" className="horizontal-section-slide presentation-slide" aria-label="Achievements Section">
             <Achievements onNavigate={goToSlideById} />
           </section>
 
           {/* Slide 7: Contact */}
-          <section id="slide-contact" className="presentation-slide" aria-label="Contact Section">
+          <section id="slide-contact" className="horizontal-section-slide presentation-slide" aria-label="Contact Section">
             <Contact onOpenResume={() => goToSlideById('resume')} onNavigate={goToSlideById} />
           </section>
 
           {/* Slide 8: Resume */}
-          <section id="slide-resume" className="presentation-slide" aria-label="Resume Section">
+          <section id="slide-resume" className="horizontal-section-slide presentation-slide" aria-label="Resume Section">
             <ResumePage onNavigate={goToSlideById} />
           </section>
         </div>

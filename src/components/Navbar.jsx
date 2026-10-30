@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { personalInfo, resumeData } from '../data/portfolioData';
 import { Menu, X, Download, Terminal, ChevronRight, FileText, Sparkles } from './Icons';
 
-export default function Navbar({ activeSlideId = 'home', onNavigate }) {
+export default function Navbar({ activeSectionId, activeSlideId, onNavigate }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [clickedLink, setClickedLink] = useState(null);
+
+  const currentActive = activeSectionId || activeSlideId || 'home';
 
   const navLinks = [
     { label: 'Home', href: '#home', id: 'home' },
@@ -70,7 +72,7 @@ export default function Navbar({ activeSlideId = 'home', onNavigate }) {
         <nav className="desktop-nav" aria-label="Main Navigation">
           <ul className="nav-list futuristic-nav-capsule">
             {navLinks.map((link) => {
-              const isActive = activeSlideId === link.id;
+              const isActive = currentActive === link.id;
               const isJustClicked = clickedLink === link.id;
 
               return (
@@ -128,7 +130,7 @@ export default function Navbar({ activeSlideId = 'home', onNavigate }) {
         <div className="mobile-menu-drawer glass-card mobile-futuristic-drawer">
           <ul className="mobile-nav-list">
             {navLinks.map((link) => {
-              const isActive = activeSlideId === link.id;
+              const isActive = currentActive === link.id;
 
               return (
                 <li key={link.id} className="mobile-nav-item">
