@@ -18,7 +18,7 @@ import { LinkedinIcon } from './Icons';
 import { ProfessionalProfileFrame } from './AbstractDecorations';
 import FuturisticRobotVisual from './FuturisticRobotVisual';
 
-export default function Hero({ onOpenResume }) {
+export default function Hero({ onNavigate, onOpenResume }) {
   const [parallaxOffset, setParallaxOffset] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
@@ -109,7 +109,7 @@ export default function Hero({ onOpenResume }) {
             {/* 4 Action Buttons as requested */}
             <div className="hero-actions">
               <button
-                onClick={() => scrollToSection('projects')}
+                onClick={() => onNavigate ? onNavigate('projects') : scrollToSection('projects')}
                 className="btn btn-primary glow-hover-btn"
                 aria-label="Explore Projects Section"
               >
@@ -140,9 +140,9 @@ export default function Hero({ onOpenResume }) {
               </a>
 
               <button
-                onClick={() => scrollToSection('contact')}
+                onClick={() => onNavigate ? onNavigate('contact') : scrollToSection('contact')}
                 className="btn btn-secondary glow-hover-btn"
-                aria-label="Scroll to Contact Section"
+                aria-label="Go to Contact Section"
               >
                 <Mail size={16} />
                 <span>Contact Me</span>

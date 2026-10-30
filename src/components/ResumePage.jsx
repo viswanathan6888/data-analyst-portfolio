@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import {
   personalInfo,
   resumeData,
@@ -50,7 +50,7 @@ export default function ResumePage({ onNavigate }) {
           {/* Breadcrumb Navigation */}
           <div className="resume-breadcrumb-row">
             <button
-              onClick={() => onNavigate('home', 'home')}
+              onClick={() => onNavigate ? onNavigate('home') : (window.location.hash = '#home')}
               className="breadcrumb-back-btn"
               aria-label="Return to portfolio home"
               type="button"
@@ -61,7 +61,7 @@ export default function ResumePage({ onNavigate }) {
             <span className="breadcrumb-current">Dedicated Resume Page</span>
           </div>
 
-          <div className="section-header resume-page-header">
+          <div className="section-header resume-page-header slide-header-compact">
             <div className="section-tag section-tag-violet">
               <FileText size={14} />
               <span>Official Curriculum Vitae</span>

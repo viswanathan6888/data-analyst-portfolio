@@ -2,10 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { personalInfo, resumeData } from '../data/portfolioData';
 import { Menu, X, Download, Terminal, ChevronRight, FileText, Sparkles } from './Icons';
 
-export default function Navbar({ currentPage = 'home', onNavigate }) {
-  const [isScrolled, setIsScrolled] = useState(false);
+export default function Navbar({ activeSlideId = 'home', onNavigate }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState('home');
   const [clickedLink, setClickedLink] = useState(null);
 
   const navLinks = [
@@ -20,84 +18,14 @@ export default function Navbar({ currentPage = 'home', onNavigate }) {
     { label: 'Resume', href: '#resume', id: 'resume' },
   ];
 
-  useEffect(() => {
-    if (currentPage === 'resume') {
-      setActiveSection('resume');
-      return;
-    }
-
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-
-      const sectionLinks = navLinks.filter((l) => l.id !== 'resume');
-      const sections = sectionLinks.map((l) => document.getElementById(l.id));
-      const scrollPos = window.scrollY + 120;
-
-      for (let i = sections.length - 1; i >= 0; i--) {
-        const sec = sections[i];
-        if (sec && sec.offsetTop <= scrollPos) {
-          setActiveSection(sectionLinks[i].id);
-          break;
-        }
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [currentPage]);
-
   const handleLinkClick = (e, link) => {
     e.preventDefault();
     setMobileMenuOpen(false);
     setClickedLink(link.id);
     setTimeout(() => setClickedLink(null), 400);
 
-    if (link.id === 'resume') {
-      if (onNavigate) {
-        onNavigate('resume');
-      } else {
-        window.location.hash = '#resume';
-      }
-      return;
-    }
-
-    if (link.id === 'home') {
-      if (currentPage === 'resume') {
-        if (onNavigate) {
-          onNavigate('home', 'home');
-        } else {
-          window.location.hash = '#home';
-        }
-      } else {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        window.history.pushState(null, '', '#home');
-        setActiveSection('home');
-      }
-      return;
-    }
-
-    if (currentPage === 'resume') {
-      if (onNavigate) {
-        onNavigate('home', link.id);
-      } else {
-        window.location.hash = `#${link.id}`;
-      }
-      return;
-    }
-
-    // Currently on home page - smooth animated transition with header offset
-    const target = document.getElementById(link.id);
-    if (target) {
-      const headerOffset = 76;
-      const elementPosition = target.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: 'smooth'
-      });
-      window.history.pushState(null, '', `#${link.id}`);
-      setActiveSection(link.id);
+    if (onNavigate) {
+      onNavigate(link.id);
     } else {
       window.location.hash = `#${link.id}`;
     }
@@ -107,18 +35,14 @@ export default function Navbar({ currentPage = 'home', onNavigate }) {
     e.preventDefault();
     setMobileMenuOpen(false);
 
-    if (currentPage === 'resume') {
-      if (onNavigate) {
-        onNavigate('home', 'home');
-      } else {
-        window.location.hash = '#home';
-      }
+    if (onNavigate) {
+      onNavigate('home');
     } else {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      window.history.pushState(null, '', '#home');
-      setActiveSection('home');
+      window.location.hash = '#home';
     }
   };
+
+  const isScrolled = true;
 
   return (
     <header
@@ -146,10 +70,7 @@ export default function Navbar({ currentPage = 'home', onNavigate }) {
         <nav className="desktop-nav" aria-label="Main Navigation">
           <ul className="nav-list futuristic-nav-capsule">
             {navLinks.map((link) => {
-              const isActive =
-                currentPage === 'resume'
-                  ? link.id === 'resume'
-                  : activeSection === link.id;
+              const isActive = activeSlideId === link.id;
               const isJustClicked = clickedLink === link.id;
 
               return (
@@ -207,10 +128,7 @@ export default function Navbar({ currentPage = 'home', onNavigate }) {
         <div className="mobile-menu-drawer glass-card mobile-futuristic-drawer">
           <ul className="mobile-nav-list">
             {navLinks.map((link) => {
-              const isActive =
-                currentPage === 'resume'
-                  ? link.id === 'resume'
-                  : activeSection === link.id;
+              const isActive = activeSlideId === link.id;
 
               return (
                 <li key={link.id} className="mobile-nav-item">

@@ -18,14 +18,29 @@ import {
   Info,
   TrendingUp,
   Activity,
-  Eye
+  Eye,
+  ChevronLeft,
+  ChevronRight
 } from './Icons';
 import { GithubIcon } from './Icons';
 
-export default function Projects() {
+export default function Projects({ onNavigate }) {
   const [selectedProject, setSelectedProject] = useState(null);
   const [activeFilter, setActiveFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [page, setPage] = useState(0);
+
+  const PROJECTS_PER_PAGE = 3;
+
+  const handleFilterChange = (filter) => {
+    setActiveFilter(filter);
+    setPage(0);
+  };
+
+  const handleSearchChange = (val) => {
+    setSearchQuery(val);
+    setPage(0);
+  };
 
   const filteredProjects = projectsData.filter((project) => {
     const matchesFilter =
@@ -44,6 +59,12 @@ export default function Projects() {
 
     return matchesFilter && matchesSearch;
   });
+
+  const totalPages = Math.max(1, Math.ceil(filteredProjects.length / PROJECTS_PER_PAGE));
+  const paginatedProjects = filteredProjects.slice(
+    page * PROJECTS_PER_PAGE,
+    (page + 1) * PROJECTS_PER_PAGE
+  );
 
   const renderVisualPreview = (project) => {
     switch (project.previewType) {
@@ -281,7 +302,7 @@ export default function Projects() {
     <section id="projects" className="section projects-section" aria-label="Featured Projects">
       <div className="container">
         {/* Section Header */}
-        <div className="section-header">
+        <div className="section-header slide-header-compact">
           <div className="section-tag section-tag-cyan">
             <FolderGit2 size={14} />
             <span>Featured Portfolio</span>
@@ -301,7 +322,7 @@ export default function Projects() {
             <button
               role="tab"
               aria-selected={activeFilter === 'all'}
-              onClick={() => setActiveFilter('all')}
+              onClick={() => handleFilterChange('all')}
               className={`filter-btn ${activeFilter === 'all' ? 'filter-btn-active' : ''}`}
             >
               <span>All Projects</span>
@@ -310,7 +331,7 @@ export default function Projects() {
             <button
               role="tab"
               aria-selected={activeFilter === 'ai-ml'}
-              onClick={() => setActiveFilter('ai-ml')}
+              onClick={() => handleFilterChange('ai-ml')}
               className={`filter-btn ${activeFilter === 'ai-ml' ? 'filter-btn-active' : ''}`}
             >
               <Bot size={14} />
@@ -320,7 +341,7 @@ export default function Projects() {
             <button
               role="tab"
               aria-selected={activeFilter === 'analytics'}
-              onClick={() => setActiveFilter('analytics')}
+              onClick={() => handleFilterChange('analytics')}
               className={`filter-btn ${activeFilter === 'analytics' ? 'filter-btn-active' : ''}`}
             >
               <Database size={14} />
@@ -330,7 +351,7 @@ export default function Projects() {
             <button
               role="tab"
               aria-selected={activeFilter === 'data-eng'}
-              onClick={() => setActiveFilter('data-eng')}
+              onClick={() => handleFilterChange('data-eng')}
               className={`filter-btn ${activeFilter === 'data-eng' ? 'filter-btn-active' : ''}`}
             >
               <Layers size={14} />
@@ -340,7 +361,7 @@ export default function Projects() {
             <button
               role="tab"
               aria-selected={activeFilter === 'dev'}
-              onClick={() => setActiveFilter('dev')}
+              onClick={() => handleFilterChange('dev')}
               className={`filter-btn ${activeFilter === 'dev' ? 'filter-btn-active' : ''}`}
             >
               <Monitor size={14} />
@@ -355,7 +376,7 @@ export default function Projects() {
               type="text"
               placeholder="Search tools (Python, Power BI, Qwen, Meta)..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => handleSearchChange(e.target.value)}
               className="search-input"
               aria-label="Filter projects by technology or title"
             />
@@ -364,7 +385,7 @@ export default function Projects() {
 
         {/* Projects Grid */}
         <div className="projects-grid">
-          {filteredProjects.map((project, idx) => (
+          {paginatedProjects.map((project, idx) => (
             <div
               key={project.id}
               className={`glass-card project-card ${idx % 2 === 0 ? 'glass-card-violet-accent' : 'glass-card-cyan'}`}
@@ -418,6 +439,52 @@ export default function Projects() {
             </div>
           ))}
         </div>
+
+        {/* Projects Pagination Row */}
+        {filteredProjects.length > PROJECTS_PER_PAGE && (
+          <div className="projects-pagination-row">
+            <button
+              type="button"
+              onClick={() => setPage(Math.max(0, page - 1))}
+              disabled={page === 0}
+              className="subnav-mini-btn"
+              aria-label="Previous projects page"
+              title="Previous Projects"
+            >
+              <ChevronLeft size={16} />
+              <span>Prev</span>
+            </button>
+
+            <div className="projects-page-dots">
+              {Array.from({ length: totalPages }).map((_, pIdx) => (
+                <button
+                  key={pIdx}
+                  type="button"
+                  onClick={() => setPage(pIdx)}
+                  className={`project-dot ${page === pIdx ? 'project-dot-active' : ''}`}
+                  aria-label={`Go to page ${pIdx + 1}`}
+                  title={`Page ${pIdx + 1}`}
+                />
+              ))}
+            </div>
+
+            <span className="projects-page-counter">
+              Page {page + 1} of {totalPages} ({filteredProjects.length} Projects)
+            </span>
+
+            <button
+              type="button"
+              onClick={() => setPage(Math.min(totalPages - 1, page + 1))}
+              disabled={page === totalPages - 1}
+              className="subnav-mini-btn"
+              aria-label="Next projects page"
+              title="Next Projects"
+            >
+              <span>Next</span>
+              <ChevronRight size={16} />
+            </button>
+          </div>
+        )}
 
         {/* Empty Search State */}
         {filteredProjects.length === 0 && (

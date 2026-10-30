@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import About from './components/About';
@@ -9,132 +9,201 @@ import Certifications from './components/Certifications';
 import Achievements from './components/Achievements';
 import Contact from './components/Contact';
 import ResumePage from './components/ResumePage';
-import Footer from './components/Footer';
-import BackToTop from './components/BackToTop';
+import PresentationSlideControls from './components/PresentationSlideControls';
 import FuturisticAmbientGlow from './components/FuturisticAmbientGlow';
-import { BackgroundOrganicBlobs, WaveDivider, FooterWaveDivider } from './components/AbstractDecorations';
-import { useScrollReveal } from './hooks/useScrollReveal';
+import { BackgroundOrganicBlobs } from './components/AbstractDecorations';
+
+export const SLIDES = [
+  { id: 'home', label: 'Home' },
+  { id: 'about', label: 'About' },
+  { id: 'skills', label: 'Skills' },
+  { id: 'experience', label: 'Experience' },
+  { id: 'projects', label: 'Projects' },
+  { id: 'certifications', label: 'Certifications' },
+  { id: 'achievements', label: 'Achievements' },
+  { id: 'contact', label: 'Contact' },
+  { id: 'resume', label: 'Resume' },
+];
 
 export default function App() {
-  const [currentPage, setCurrentPage] = useState('home'); // 'home' | 'resume'
+  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
 
-  // Initialize smooth viewport entry animations for headings and cards
-  useScrollReveal([currentPage]);
-
+  // Sync with URL hash
   useEffect(() => {
-    const handleLocationChange = () => {
-      const hash = (window.location.hash || '').toLowerCase();
-      if (hash === '#resume' || hash === '#/resume' || hash === '#resume-page') {
-        setCurrentPage('resume');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      } else {
-        setCurrentPage('home');
+    const handleHash = () => {
+      const rawHash = (window.location.hash || '').replace('#', '').toLowerCase();
+      if (!rawHash) return;
+      const idx = SLIDES.findIndex(
+        (s) => s.id === rawHash || (rawHash === 'resume-page' && s.id === 'resume')
+      );
+      if (idx !== -1) {
+        setCurrentSlideIndex(idx);
       }
     };
 
-    handleLocationChange();
-    window.addEventListener('hashchange', handleLocationChange);
-    window.addEventListener('popstate', handleLocationChange);
+    handleHash();
+    window.addEventListener('hashchange', handleHash);
+    window.addEventListener('popstate', handleHash);
     return () => {
-      window.removeEventListener('hashchange', handleLocationChange);
-      window.removeEventListener('popstate', handleLocationChange);
+      window.removeEventListener('hashchange', handleHash);
+      window.removeEventListener('popstate', handleHash);
     };
   }, []);
 
-  const handleNavigate = (page, sectionId = null) => {
-    if (page === 'resume') {
-      setCurrentPage('resume');
-      window.location.hash = '#resume';
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    } else {
-      setCurrentPage('home');
-      if (sectionId && sectionId !== 'home') {
-        window.location.hash = `#${sectionId}`;
-        setTimeout(() => {
-          const el = document.getElementById(sectionId);
-          if (el) {
-            const headerOffset = 76;
-            const elementPosition = el.getBoundingClientRect().top;
-            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-            window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
-          }
-        }, 80);
-      } else {
-        window.location.hash = '#home';
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+  const goToSlide = (index) => {
+    const clamped = Math.max(0, Math.min(SLIDES.length - 1, index));
+    setCurrentSlideIndex(clamped);
+    const targetHash = `#${SLIDES[clamped].id}`;
+    if (window.location.hash !== targetHash) {
+      window.history.pushState(null, '', targetHash);
+    }
+  };
+
+  const goToSlideById = (id) => {
+    const idx = SLIDES.findIndex((s) => s.id === id);
+    if (idx !== -1) {
+      goToSlide(idx);
+    }
+  };
+
+  const goToNextSlide = () => {
+    if (currentSlideIndex < SLIDES.length - 1) {
+      goToSlide(currentSlideIndex + 1);
+    }
+  };
+
+  const goToPrevSlide = () => {
+    if (currentSlideIndex > 0) {
+      goToSlide(currentSlideIndex - 1);
+    }
+  };
+
+  // Keyboard left and right arrow keys
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      const tag = document.activeElement?.tagName?.toLowerCase();
+      if (tag === 'input' || tag === 'textarea' || document.activeElement?.isContentEditable) {
+        return;
+      }
+      if (e.key === 'ArrowRight') {
+        goToNextSlide();
+      } else if (e.key === 'ArrowLeft') {
+        goToPrevSlide();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [currentSlideIndex]);
+
+  // Touch swipe gestures
+  const touchStartXRef = useRef(0);
+  const touchStartYRef = useRef(0);
+
+  const handleTouchStart = (e) => {
+    if (e.touches && e.touches.length > 0) {
+      touchStartXRef.current = e.touches[0].clientX;
+      touchStartYRef.current = e.touches[0].clientY;
+    }
+  };
+
+  const handleTouchEnd = (e) => {
+    if (e.changedTouches && e.changedTouches.length > 0) {
+      const deltaX = e.changedTouches[0].clientX - touchStartXRef.current;
+      const deltaY = e.changedTouches[0].clientY - touchStartYRef.current;
+
+      if (Math.abs(deltaX) > 45 && Math.abs(deltaX) > Math.abs(deltaY) * 1.3) {
+        if (deltaX < 0) {
+          goToNextSlide();
+        } else {
+          goToPrevSlide();
+        }
       }
     }
   };
 
   return (
-    <div className="portfolio-app">
-      {/* Background Abstract Organic Blobs */}
+    <div className="portfolio-app presentation-app">
+      {/* Background Decorative Blobs & Glowing Wells */}
       <BackgroundOrganicBlobs />
-
-      {/* Futuristic Ambient Neon Glow Wells & Floating Cyber Particles */}
       <FuturisticAmbientGlow />
 
-      {/* Main Sticky Futuristic Navigation Bar */}
-      <Navbar currentPage={currentPage} onNavigate={handleNavigate} />
+      {/* Sticky Top Navigation Bar */}
+      <Navbar
+        activeSlideId={SLIDES[currentSlideIndex].id}
+        onNavigate={goToSlideById}
+      />
 
-      {/* Main Content Area with Smooth Page Transition */}
-      <div key={currentPage} className="page-transition-frame">
-        {currentPage === 'resume' ? (
-          <main id="main-content" role="main">
-            <ResumePage onNavigate={handleNavigate} />
-          </main>
-        ) : (
-          <main id="main-content" role="main">
-            {/* Section 1: Home ΓÇö Data Analyst | AI Developer | Aspiring Data Scientist */}
-            <Hero onOpenResume={() => handleNavigate('resume')} />
+      {/* Full-Screen Horizontal Slide Deck Viewport */}
+      <main
+        id="main-presentation"
+        className="presentation-viewport"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        role="main"
+      >
+        <div
+          className="presentation-track"
+          style={{
+            transform: `translateX(-${currentSlideIndex * 100}vw)`,
+            transition: 'transform 0.52s cubic-bezier(0.22, 1, 0.36, 1)'
+          }}
+        >
+          {/* Slide 0: Home */}
+          <section id="slide-home" className="presentation-slide" aria-label="Home Section">
+            <Hero onNavigate={goToSlideById} onOpenResume={() => goToSlideById('resume')} />
+          </section>
 
-            {/* Wave Divider into About */}
-            <WaveDivider variant="coral-purple" />
+          {/* Slide 1: About */}
+          <section id="slide-about" className="presentation-slide" aria-label="About Section">
+            <About onNavigate={goToSlideById} />
+          </section>
 
-            {/* Section 2: About Me */}
-            <About />
+          {/* Slide 2: Skills */}
+          <section id="slide-skills" className="presentation-slide" aria-label="Skills Section">
+            <Skills onNavigate={goToSlideById} />
+          </section>
 
-            {/* Section 3: Skills (6 Categorized Resume Groups) */}
-            <Skills />
+          {/* Slide 3: Experience */}
+          <section id="slide-experience" className="presentation-slide" aria-label="Experience Section">
+            <Experience onNavigate={goToSlideById} />
+          </section>
 
-            {/* Flowing Wave into Experience */}
-            <WaveDivider variant="teal-yellow" />
+          {/* Slide 4: Projects */}
+          <section id="slide-projects" className="presentation-slide" aria-label="Projects Section">
+            <Projects onNavigate={goToSlideById} />
+          </section>
 
-            {/* Section 4: Experience (5 Internships + 5 Company Projects) */}
-            <Experience />
+          {/* Slide 5: Certifications */}
+          <section id="slide-certifications" className="presentation-slide" aria-label="Certifications Section">
+            <Certifications onNavigate={goToSlideById} />
+          </section>
 
-            {/* Wave into Projects */}
-            <WaveDivider variant="default" flip={true} />
+          {/* Slide 6: Achievements */}
+          <section id="slide-achievements" className="presentation-slide" aria-label="Achievements Section">
+            <Achievements onNavigate={goToSlideById} />
+          </section>
 
-            {/* Section 5: Projects (All 10 Resume Projects with Mockups & Modals) */}
-            <Projects />
+          {/* Slide 7: Contact */}
+          <section id="slide-contact" className="presentation-slide" aria-label="Contact Section">
+            <Contact onOpenResume={() => goToSlideById('resume')} onNavigate={goToSlideById} />
+          </section>
 
-            {/* Wave into Certifications & Achievements */}
-            <WaveDivider variant="coral-purple" />
+          {/* Slide 8: Resume */}
+          <section id="slide-resume" className="presentation-slide" aria-label="Resume Section">
+            <ResumePage onNavigate={goToSlideById} />
+          </section>
+        </div>
+      </main>
 
-            {/* Section 6: Certifications (4 Verified Credentials) */}
-            <Certifications />
-
-            {/* Section 7: Key Achievements (Symposium, 3D Graphics, Webinars) */}
-            <Achievements />
-
-            {/* Wave into Contact */}
-            <WaveDivider variant="teal-yellow" flip={true} />
-
-            {/* Section 8: Contact Section */}
-            <Contact onOpenResume={() => handleNavigate('resume')} />
-          </main>
-        )}
-      </div>
-
-      {/* Organic Wave Transition into Dark Navy Footer */}
-      <FooterWaveDivider />
-
-      {/* Footer */}
-      <Footer onNavigate={handleNavigate} />
-
-      {/* Floating Back to Top Control */}
-      <BackToTop />
+      {/* Floating Presentation Deck Controls (Left/Right Arrows & Bottom Dots) */}
+      <PresentationSlideControls
+        slides={SLIDES}
+        currentIndex={currentSlideIndex}
+        onSelectSlide={goToSlide}
+        onPrev={goToPrevSlide}
+        onNext={goToNextSlide}
+      />
     </div>
   );
 }

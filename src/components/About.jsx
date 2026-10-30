@@ -20,7 +20,7 @@ export default function About() {
     <section id="about" className="section about-section" aria-label="About Me">
       <div className="container">
         {/* Section Header */}
-        <div className="section-header">
+        <div className="section-header slide-header-compact">
           <div className="section-tag section-tag-violet">
             <User size={14} />
             <span>Profile Overview</span>

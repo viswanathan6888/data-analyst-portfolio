@@ -35,7 +35,7 @@ export default function Contact({ onOpenResume }) {
     <section id="contact" className="section contact-section" aria-label="Contact & Social Links">
       <div className="container">
         {/* Section Header */}
-        <div className="section-header">
+        <div className="section-header slide-header-compact">
           <div className="section-tag section-tag-cyan">
             <Mail size={14} />
             <span>Direct Channels</span>
