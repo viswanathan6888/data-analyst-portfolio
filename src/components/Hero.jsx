@@ -18,7 +18,7 @@ import { LinkedinIcon } from './Icons';
 import { ProfessionalProfileFrame } from './AbstractDecorations';
 import FuturisticRobotVisual from './FuturisticRobotVisual';
 
-export default function Hero({ onNavigate, onOpenResume }) {
+export default function Hero({ onOpenResume }) {
   const [parallaxOffset, setParallaxOffset] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
@@ -43,9 +43,13 @@ export default function Hero({ onNavigate, onOpenResume }) {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  const handleNavigate = (id) => {
-    if (onNavigate) {
-      onNavigate(id);
+  const scrollToSection = (id) => {
+    const el = document.getElementById(id);
+    if (el) {
+      const headerOffset = 76;
+      const elementPosition = el.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+      window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
     }
   };
 
@@ -105,7 +109,7 @@ export default function Hero({ onNavigate, onOpenResume }) {
             {/* 4 Action Buttons as requested */}
             <div className="hero-actions">
               <button
-                onClick={() => handleNavigate('projects')}
+                onClick={() => scrollToSection('projects')}
                 className="btn btn-primary glow-hover-btn"
                 aria-label="Explore Projects Section"
               >
@@ -136,9 +140,9 @@ export default function Hero({ onNavigate, onOpenResume }) {
               </a>
 
               <button
-                onClick={() => handleNavigate('contact')}
+                onClick={() => scrollToSection('contact')}
                 className="btn btn-secondary glow-hover-btn"
-                aria-label="Go to Contact Section"
+                aria-label="Scroll to Contact Section"
               >
                 <Mail size={16} />
                 <span>Contact Me</span>

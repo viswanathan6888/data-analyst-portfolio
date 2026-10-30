@@ -14,7 +14,7 @@ export default function Certifications() {
     <section id="certifications" className="section certifications-section" aria-label="Certifications">
       <div className="container">
         {/* Section Header */}
-        <div className="section-header slide-header-compact">
+        <div className="section-header">
           <div className="section-tag section-tag-cyan">
             <Award size={14} />
             <span>Verified Credentials</span>

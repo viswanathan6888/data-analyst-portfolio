@@ -14,7 +14,7 @@ export default function Achievements() {
     <section id="achievements" className="section achievements-section" aria-label="Honors & Achievements">
       <div className="container">
         {/* Section Header */}
-        <div className="section-header slide-header-compact">
+        <div className="section-header">
           <div className="section-tag section-tag-violet">
             <Trophy size={14} />
             <span>Honors & Recognition</span>
