@@ -31,7 +31,7 @@ export default function Navbar({ currentPage = 'home', onNavigate }) {
 
       const sectionLinks = navLinks.filter((l) => l.id !== 'resume');
       const sections = sectionLinks.map((l) => document.getElementById(l.id));
-      const scrollPos = window.scrollY + 180;
+      const scrollPos = window.scrollY + 120;
 
       for (let i = sections.length - 1; i >= 0; i--) {
         const sec = sections[i];
@@ -61,6 +61,21 @@ export default function Navbar({ currentPage = 'home', onNavigate }) {
       return;
     }
 
+    if (link.id === 'home') {
+      if (currentPage === 'resume') {
+        if (onNavigate) {
+          onNavigate('home', 'home');
+        } else {
+          window.location.hash = '#home';
+        }
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.history.pushState(null, '', '#home');
+        setActiveSection('home');
+      }
+      return;
+    }
+
     if (currentPage === 'resume') {
       if (onNavigate) {
         onNavigate('home', link.id);
@@ -73,7 +88,7 @@ export default function Navbar({ currentPage = 'home', onNavigate }) {
     // Currently on home page - smooth animated transition with header offset
     const target = document.getElementById(link.id);
     if (target) {
-      const headerOffset = 84;
+      const headerOffset = 76;
       const elementPosition = target.getBoundingClientRect().top;
       const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
 

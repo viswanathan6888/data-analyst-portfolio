@@ -53,7 +53,7 @@ export default function App() {
         setTimeout(() => {
           const el = document.getElementById(sectionId);
           if (el) {
-            const headerOffset = 84;
+            const headerOffset = 76;
             const elementPosition = el.getBoundingClientRect().top;
             const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
             window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
@@ -85,7 +85,7 @@ export default function App() {
           </main>
         ) : (
           <main id="main-content" role="main">
-            {/* Section 1: Home — Data Analyst | AI Developer | Aspiring Data Scientist */}
+            {/* Section 1: Home ΓÇö Data Analyst | AI Developer | Aspiring Data Scientist */}
             <Hero onOpenResume={() => handleNavigate('resume')} />
 
             {/* Wave Divider into About */}

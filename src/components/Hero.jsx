@@ -46,7 +46,7 @@ export default function Hero({ onOpenResume }) {
   const scrollToSection = (id) => {
     const el = document.getElementById(id);
     if (el) {
-      const headerOffset = 84;
+      const headerOffset = 76;
       const elementPosition = el.getBoundingClientRect().top;
       const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
       window.scrollTo({ top: offsetPosition, behavior: 'smooth' });

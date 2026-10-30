@@ -27,9 +27,20 @@ export default function Footer({ onNavigate }) {
       if (onNavigate) {
         onNavigate('home', sectionId);
       } else {
-        const el = document.getElementById(sectionId);
-        if (el) el.scrollIntoView({ behavior: 'smooth' });
-        else window.location.hash = `#${sectionId}`;
+        if (sectionId === 'home') {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          window.location.hash = '#home';
+        } else {
+          const el = document.getElementById(sectionId);
+          if (el) {
+            const headerOffset = 76;
+            const elementPosition = el.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+            window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+          } else {
+            window.location.hash = `#${sectionId}`;
+          }
+        }
       }
     }
   };
