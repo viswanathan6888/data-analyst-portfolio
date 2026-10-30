@@ -3922,12 +3922,17 @@ section[id],
   display: flex;
   height: 100%;
   width: 900%;
+  flex-direction: row;
+  flex-wrap: nowrap;
   will-change: transform;
 }
 
 .horizontal-section-slide,
 .presentation-slide {
-  width: calc(100% / 9);
+  width: calc(100% / 9) !important;
+  min-width: calc(100% / 9) !important;
+  max-width: calc(100% / 9) !important;
+  flex: 0 0 calc(100% / 9) !important;
   height: 100%;
   flex-shrink: 0;
   box-sizing: border-box;
@@ -4006,23 +4011,21 @@ section[id],
 
 .deck-arrow-btn {
   position: fixed;
-  top: calc(50% + 28px);
+  top: 50%;
   transform: translateY(-50%);
   z-index: 990;
-  width: 48px;
-  height: 48px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.94);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1.5px solid rgba(226, 232, 240, 0.95);
-  box-shadow: 0 10px 25px -4px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(255, 255, 255, 0.9);
+  background: #ffffff;
+  border: 2px solid #e2e8f0;
+  box-shadow: 0 10px 25px -4px rgba(15, 23, 42, 0.16), 0 0 0 1px rgba(255, 255, 255, 0.95);
   color: #0f172a;
   cursor: pointer;
-  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   outline: none;
 }
 
@@ -4035,23 +4038,24 @@ section[id],
 }
 
 .deck-arrow-btn:hover:not(:disabled) {
-  transform: translateY(-50%) scale(1.08);
+  transform: translateY(-50%) scale(1.12);
   border-color: var(--art-pink);
   color: var(--art-pink);
-  box-shadow: 0 12px 30px -4px rgba(236, 72, 153, 0.3), 0 0 16px rgba(236, 72, 153, 0.2);
+  box-shadow: 0 14px 35px -4px rgba(236, 72, 153, 0.38), 0 0 18px rgba(236, 72, 153, 0.22);
 }
 
 .deck-arrow-btn:active:not(:disabled) {
-  transform: translateY(-50%) scale(0.96);
+  transform: translateY(-50%) scale(0.95);
 }
 
 .deck-arrow-btn.is-disabled,
 .deck-arrow-btn:disabled {
-  opacity: 0.22;
+  opacity: 0.28;
   pointer-events: none;
   cursor: not-allowed;
   transform: translateY(-50%) scale(0.95);
   box-shadow: none;
+  border-color: #cbd5e1;
 }
 
 /* Tooltip on Arrow Hover */
