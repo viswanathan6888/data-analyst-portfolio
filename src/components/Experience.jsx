@@ -20,27 +20,9 @@ export default function Experience() {
       <div className="container">
         {/* Section Header */}
         <div className="section-header">
-          <div className="section-tag section-tag-violet">
-            <Briefcase size={14} />
-            <span>Professional Journey</span>
-          </div>
           <h2 className="section-title">
             Work & <span className="text-gradient">Experience</span>
           </h2>
-          <p className="section-subtitle">
-            Internship background in web development, dashboard engineering, data analytics, and machine learning, 
-            alongside specialized company project initiatives.
-          </p>
-        </div>
-
-        {/* Note on editable placeholders */}
-        <div className="glass-card experience-notice-card">
-          <Info size={18} className="text-cyan notice-icon" />
-          <p className="notice-text">
-            <strong>Factual Resume Integrity:</strong> All entries below directly reflect my verified resume. 
-            Dates are marked with editable <code>[Dates Editable]</code> placeholders to customize your specific timeline in <code>src/data/portfolioData.js</code>. 
-            No unverified claims or fabricated metrics are presented.
-          </p>
         </div>
 
         {/* View Switcher Tabs */}
@@ -52,7 +34,6 @@ export default function Experience() {
             className={`filter-btn ${activeTab === 'all' ? 'filter-btn-active' : ''}`}
           >
             <span>All Experience</span>
-            <span className="filter-count">10</span>
           </button>
           <button
             role="tab"
@@ -61,8 +42,7 @@ export default function Experience() {
             className={`filter-btn ${activeTab === 'internships' ? 'filter-btn-active' : ''}`}
           >
             <Briefcase size={14} />
-            <span>Internships (Resume Page 1)</span>
-            <span className="filter-count">5</span>
+            <span>Internships</span>
           </button>
           <button
             role="tab"
@@ -71,8 +51,7 @@ export default function Experience() {
             className={`filter-btn ${activeTab === 'company' ? 'filter-btn-active' : ''}`}
           >
             <Building size={14} />
-            <span>Company Projects (Resume Page 3)</span>
-            <span className="filter-count">5</span>
+            <span>Company Projects</span>
           </button>
         </div>
 
@@ -84,7 +63,6 @@ export default function Experience() {
                 <Briefcase size={20} className="text-cyan" />
                 <h3 className="subgroup-title">Professional Internships</h3>
               </div>
-              <span className="chip chip-cyan">5 Key Roles</span>
             </div>
 
             <SectionCarousel
@@ -102,8 +80,6 @@ export default function Experience() {
                     <div className="exp-title-group">
                       <div className="exp-company-row">
                         <span className="exp-company">{exp.company}</span>
-                        <span className="chip chip-violet">{exp.type}</span>
-                        <span className="chip chip-cyan">{exp.badge}</span>
                       </div>
                       <h4 className="exp-role">{exp.role}</h4>
                     </div>
@@ -154,7 +130,6 @@ export default function Experience() {
                   <span className="company-client-note">Aram Pvt. Ltd &bull; Eagle Eye SafDrive Pvt. Ltd &bull; AR4 Tech Pvt. Ltd</span>
                 </div>
               </div>
-              <span className="chip chip-violet">5 Technical Initiatives</span>
             </div>
 
             <SectionCarousel
@@ -169,7 +144,6 @@ export default function Experience() {
                   style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
                 >
                   <div className="cp-header">
-                    <span className="chip chip-violet">{proj.badge}</span>
                     <h4 className="cp-title">{proj.title}</h4>
                     <span className="cp-company-label">{proj.company}</span>
                   </div>

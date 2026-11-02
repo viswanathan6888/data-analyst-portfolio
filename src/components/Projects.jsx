@@ -54,8 +54,7 @@ export default function Projects() {
             <div className="preview-top-bar">
               <span className="preview-dot green-dot" />
               <span className="preview-title">Stock Prediction Model</span>
-              <span className="preview-tag">[Concept UI]</span>
-            </div>
+              </div>
             <div className="stock-visual-lines">
               <div className="stock-metric-row">
                 <span className="stock-ticker">TICKER: HISTORICAL &bull; SMA-50</span>
@@ -88,8 +87,7 @@ export default function Projects() {
             <div className="preview-top-bar">
               <span className="preview-dot purple-dot" />
               <span className="preview-title">Sales Forecasting Model</span>
-              <span className="preview-tag">[Concept UI]</span>
-            </div>
+              </div>
             <div className="forecast-bars-container">
               <div className="f-bar-col">
                 <div className="f-bar" style={{ height: '45%' }} />
@@ -117,8 +115,7 @@ export default function Projects() {
             <div className="preview-top-bar">
               <span className="preview-dot cyan-dot" />
               <span className="preview-title">Eye Pathology Classifier</span>
-              <span className="preview-tag">[Deep Learning]</span>
-            </div>
+              </div>
             <div className="medical-scan-box">
               <div className="scan-crosshair">
                 <Eye size={22} className="text-cyan" />
@@ -137,8 +134,7 @@ export default function Projects() {
             <div className="preview-top-bar">
               <span className="preview-dot green-dot" />
               <span className="preview-title">Offline Question-Answering</span>
-              <span className="preview-tag">[Local NLP]</span>
-            </div>
+              </div>
             <div className="terminal-preview-code">
               <div className="terminal-line user-line">
                 <span className="prompt-sym">&gt;</span> &quot;Query local dataset insights&quot;
@@ -159,8 +155,7 @@ export default function Projects() {
             <div className="preview-top-bar">
               <span className="preview-dot" />
               <span className="preview-title">Campaign Performance Tracker</span>
-              <span className="preview-tag">[Concept UI]</span>
-            </div>
+              </div>
             <div className="funnel-bars">
               <div className="funnel-step">
                 <div className="funnel-bar bar-1" style={{ width: '100%' }}>
@@ -187,8 +182,7 @@ export default function Projects() {
             <div className="preview-top-bar">
               <span className="preview-dot" />
               <span className="preview-title">Power BI & Tableau Matrix</span>
-              <span className="preview-tag">[Concept UI]</span>
-            </div>
+              </div>
             <div className="bi-mini-grid">
               <div className="bi-mini-kpi">
                 <span className="bi-kpi-title">Warehouse</span>
@@ -214,8 +208,7 @@ export default function Projects() {
             <div className="preview-top-bar">
               <span className="preview-dot green-dot" />
               <span className="preview-title">Ollama + Qwen 2.5 Agent</span>
-              <span className="preview-tag">[Private LLM]</span>
-            </div>
+              </div>
             <div className="terminal-preview-code">
               <div className="terminal-line user-line">
                 <span className="prompt-sym">&gt;</span> &quot;Analyze CPL by campaign tier&quot;
@@ -236,8 +229,7 @@ export default function Projects() {
             <div className="preview-top-bar">
               <span className="preview-dot purple-dot" />
               <span className="preview-title">Antigravity 3D Console</span>
-              <span className="preview-tag">[Spatial UI]</span>
-            </div>
+              </div>
             <div className="telemetry-gauges">
               <div className="gauge-item">
                 <span className="gauge-lbl">PIPELINE</span>
@@ -262,8 +254,7 @@ export default function Projects() {
             <div className="preview-top-bar">
               <span className="preview-dot cyan-dot" />
               <span className="preview-title">Meta Graph API & Windsor.ai</span>
-              <span className="preview-tag">[Data Ingestion]</span>
-            </div>
+              </div>
             <div className="api-preview-lines">
               <div className="api-route">
                 <span className="api-method">GET</span> /v21.0/act_.../insights
@@ -283,17 +274,9 @@ export default function Projects() {
       <div className="container">
         {/* Section Header */}
         <div className="section-header">
-          <div className="section-tag section-tag-cyan">
-            <FolderGit2 size={14} />
-            <span>Featured Portfolio</span>
-          </div>
           <h2 className="section-title">
             Featured <span className="text-gradient">Projects</span>
           </h2>
-          <p className="section-subtitle">
-            All 10 projects directly sourced from my verified resume, spanning machine learning models, 
-            deep learning image classification, BI dashboards, local AI assistants, and API pipelines.
-          </p>
         </div>
 
         {/* Filter and Search Bar */}
@@ -306,8 +289,7 @@ export default function Projects() {
               className={`filter-btn ${activeFilter === 'all' ? 'filter-btn-active' : ''}`}
             >
               <span>All Projects</span>
-              <span className="filter-count">10</span>
-            </button>
+              </button>
             <button
               role="tab"
               aria-selected={activeFilter === 'ai-ml'}
@@ -316,8 +298,7 @@ export default function Projects() {
             >
               <Bot size={14} />
               <span>AI & ML</span>
-              <span className="filter-count">5</span>
-            </button>
+              </button>
             <button
               role="tab"
               aria-selected={activeFilter === 'analytics'}
@@ -326,8 +307,7 @@ export default function Projects() {
             >
               <Database size={14} />
               <span>Analytics & BI</span>
-              <span className="filter-count">2</span>
-            </button>
+              </button>
             <button
               role="tab"
               aria-selected={activeFilter === 'data-eng'}
@@ -336,8 +316,7 @@ export default function Projects() {
             >
               <Layers size={14} />
               <span>Engineering & APIs</span>
-              <span className="filter-count">1</span>
-            </button>
+              </button>
             <button
               role="tab"
               aria-selected={activeFilter === 'dev'}
@@ -346,8 +325,7 @@ export default function Projects() {
             >
               <Monitor size={14} />
               <span>Development</span>
-              <span className="filter-count">2</span>
-            </button>
+              </button>
           </div>
 
           <div className="projects-search-box">
@@ -381,11 +359,7 @@ export default function Projects() {
                   {renderVisualPreview(project)}
                 </div>
 
-                {/* Card Meta & Badges */}
-                <div className="project-card-header">
-                  <span className="chip chip-violet">{project.badge}</span>
-                  <span className="project-category-label">{project.category.split('&')[0].trim()}</span>
-                </div>
+                
 
                 {/* Title & Summary */}
                 <div className="project-card-body" style={{ flex: '1 1 auto' }}>
@@ -407,19 +381,11 @@ export default function Projects() {
                   <button
                     onClick={() => setSelectedProject(project)}
                     className="btn btn-sm btn-primary project-inspect-btn"
-                    aria-label={`Inspect architecture of ${project.title}`}
+                    style={{ width: '100%', justifyContent: 'center' }}
+                    aria-label={`View details and architecture of ${project.title}`}
                   >
-                    <span>Inspect Architecture</span>
+                    <span>View Architecture &amp; Details</span>
                     <ArrowUpRight size={14} />
-                  </button>
-
-                  <button
-                    onClick={() => setSelectedProject(project)}
-                    className="btn btn-sm btn-secondary icon-btn"
-                    title="Architecture details"
-                    aria-label={`View details for ${project.title}`}
-                  >
-                    <Info size={16} className="text-cyan" />
                   </button>
                 </div>
               </div>

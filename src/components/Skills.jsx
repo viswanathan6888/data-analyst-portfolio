@@ -49,44 +49,9 @@ export default function Skills() {
       <div className="container">
         {/* Section Header */}
         <div className="section-header">
-          <div className="section-tag section-tag-cyan">
-            <Code2 size={14} />
-            <span>Technical Capabilities</span>
-          </div>
           <h2 className="section-title">
             Skills & <span className="text-gradient">Competencies</span>
           </h2>
-          <p className="section-subtitle">
-            Comprehensive skill set directly grounded in my resume across data analytics, business intelligence, 
-            machine learning, big data platforms, and API integrations.
-          </p>
-        </div>
-
-        {/* Core Expertise Banner */}
-        <div className="glass-card core-expertise-banner" style={{ marginBottom: '2.5rem', padding: '1.75rem 2rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', marginBottom: '1rem' }}>
-            <Sparkles size={18} className="text-cyan" />
-            <h3 style={{ fontSize: '1.15rem', fontWeight: 800, margin: 0, color: 'var(--text-main)' }}>
-              Core Expertise
-            </h3>
-          </div>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
-            <span className="chip chip-cyan" style={{ fontSize: '0.875rem', padding: '0.4rem 0.9rem', fontWeight: 700 }}>
-              Data Analytics &amp; Business Intelligence
-            </span>
-            <span className="chip chip-violet" style={{ fontSize: '0.875rem', padding: '0.4rem 0.9rem', fontWeight: 700 }}>
-              Python, SQL &amp; Excel
-            </span>
-            <span className="chip chip-cyan" style={{ fontSize: '0.875rem', padding: '0.4rem 0.9rem', fontWeight: 700 }}>
-              Power BI, Tableau &amp; Power Query
-            </span>
-            <span className="chip chip-pink" style={{ fontSize: '0.875rem', padding: '0.4rem 0.9rem', fontWeight: 700 }}>
-              AI Applications, LLMs, Ollama &amp; Qwen
-            </span>
-            <span className="chip chip-violet" style={{ fontSize: '0.875rem', padding: '0.4rem 0.9rem', fontWeight: 700 }}>
-              API Integration &amp; Dashboard Development
-            </span>
-          </div>
         </div>
 
         {/* Category Filter Pills */}
@@ -99,7 +64,6 @@ export default function Skills() {
               className={`filter-btn ${activeCategory === 'all' ? 'filter-btn-active' : ''}`}
             >
               <span>All Categories</span>
-              <span className="filter-count">6</span>
             </button>
 
             {skillsCategories.map((cat) => (
@@ -112,7 +76,6 @@ export default function Skills() {
               >
                 {getCategoryIcon(cat.slug)}
                 <span>{cat.category.split('&')[0].trim()}</span>
-                <span className="filter-count">{cat.skills.length}</span>
               </button>
             ))}
           </div>
@@ -133,21 +96,15 @@ export default function Skills() {
                   height: '100%',
                   display: 'flex',
                   flexDirection: 'column',
-                  padding: '1.75rem',
-                  borderRadius: '20px'
+                  padding: '1.5rem',
+                  borderRadius: '18px'
                 }}
               >
-                <div className="category-group-header" style={{ marginBottom: '1.25rem' }}>
+                <div className="category-group-header" style={{ marginBottom: '1rem' }}>
                   <div className="category-heading-wrap" style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
                     {getCategoryIcon(group.slug)}
-                    <h3 className="category-title" style={{ fontSize: '1.18rem', margin: 0 }}>{group.category}</h3>
-                    <span className="category-badge chip chip-cyan">
-                      {group.skills.length} Skills
-                    </span>
+                    <h3 className="category-title" style={{ fontSize: '1.15rem', margin: 0 }}>{group.category}</h3>
                   </div>
-                  <p className="category-description" style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
-                    {group.description}
-                  </p>
                 </div>
 
                 <div
@@ -172,42 +129,12 @@ export default function Skills() {
                       <p className="skill-focus-text" style={{ fontSize: '0.78rem', flex: '1 1 auto', margin: '0.35rem 0' }}>
                         {skill.focus}
                       </p>
-                      <span className="chip chip-sm chip-subtle">{group.category.split('&')[0].trim()}</span>
                     </div>
                   ))}
                 </div>
               </div>
             )}
           />
-        </div>
-
-        {/* Dual Stack Architecture Summary */}
-        <div className="glass-card skill-architecture-box">
-          <div className="architecture-grid">
-            <div className="architecture-col">
-              <div className="architecture-col-header">
-                <Database size={18} className="text-cyan" />
-                <h4 className="architecture-heading">Data Analytics & Business Intelligence</h4>
-              </div>
-              <p className="architecture-text">
-                Power BI, Tableau, Power Query, Excel, SQL, data analysis, data visualization, KPI reporting, and business analytics. 
-                Focus on normalized dimensional modeling, interactive storytelling, and automated ETL.
-              </p>
-            </div>
-
-            <div className="architecture-divider" />
-
-            <div className="architecture-col">
-              <div className="architecture-col-header">
-                <Bot size={18} className="text-violet" />
-                <h4 className="architecture-heading">AI, Machine Learning & Data Engineering</h4>
-              </div>
-              <p className="architecture-text">
-                Python, TensorFlow/Keras, PyTorch, Scikit-learn, LangChain, Ollama, Qwen 2.5, Claude, Meta Marketing API, BigQuery, and Hadoop. 
-                Emphasis on private on-premise inference, automated pipelines, and full-stack dashboards.
-              </p>
-            </div>
-          </div>
         </div>
       </div>
     </section>

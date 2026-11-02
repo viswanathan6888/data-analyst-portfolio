@@ -22,22 +22,14 @@ export default function About() {
       <div className="container">
         {/* Section Header */}
         <div className="section-header">
-          <div className="section-tag section-tag-violet">
-            <User size={14} />
-            <span>Profile Overview</span>
-          </div>
           <h2 className="section-title">
             About <span className="text-gradient">Me</span>
           </h2>
-          <p className="section-subtitle">
-            B.Tech in Artificial Intelligence & Data Science with hands-on expertise in Business Intelligence, 
-            machine learning models, and local LLM architectures.
-          </p>
         </div>
 
         {/* About Main Layout */}
         <div className="about-grid">
-          {/* Left Column: Narrative & Values */}
+          {/* Left Column: Narrative & Details */}
           <div className="about-text-column">
             <div className="glass-card about-card-main">
               <div className="about-education-badge">
@@ -55,38 +47,29 @@ export default function About() {
                 ))}
               </div>
 
-              {/* Core Expertise Checklist */}
+              {/* Core Focus Checklist */}
               <div className="about-checklist">
                 <div className="checklist-item">
                   <CheckCircle2 size={18} className="check-icon" />
                   <div>
                     <span className="checklist-title">Data Analytics &amp; Business Intelligence:</span>
                     <span className="checklist-desc">
-                      {' '}Power BI, Tableau, Power Query, Excel, and SQL for actionable reporting and informed decision-making.
+                      {' '}Power BI, Tableau, Power Query, Excel, and SQL for actionable business reporting.
                     </span>
                   </div>
                 </div>
                 <div className="checklist-item">
                   <CheckCircle2 size={18} className="check-icon" />
                   <div>
-                    <span className="checklist-title">AI Applications &amp; LLMs:</span>
+                    <span className="checklist-title">AI Applications &amp; Machine Learning:</span>
                     <span className="checklist-desc">
-                      {' '}Building practical AI applications with Large Language Models, Ollama, Qwen, and custom data workflows.
-                    </span>
-                  </div>
-                </div>
-                <div className="checklist-item">
-                  <CheckCircle2 size={18} className="check-icon" />
-                  <div>
-                    <span className="checklist-title">API Integration &amp; Dashboard Development:</span>
-                    <span className="checklist-desc">
-                      {' '}Meta API data integration, Windsor.ai, automated pipelines, and interactive dashboard solutions.
+                      {' '}Predictive models, deep learning classification, local LLMs (Ollama, Qwen), and automated ETL pipelines.
                     </span>
                   </div>
                 </div>
               </div>
 
-              {/* Verified Profile Meta Banner */}
+              {/* Profile Meta Details */}
               <div className="about-meta-row">
                 <div className="about-meta-pill">
                   <MapPin size={15} className="text-cyan" />
@@ -104,7 +87,7 @@ export default function About() {
             </div>
           </div>
 
-          {/* Right Column: 4 Core Pillars Grid */}
+          {/* Right Column: 4 Core Pillars Carousel */}
           <div className="about-highlights-column">
             <SectionCarousel
               items={about.highlights}
@@ -119,24 +102,12 @@ export default function About() {
                 >
                   <div className="highlight-card-header">
                     <span className="highlight-tag">{item.label}</span>
-                    <span className="highlight-accent-dot" />
                   </div>
                   <h4 className="highlight-value text-gradient">{item.title}</h4>
                   <p className="highlight-desc" style={{ flex: '1 1 auto' }}>{item.description}</p>
                 </div>
               )}
             />
-
-            {/* My Objective Card */}
-            <div className="glass-card synergy-banner">
-              <div className="synergy-header">
-                <Workflow size={20} className="text-cyan" />
-                <h4 className="synergy-title">My Objective</h4>
-              </div>
-              <p className="synergy-text">
-                To build practical AI and analytics solutions that turn data into meaningful business insights.
-              </p>
-            </div>
           </div>
         </div>
       </div>

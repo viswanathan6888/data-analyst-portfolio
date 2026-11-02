@@ -63,17 +63,9 @@ export default function ResumePage({ onNavigate }) {
           </div>
 
           <div className="section-header resume-page-header">
-            <div className="section-tag section-tag-violet">
-              <FileText size={14} />
-              <span>Official Curriculum Vitae</span>
-            </div>
             <h1 className="section-title">
               Verified <span className="text-gradient">Resume</span>
             </h1>
-            <p className="section-subtitle">
-              Official resume of <strong>{personalInfo.name}</strong> &bull; B.Tech in Artificial Intelligence &amp; Data Science (8.5 CGPA). 
-              View the embedded PDF document or download a copy below.
-            </p>
           </div>
 
           {/* Quick Credential Highlights Carousel */}
@@ -131,15 +123,7 @@ export default function ResumePage({ onNavigate }) {
           {/* Action Toolbar */}
           <div className="glass-card resume-action-banner">
             <div className="resume-banner-text">
-              <div className="resume-badge-row">
-                <span className="chip chip-violet">Verified PDF</span>
-                <span className="chip chip-cyan">Active Document</span>
-              </div>
               <h3 className="resume-banner-title">{resumeData.fileName}</h3>
-              <p className="resume-banner-sub">
-                Targeting Data Analyst, AI Developer, and Data Scientist opportunities. 
-                Complete with verified internship achievements, company initiatives, and credentials.
-              </p>
             </div>
 
             <div className="resume-banner-buttons">

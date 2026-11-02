@@ -5,20 +5,14 @@ import {
   Download,
   ArrowRight,
   Database,
-  Sparkles,
-  Terminal,
-  Code2,
-  FileSpreadsheet,
-  CheckCircle2,
-  ExternalLink,
   Mail,
   GraduationCap,
   Award,
-  Briefcase
+  Briefcase,
+  ExternalLink
 } from './Icons';
 import { LinkedinIcon } from './Icons';
 import { ProfessionalProfileFrame } from './AbstractDecorations';
-import FuturisticRobotVisual from './FuturisticRobotVisual';
 
 export default function Hero({ onOpenResume }) {
   const [parallaxOffset, setParallaxOffset] = useState({ x: 0, y: 0 });
@@ -59,28 +53,24 @@ export default function Hero({ onOpenResume }) {
     {
       id: 'degree',
       icon: <GraduationCap size={20} className="text-cyan" />,
-      badge: 'Academic Foundation',
       title: 'B.Tech in AI & Data Science',
       desc: 'SNS College of Technology • CGPA 8.5'
     },
     {
       id: 'experience',
       icon: <Briefcase size={20} className="text-violet" />,
-      badge: 'Work Experience',
       title: '5 Professional Internships',
-      desc: 'Full-stack, analytics, machine learning & BI roles'
+      desc: 'Analytics, Machine Learning & Business Intelligence'
     },
     {
       id: 'projects',
       icon: <Database size={20} className="text-cyan" />,
-      badge: 'Portfolio Output',
       title: '10 Production Projects',
-      desc: 'Stock prediction, sales forecasting, CNN & local AI'
+      desc: 'ML models, Deep Learning, BI dashboards & API pipelines'
     },
     {
       id: 'certifications',
       icon: <Award size={20} className="text-pink" />,
-      badge: 'Accreditation',
       title: '4 Verified Certifications',
       desc: 'Python, Machine Learning, Power BI & Data Analysis'
     }
@@ -97,18 +87,16 @@ export default function Hero({ onOpenResume }) {
               transform: `translate3d(${parallaxOffset.x * 0.35}px, ${parallaxOffset.y * 0.35}px, 0)`
             }}
           >
-            {/* Status Pill & Refined AI Coprocessor */}
+            {/* Status Pill */}
             <div className="hero-top-badge-row">
               <div className="hero-status-pill">
                 <span className="status-indicator"></span>
                 <span className="status-text">{personalInfo.status}</span>
               </div>
-              <FuturisticRobotVisual />
             </div>
 
-            {/* Name with subtle animated backdrop & gradient shimmer */}
+            {/* Name */}
             <h1 className="hero-title hero-heading-reveal">
-              <span className="hero-heading-glow-bg" aria-hidden="true" />
               Hi, I'm <span className="text-gradient hero-text-shimmer">Viswanathan M</span>
             </h1>
 
@@ -121,25 +109,16 @@ export default function Hero({ onOpenResume }) {
               </h2>
             </div>
 
-            {/* Exact Introduction Provided by User */}
+            {/* Direct, meaningful professional introduction */}
             <div className="hero-description-group">
               <p className="hero-description">
-                I am an <strong>AI &amp; Data Science professional</strong> focused on transforming complex data into actionable insights and developing intelligent, data-driven solutions. My work spans <strong>data analytics</strong>, <strong>business intelligence</strong>, <strong>AI-powered applications</strong>, and <strong>interactive dashboard development</strong>.
-              </p>
-              <p className="hero-description hero-sub-description">
-                I leverage technologies such as <strong>Python</strong>, <strong>SQL</strong>, <strong>Power BI</strong>, <strong>Tableau</strong>, <strong>Power Query</strong>, <strong>APIs</strong>, and <strong>Large Language Models (LLMs)</strong> to analyze data, streamline reporting, and support informed decision-making.
+                AI &amp; Data Science professional focused on transforming complex data into actionable business insights. 
+                Specialized in <strong>data analytics</strong>, <strong>business intelligence</strong>, <strong>machine learning models</strong>, 
+                and <strong>interactive dashboards</strong> using Python, SQL, Power BI, Tableau, and LLMs.
               </p>
             </div>
 
-            {/* My Objective Callout */}
-            <div className="hero-verification-callout hero-objective-callout">
-              <Sparkles size={16} className="text-cyan flex-shrink-0" />
-              <span>
-                <strong>My Objective:</strong> To build practical AI and analytics solutions that turn data into meaningful business insights.
-              </span>
-            </div>
-
-            {/* 4 Action Buttons as requested */}
+            {/* 4 Primary Action Buttons */}
             <div className="hero-actions">
               <button
                 onClick={() => scrollToSection('projects')}
@@ -181,21 +160,9 @@ export default function Hero({ onOpenResume }) {
                 <span>Contact Me</span>
               </button>
             </div>
-
-            {/* Core Expertise Badges */}
-            <div className="hero-stack-row">
-              <span className="stack-label">Core Expertise:</span>
-              <div className="stack-pills">
-                <span className="chip chip-cyan">Data Analytics &amp; BI</span>
-                <span className="chip chip-violet">Python, SQL &amp; Excel</span>
-                <span className="chip chip-cyan">Power BI, Tableau &amp; Power Query</span>
-                <span className="chip chip-pink">AI Applications, LLMs, Ollama &amp; Qwen</span>
-                <span className="chip chip-violet">API Integration &amp; Dashboards</span>
-              </div>
-            </div>
           </div>
 
-          {/* Right Column: Clean Professional Profile Photo with subtle inverted parallax */}
+          {/* Right Column: Clean Professional Profile Photo */}
           <div
             className="hero-portrait-column hero-fade-in-delayed"
             style={{
@@ -207,7 +174,7 @@ export default function Hero({ onOpenResume }) {
         </div>
 
         {/* Hero Highlights Carousel */}
-        <div className="hero-highlights-carousel-wrap" style={{ marginTop: '2.5rem' }}>
+        <div className="hero-highlights-carousel-wrap" style={{ marginTop: '2rem' }}>
           <SectionCarousel
             items={heroHighlightItems}
             itemsPerPage={{ desktop: 2, tablet: 2, mobile: 1 }}
@@ -240,15 +207,10 @@ export default function Hero({ onOpenResume }) {
                   {item.icon}
                 </div>
                 <div style={{ flex: '1 1 auto', minWidth: 0 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.2rem' }}>
-                    <span className="chip chip-sm chip-cyan" style={{ fontSize: '0.65rem', padding: '0.15rem 0.45rem' }}>
-                      {item.badge}
-                    </span>
-                  </div>
-                  <h4 style={{ fontSize: '0.95rem', fontWeight: 700, margin: '0 0 0.15rem 0', color: 'var(--text-main)' }}>
+                  <h4 style={{ fontSize: '0.95rem', fontWeight: 700, margin: '0 0 0.2rem 0', color: 'var(--text-main)' }}>
                     {item.title}
                   </h4>
-                  <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: 0 }}>
+                  <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)', margin: 0 }}>
                     {item.desc}
                   </p>
                 </div>

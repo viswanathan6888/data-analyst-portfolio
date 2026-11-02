@@ -1,14 +1,7 @@
 import React from 'react';
 import { achievementsData } from '../data/portfolioData';
 import SectionCarousel from './SectionCarousel';
-import {
-  Trophy,
-  Award,
-  Sparkles,
-  CheckCircle2,
-  TrendingUp,
-  Info
-} from './Icons';
+import { Trophy, Award } from './Icons';
 
 export default function Achievements() {
   return (
@@ -16,16 +9,7 @@ export default function Achievements() {
       <div className="container">
         {/* Section Header */}
         <div className="section-header">
-          <div className="section-tag section-tag-violet">
-            <Trophy size={14} />
-            <span>Honors & Recognition</span>
-          </div>
-          <h2 className="section-title">
-            Key <span className="text-gradient">Achievements</span>
-          </h2>
-          <p className="section-subtitle">
-            Academic symposium accolades, creative 3D visual design awards, and recognized technical webinar participation.
-          </p>
+          <h2 className="section-title">Achievements</h2>
         </div>
 
         {/* Achievements Carousel */}
@@ -48,20 +32,12 @@ export default function Achievements() {
                     <Award size={26} className="text-violet" />
                   )}
                 </div>
-                <span className="chip chip-cyan">{item.badge}</span>
               </div>
 
               <div className="achievement-body" style={{ flex: '1 1 auto' }}>
                 <h3 className="achievement-title">{item.title}</h3>
                 <span className="achievement-event">{item.event}</span>
                 <p className="achievement-desc">{item.description}</p>
-              </div>
-
-              <div className="achievement-footer">
-                <div className="achievement-check-row">
-                  <CheckCircle2 size={14} className="text-cyan" />
-                  <span>Resume Documented Honor</span>
-                </div>
               </div>
             </div>
           )}

@@ -190,7 +190,7 @@ export default function SectionCarousel({
             ))}
           </div>
           <span className="carousel-counter-badge">
-            {currentPage + 1} / {totalPages} ({items.length} items)
+            {currentPage + 1} / {totalPages}
           </span>
         </div>
       )}
