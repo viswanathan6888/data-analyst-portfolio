@@ -1,5 +1,6 @@
 import React from 'react';
 import { personalInfo } from '../data/portfolioData';
+import SectionCarousel from './SectionCarousel';
 import {
   User,
   GraduationCap,
@@ -105,21 +106,26 @@ export default function About() {
 
           {/* Right Column: 4 Core Pillars Grid */}
           <div className="about-highlights-column">
-            <div className="highlights-grid">
-              {about.highlights.map((item, idx) => (
+            <SectionCarousel
+              items={about.highlights}
+              itemsPerPage={{ desktop: 2, tablet: 2, mobile: 1 }}
+              ariaLabel="About Highlights Carousel"
+              carouselId="about-highlights-carousel"
+              renderItem={(item, idx) => (
                 <div
                   key={idx}
                   className={`glass-card highlight-card ${idx % 2 === 1 ? 'glass-card-cyan' : ''}`}
+                  style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
                 >
                   <div className="highlight-card-header">
                     <span className="highlight-tag">{item.label}</span>
                     <span className="highlight-accent-dot" />
                   </div>
                   <h4 className="highlight-value text-gradient">{item.title}</h4>
-                  <p className="highlight-desc">{item.description}</p>
+                  <p className="highlight-desc" style={{ flex: '1 1 auto' }}>{item.description}</p>
                 </div>
-              ))}
-            </div>
+              )}
+            />
 
             {/* My Objective Card */}
             <div className="glass-card synergy-banner">

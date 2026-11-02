@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { projectsData } from '../data/portfolioData';
 import ProjectModal from './ProjectModal';
+import SectionCarousel from './SectionCarousel';
 import {
   FolderGit2,
   ExternalLink,
@@ -362,62 +363,69 @@ export default function Projects() {
           </div>
         </div>
 
-        {/* Projects Grid */}
-        <div className="projects-grid">
-          {filteredProjects.map((project, idx) => (
-            <div
-              key={project.id}
-              className={`glass-card project-card ${idx % 2 === 0 ? 'glass-card-violet-accent' : 'glass-card-cyan'}`}
-            >
-              {/* Visual Mockup Preview Header */}
-              <div className="project-preview-wrapper">
-                {renderVisualPreview(project)}
-              </div>
+        {/* Projects Carousel */}
+        {filteredProjects.length > 0 ? (
+          <SectionCarousel
+            items={filteredProjects}
+            itemsPerPage={{ desktop: 3, tablet: 2, mobile: 1 }}
+            ariaLabel="Featured Projects Carousel"
+            carouselId="projects-carousel"
+            renderItem={(project, idx) => (
+              <div
+                key={project.id}
+                className={`glass-card project-card ${idx % 2 === 0 ? 'glass-card-violet-accent' : 'glass-card-cyan'}`}
+                style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
+              >
+                {/* Visual Mockup Preview Header */}
+                <div className="project-preview-wrapper">
+                  {renderVisualPreview(project)}
+                </div>
 
-              {/* Card Meta & Badges */}
-              <div className="project-card-header">
-                <span className="chip chip-violet">{project.badge}</span>
-                <span className="project-category-label">{project.category.split('&')[0].trim()}</span>
-              </div>
+                {/* Card Meta & Badges */}
+                <div className="project-card-header">
+                  <span className="chip chip-violet">{project.badge}</span>
+                  <span className="project-category-label">{project.category.split('&')[0].trim()}</span>
+                </div>
 
-              {/* Title & Summary */}
-              <div className="project-card-body">
-                <h3 className="project-card-title">{project.title}</h3>
-                <p className="project-card-summary">{project.summary}</p>
+                {/* Title & Summary */}
+                <div className="project-card-body" style={{ flex: '1 1 auto' }}>
+                  <h3 className="project-card-title">{project.title}</h3>
+                  <p className="project-card-summary">{project.summary}</p>
 
-                {/* Tech Stack Pills */}
-                <div className="project-stack-wrap">
-                  {project.stack.map((tech) => (
-                    <span key={tech} className="chip">
-                      {tech}
-                    </span>
-                  ))}
+                  {/* Tech Stack Pills */}
+                  <div className="project-stack-wrap">
+                    {project.stack.map((tech) => (
+                      <span key={tech} className="chip">
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Card Actions */}
+                <div className="project-card-footer">
+                  <button
+                    onClick={() => setSelectedProject(project)}
+                    className="btn btn-sm btn-primary project-inspect-btn"
+                    aria-label={`Inspect architecture of ${project.title}`}
+                  >
+                    <span>Inspect Architecture</span>
+                    <ArrowUpRight size={14} />
+                  </button>
+
+                  <button
+                    onClick={() => setSelectedProject(project)}
+                    className="btn btn-sm btn-secondary icon-btn"
+                    title="Architecture details"
+                    aria-label={`View details for ${project.title}`}
+                  >
+                    <Info size={16} className="text-cyan" />
+                  </button>
                 </div>
               </div>
-
-              {/* Card Actions */}
-              <div className="project-card-footer">
-                <button
-                  onClick={() => setSelectedProject(project)}
-                  className="btn btn-sm btn-primary project-inspect-btn"
-                  aria-label={`Inspect architecture of ${project.title}`}
-                >
-                  <span>Inspect Architecture</span>
-                  <ArrowUpRight size={14} />
-                </button>
-
-                <button
-                  onClick={() => setSelectedProject(project)}
-                  className="btn btn-sm btn-secondary icon-btn"
-                  title="Architecture details"
-                  aria-label={`View details for ${project.title}`}
-                >
-                  <Info size={16} className="text-cyan" />
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
+            )}
+          />
+        ) : null}
 
         {/* Empty Search State */}
         {filteredProjects.length === 0 && (

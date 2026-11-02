@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { personalInfo, resumeData } from '../data/portfolioData';
+import SectionCarousel from './SectionCarousel';
 import {
   Mail,
   Phone,
@@ -31,6 +32,206 @@ export default function Contact({ onOpenResume }) {
     setTimeout(() => setCopiedKey(null), 2500);
   };
 
+  const contactCards = [
+    {
+      id: 'linkedin',
+      element: (
+        <div className="glass-card contact-channel-card glass-card-cyan" style={{ height: '100%', margin: 0 }}>
+          <div className="channel-icon-wrap bg-cyan-soft">
+            <LinkedinIcon size={22} className="text-cyan" />
+          </div>
+          <div className="channel-details">
+            <div className="channel-meta-badge">
+              <span className="channel-label">LinkedIn Profile</span>
+              <span className="chip chip-cyan" style={{ fontSize: '0.65rem' }}>Verified</span>
+            </div>
+            <a
+              href={personalInfo.linkedin}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="channel-value"
+              aria-label="Open Viswanathan M LinkedIn Profile in a new tab"
+            >
+              linkedin.com/in/viswanathan-m-434b55309
+            </a>
+          </div>
+          <a
+            href={personalInfo.linkedin}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-sm btn-primary copy-btn"
+            aria-label="Visit LinkedIn Profile"
+          >
+            <ExternalLink size={14} />
+            <span>Connect</span>
+          </a>
+        </div>
+      )
+    },
+    {
+      id: 'email',
+      element: (
+        <div className="glass-card contact-channel-card" style={{ height: '100%', margin: 0 }}>
+          <div className="channel-icon-wrap bg-violet-soft">
+            <Mail size={22} className="text-violet" />
+          </div>
+          <div className="channel-details">
+            <div className="channel-meta-badge">
+              <span className="channel-label">Verified Email</span>
+              <span className="chip chip-violet" style={{ fontSize: '0.65rem' }}>Primary</span>
+            </div>
+            <a
+              href={`mailto:${personalInfo.email}`}
+              className="channel-value"
+              title="Send email to Viswanathan M"
+            >
+              {personalInfo.email}
+            </a>
+          </div>
+          <button
+            onClick={() => handleCopy(personalInfo.email, 'email')}
+            className="btn btn-sm btn-secondary copy-btn"
+            title="Copy email to clipboard"
+            aria-label="Copy email address"
+            type="button"
+          >
+            {copiedKey === 'email' ? (
+              <>
+                <Check size={14} className="text-cyan" />
+                <span>Copied</span>
+              </>
+            ) : (
+              <>
+                <Copy size={14} />
+                <span>Copy</span>
+              </>
+            )}
+          </button>
+        </div>
+      )
+    },
+    {
+      id: 'phone',
+      element: (
+        <div className="glass-card contact-channel-card" style={{ height: '100%', margin: 0 }}>
+          <div className="channel-icon-wrap bg-cyan-soft">
+            <Phone size={22} className="text-cyan" />
+          </div>
+          <div className="channel-details">
+            <div className="channel-meta-badge">
+              <span className="channel-label">Direct Phone</span>
+              <span className="chip chip-cyan" style={{ fontSize: '0.65rem' }}>Resume</span>
+            </div>
+            <a
+              href={`tel:${personalInfo.phone}`}
+              className="channel-value"
+              title="Call Viswanathan M"
+            >
+              {personalInfo.phone}
+            </a>
+          </div>
+          <button
+            onClick={() => handleCopy(personalInfo.phone, 'phone')}
+            className="btn btn-sm btn-secondary copy-btn"
+            title="Copy phone number to clipboard"
+            aria-label="Copy phone number"
+            type="button"
+          >
+            {copiedKey === 'phone' ? (
+              <>
+                <Check size={14} className="text-cyan" />
+                <span>Copied</span>
+              </>
+            ) : (
+              <>
+                <Copy size={14} />
+                <span>Copy</span>
+              </>
+            )}
+          </button>
+        </div>
+      )
+    },
+    {
+      id: 'github',
+      element: (
+        <div className="glass-card contact-channel-card" style={{ height: '100%', margin: 0 }}>
+          <div className="channel-icon-wrap bg-violet-soft">
+            <GithubIcon size={22} className="text-violet" />
+          </div>
+          <div className="channel-details">
+            <div className="channel-meta-badge">
+              <span className="channel-label">GitHub Profile</span>
+              <span className="chip chip-violet" style={{ fontSize: '0.65rem' }}>Repositories</span>
+            </div>
+            {hasConfiguredGithub ? (
+              <a
+                href={personalInfo.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="channel-value"
+              >
+                {personalInfo.github.replace('https://', '')}
+              </a>
+            ) : (
+              <span className="channel-value text-muted" style={{ fontSize: '0.85rem' }}>
+                github.com/viswanathan6888
+              </span>
+            )}
+          </div>
+          {hasConfiguredGithub && (
+            <a
+              href={personalInfo.github}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn btn-sm btn-secondary copy-btn"
+              aria-label="Open GitHub profile"
+            >
+              <ExternalLink size={14} />
+              <span>Visit</span>
+            </a>
+          )}
+        </div>
+      )
+    },
+    {
+      id: 'resume',
+      element: (
+        <div className="glass-card contact-channel-card" style={{ height: '100%', margin: 0 }}>
+          <div className="channel-icon-wrap bg-cyan-soft">
+            <Download size={22} className="text-cyan" />
+          </div>
+          <div className="channel-details">
+            <span className="channel-label">Curriculum Vitae</span>
+            <span className="channel-value">{resumeData.fileName}</span>
+          </div>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            {onOpenResume && (
+              <button
+                type="button"
+                onClick={onOpenResume}
+                className="btn btn-sm btn-secondary copy-btn"
+                aria-label="View interactive resume"
+              >
+                <FileText size={14} />
+                <span>View</span>
+              </button>
+            )}
+            <a
+              href={personalInfo.resumePdfUrl}
+              download={resumeData.fileName}
+              className="btn btn-sm btn-primary copy-btn"
+              aria-label="Download official resume PDF"
+            >
+              <Download size={14} />
+              <span>Download</span>
+            </a>
+          </div>
+        </div>
+      )
+    }
+  ];
+
   return (
     <section id="contact" className="section contact-section" aria-label="Contact & Social Links">
       <div className="container">
@@ -57,189 +258,13 @@ export default function Contact({ onOpenResume }) {
               Direct details from my resume. Reach out anytime through verified email, phone, or LinkedIn.
             </p>
 
-            <div className="contact-cards-list">
-              {/* Verified LinkedIn Card */}
-              <div className="glass-card contact-channel-card glass-card-cyan">
-                <div className="channel-icon-wrap bg-cyan-soft">
-                  <LinkedinIcon size={22} className="text-cyan" />
-                </div>
-                <div className="channel-details">
-                  <div className="channel-meta-badge">
-                    <span className="channel-label">LinkedIn Profile</span>
-                    <span className="chip chip-cyan" style={{ fontSize: '0.65rem' }}>Verified</span>
-                  </div>
-                  <a
-                    href={personalInfo.linkedin}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="channel-value"
-                    aria-label="Open Viswanathan M LinkedIn Profile in a new tab"
-                  >
-                    linkedin.com/in/viswanathan-m-434b55309
-                  </a>
-                </div>
-                <a
-                  href={personalInfo.linkedin}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn btn-sm btn-primary copy-btn"
-                  aria-label="Visit LinkedIn Profile"
-                >
-                  <ExternalLink size={14} />
-                  <span>Connect</span>
-                </a>
-              </div>
-
-              {/* Verified Gmail Address */}
-              <div className="glass-card contact-channel-card">
-                <div className="channel-icon-wrap bg-violet-soft">
-                  <Mail size={22} className="text-violet" />
-                </div>
-                <div className="channel-details">
-                  <div className="channel-meta-badge">
-                    <span className="channel-label">Verified Email</span>
-                    <span className="chip chip-violet" style={{ fontSize: '0.65rem' }}>Primary</span>
-                  </div>
-                  <a
-                    href={`mailto:${personalInfo.email}`}
-                    className="channel-value"
-                    title="Send email to Viswanathan M"
-                  >
-                    {personalInfo.email}
-                  </a>
-                </div>
-                <button
-                  onClick={() => handleCopy(personalInfo.email, 'email')}
-                  className="btn btn-sm btn-secondary copy-btn"
-                  title="Copy email to clipboard"
-                  aria-label="Copy email address"
-                  type="button"
-                >
-                  {copiedKey === 'email' ? (
-                    <>
-                      <Check size={14} className="text-cyan" />
-                      <span>Copied</span>
-                    </>
-                  ) : (
-                    <>
-                      <Copy size={14} />
-                      <span>Copy</span>
-                    </>
-                  )}
-                </button>
-              </div>
-
-              {/* Verified Phone Number */}
-              <div className="glass-card contact-channel-card">
-                <div className="channel-icon-wrap bg-cyan-soft">
-                  <Phone size={22} className="text-cyan" />
-                </div>
-                <div className="channel-details">
-                  <div className="channel-meta-badge">
-                    <span className="channel-label">Direct Phone</span>
-                    <span className="chip chip-cyan" style={{ fontSize: '0.65rem' }}>Resume</span>
-                  </div>
-                  <a
-                    href={`tel:${personalInfo.phone}`}
-                    className="channel-value"
-                    title="Call Viswanathan M"
-                  >
-                    {personalInfo.phone}
-                  </a>
-                </div>
-                <button
-                  onClick={() => handleCopy(personalInfo.phone, 'phone')}
-                  className="btn btn-sm btn-secondary copy-btn"
-                  title="Copy phone number to clipboard"
-                  aria-label="Copy phone number"
-                  type="button"
-                >
-                  {copiedKey === 'phone' ? (
-                    <>
-                      <Check size={14} className="text-cyan" />
-                      <span>Copied</span>
-                    </>
-                  ) : (
-                    <>
-                      <Copy size={14} />
-                      <span>Copy</span>
-                    </>
-                  )}
-                </button>
-              </div>
-
-              {/* GitHub Card */}
-              <div className="glass-card contact-channel-card">
-                <div className="channel-icon-wrap bg-violet-soft">
-                  <GithubIcon size={22} className="text-violet" />
-                </div>
-                <div className="channel-details">
-                  <div className="channel-meta-badge">
-                    <span className="channel-label">GitHub Profile</span>
-                    <span className="chip chip-violet" style={{ fontSize: '0.65rem' }}>Repositories</span>
-                  </div>
-                  {hasConfiguredGithub ? (
-                    <a
-                      href={personalInfo.github}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="channel-value"
-                    >
-                      {personalInfo.github.replace('https://', '')}
-                    </a>
-                  ) : (
-                    <span className="channel-value text-muted" style={{ fontSize: '0.85rem' }}>
-                      github.com/viswanathan6888
-                    </span>
-                  )}
-                </div>
-                {hasConfiguredGithub && (
-                  <a
-                    href={personalInfo.github}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn btn-sm btn-secondary copy-btn"
-                    aria-label="Open GitHub profile"
-                  >
-                    <ExternalLink size={14} />
-                    <span>Visit</span>
-                  </a>
-                )}
-              </div>
-
-              {/* Resume Quick Action */}
-              <div className="glass-card contact-channel-card">
-                <div className="channel-icon-wrap bg-cyan-soft">
-                  <Download size={22} className="text-cyan" />
-                </div>
-                <div className="channel-details">
-                  <span className="channel-label">Curriculum Vitae</span>
-                  <span className="channel-value">{resumeData.fileName}</span>
-                </div>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  {onOpenResume && (
-                    <button
-                      type="button"
-                      onClick={onOpenResume}
-                      className="btn btn-sm btn-secondary copy-btn"
-                      aria-label="View interactive resume"
-                    >
-                      <FileText size={14} />
-                      <span>View</span>
-                    </button>
-                  )}
-                  <a
-                    href={personalInfo.resumePdfUrl}
-                    download={resumeData.fileName}
-                    className="btn btn-sm btn-primary copy-btn"
-                    aria-label="Download official resume PDF"
-                  >
-                    <Download size={14} />
-                    <span>Download</span>
-                  </a>
-                </div>
-              </div>
-            </div>
+            <SectionCarousel
+              items={contactCards}
+              itemsPerPage={{ desktop: 1, tablet: 1, mobile: 1 }}
+              ariaLabel="Verified Contact Channels Carousel"
+              carouselId="contact-channels-carousel"
+              renderItem={(card) => card.element}
+            />
 
             {/* Availability Notice */}
             <div className="glass-card availability-badge-card">

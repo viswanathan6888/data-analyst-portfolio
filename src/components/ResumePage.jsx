@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import {
   personalInfo,
   resumeData,
@@ -6,6 +6,7 @@ import {
   companyProjectExperience,
   certificationsData
 } from '../data/portfolioData';
+import SectionCarousel from './SectionCarousel';
 import {
   Download,
   FileText,
@@ -75,37 +76,57 @@ export default function ResumePage({ onNavigate }) {
             </p>
           </div>
 
-          {/* Quick Credential Highlights Ribbon */}
-          <div className="resume-meta-ribbon glass-card">
-            <div className="meta-ribbon-item">
-              <GraduationCap size={20} className="text-cyan flex-shrink-0" />
-              <div>
-                <span className="meta-ribbon-label">Education</span>
-                <span className="meta-ribbon-val">B.Tech AI &amp; DS &bull; 8.5 CGPA</span>
+          {/* Quick Credential Highlights Carousel */}
+          <SectionCarousel
+            items={[
+              {
+                id: 'education',
+                icon: <GraduationCap size={20} className="text-cyan flex-shrink-0" />,
+                label: 'Education',
+                val: 'B.Tech AI & DS • 8.5 CGPA'
+              },
+              {
+                id: 'specialization',
+                icon: <Award size={20} className="text-violet flex-shrink-0" />,
+                label: 'Specialization',
+                val: 'Data Analytics • AI Developer'
+              },
+              {
+                id: 'location',
+                icon: <MapPin size={20} className="text-pink flex-shrink-0" />,
+                label: 'Location',
+                val: 'Coimbatore, Tamil Nadu, India'
+              },
+              {
+                id: 'fileDetails',
+                icon: <FileText size={20} className="text-cyan flex-shrink-0" />,
+                label: 'File Details',
+                val: '268 KB • PDF • Verified'
+              }
+            ]}
+            itemsPerPage={{ desktop: 2, tablet: 2, mobile: 1 }}
+            ariaLabel="Resume Credential Highlights Carousel"
+            carouselId="resume-credentials-carousel"
+            renderItem={(item) => (
+              <div
+                className="meta-ribbon-item glass-card"
+                style={{
+                  height: '100%',
+                  margin: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.85rem',
+                  padding: '1rem 1.25rem'
+                }}
+              >
+                {item.icon}
+                <div>
+                  <span className="meta-ribbon-label">{item.label}</span>
+                  <span className="meta-ribbon-val">{item.val}</span>
+                </div>
               </div>
-            </div>
-            <div className="meta-ribbon-item">
-              <Award size={20} className="text-violet flex-shrink-0" />
-              <div>
-                <span className="meta-ribbon-label">Specialization</span>
-                <span className="meta-ribbon-val">Data Analytics &bull; AI Developer</span>
-              </div>
-            </div>
-            <div className="meta-ribbon-item">
-              <MapPin size={20} className="text-pink flex-shrink-0" />
-              <div>
-                <span className="meta-ribbon-label">Location</span>
-                <span className="meta-ribbon-val">Coimbatore, Tamil Nadu, India</span>
-              </div>
-            </div>
-            <div className="meta-ribbon-item">
-              <FileText size={20} className="text-cyan flex-shrink-0" />
-              <div>
-                <span className="meta-ribbon-label">File Details</span>
-                <span className="meta-ribbon-val">268 KB &bull; PDF &bull; Verified</span>
-              </div>
-            </div>
-          </div>
+            )}
+          />
 
           {/* Action Toolbar */}
           <div className="glass-card resume-action-banner">

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { skillsCategories } from '../data/portfolioData';
+import SectionCarousel from './SectionCarousel';
 import {
   Code2,
   Database,
@@ -119,36 +120,65 @@ export default function Skills() {
 
         {/* Categorized Skills Showcase */}
         <div className="skills-groups-wrapper">
-          {filteredCategories.map((group) => (
-            <div key={group.slug} className="skills-category-group">
-              <div className="category-group-header">
-                <div className="category-heading-wrap">
-                  {getCategoryIcon(group.slug)}
-                  <h3 className="category-title">{group.category}</h3>
-                  <span className="category-badge chip chip-cyan">
-                    {group.skills.length} Skills
-                  </span>
-                </div>
-                <p className="category-description">{group.description}</p>
-              </div>
-
-              <div className="skills-resume-grid">
-                {group.skills.map((skill, sIdx) => (
-                  <div
-                    key={skill.name}
-                    className={`glass-card skill-card-resume ${sIdx % 2 === 0 ? 'glass-card-violet-accent' : 'glass-card-cyan'}`}
-                  >
-                    <div className="skill-card-top-resume">
-                      <h4 className="skill-name-resume">{skill.name}</h4>
-                      <CheckCircle2 size={15} className="text-cyan" />
-                    </div>
-                    <p className="skill-focus-text">{skill.focus}</p>
-                    <span className="chip chip-sm chip-subtle">{group.category.split('&')[0].trim()}</span>
+          <SectionCarousel
+            items={filteredCategories}
+            itemsPerPage={{ desktop: 2, tablet: 1, mobile: 1 }}
+            ariaLabel="Skill Categories Carousel"
+            carouselId="skill-categories-carousel"
+            renderItem={(group) => (
+              <div
+                key={group.slug}
+                className="glass-card skills-category-card"
+                style={{
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  padding: '1.75rem',
+                  borderRadius: '20px'
+                }}
+              >
+                <div className="category-group-header" style={{ marginBottom: '1.25rem' }}>
+                  <div className="category-heading-wrap" style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                    {getCategoryIcon(group.slug)}
+                    <h3 className="category-title" style={{ fontSize: '1.18rem', margin: 0 }}>{group.category}</h3>
+                    <span className="category-badge chip chip-cyan">
+                      {group.skills.length} Skills
+                    </span>
                   </div>
-                ))}
+                  <p className="category-description" style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
+                    {group.description}
+                  </p>
+                </div>
+
+                <div
+                  className="skills-resume-grid"
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
+                    gap: '0.75rem',
+                    flex: '1 1 auto'
+                  }}
+                >
+                  {group.skills.map((skill, sIdx) => (
+                    <div
+                      key={skill.name}
+                      className={`glass-card skill-card-resume ${sIdx % 2 === 0 ? 'glass-card-violet-accent' : 'glass-card-cyan'}`}
+                      style={{ padding: '0.85rem 1rem', height: '100%', display: 'flex', flexDirection: 'column' }}
+                    >
+                      <div className="skill-card-top-resume">
+                        <h4 className="skill-name-resume" style={{ fontSize: '0.92rem' }}>{skill.name}</h4>
+                        <CheckCircle2 size={15} className="text-cyan flex-shrink-0" />
+                      </div>
+                      <p className="skill-focus-text" style={{ fontSize: '0.78rem', flex: '1 1 auto', margin: '0.35rem 0' }}>
+                        {skill.focus}
+                      </p>
+                      <span className="chip chip-sm chip-subtle">{group.category.split('&')[0].trim()}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            )}
+          />
         </div>
 
         {/* Dual Stack Architecture Summary */}

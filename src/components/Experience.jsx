@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { internshipExperience, companyProjectExperience } from '../data/portfolioData';
+import SectionCarousel from './SectionCarousel';
 import {
   Briefcase,
   Calendar,
@@ -86,62 +87,59 @@ export default function Experience() {
               <span className="chip chip-cyan">5 Key Roles</span>
             </div>
 
-            <div className="experience-timeline">
-              {internshipExperience.map((exp, index) => (
-                <div key={exp.company + index} className="experience-item">
-                  {/* Timeline Node */}
-                  <div className="timeline-marker">
-                    <div className="marker-dot">
-                      <span className="marker-inner-dot" />
+            <SectionCarousel
+              items={internshipExperience}
+              itemsPerPage={{ desktop: 2, tablet: 1, mobile: 1 }}
+              ariaLabel="Professional Internships Carousel"
+              carouselId="internships-carousel"
+              renderItem={(exp, index) => (
+                <div
+                  key={exp.company + index}
+                  className="glass-card experience-card"
+                  style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
+                >
+                  <div className="experience-card-header">
+                    <div className="exp-title-group">
+                      <div className="exp-company-row">
+                        <span className="exp-company">{exp.company}</span>
+                        <span className="chip chip-violet">{exp.type}</span>
+                        <span className="chip chip-cyan">{exp.badge}</span>
+                      </div>
+                      <h4 className="exp-role">{exp.role}</h4>
                     </div>
-                    {index < internshipExperience.length - 1 && <div className="marker-line" />}
+
+                    <div className="exp-meta-group">
+                      <div className="exp-meta-item">
+                        <Calendar size={14} className="text-cyan" />
+                        <span className="editable-placeholder-tag">{exp.period}</span>
+                      </div>
+                    </div>
                   </div>
 
-                  {/* Experience Card */}
-                  <div className="glass-card experience-card">
-                    <div className="experience-card-header">
-                      <div className="exp-title-group">
-                        <div className="exp-company-row">
-                          <span className="exp-company">{exp.company}</span>
-                          <span className="chip chip-violet">{exp.type}</span>
-                          <span className="chip chip-cyan">{exp.badge}</span>
-                        </div>
-                        <h4 className="exp-role">{exp.role}</h4>
-                      </div>
+                  <p className="exp-summary">{exp.summary}</p>
 
-                      <div className="exp-meta-group">
-                        <div className="exp-meta-item">
-                          <Calendar size={14} className="text-cyan" />
-                          <span className="editable-placeholder-tag">{exp.period}</span>
-                        </div>
-                      </div>
-                    </div>
+                  <ul className="exp-bullet-list" style={{ flex: '1 1 auto' }}>
+                    {exp.bulletPoints.map((bullet, bIdx) => (
+                      <li key={bIdx} className="exp-bullet-item">
+                        <CheckCircle2 size={16} className="bullet-icon text-cyan" />
+                        <span>{bullet}</span>
+                      </li>
+                    ))}
+                  </ul>
 
-                    <p className="exp-summary">{exp.summary}</p>
-
-                    <ul className="exp-bullet-list">
-                      {exp.bulletPoints.map((bullet, bIdx) => (
-                        <li key={bIdx} className="exp-bullet-item">
-                          <CheckCircle2 size={16} className="bullet-icon text-cyan" />
-                          <span>{bullet}</span>
-                        </li>
+                  <div className="exp-tech-stack">
+                    <span className="tech-stack-label">Core Tech:</span>
+                    <div className="tech-pills-list">
+                      {exp.technologies.map((tech) => (
+                        <span key={tech} className="chip">
+                          {tech}
+                        </span>
                       ))}
-                    </ul>
-
-                    <div className="exp-tech-stack">
-                      <span className="tech-stack-label">Core Tech:</span>
-                      <div className="tech-pills-list">
-                        {exp.technologies.map((tech) => (
-                          <span key={tech} className="chip">
-                            {tech}
-                          </span>
-                        ))}
-                      </div>
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
+              )}
+            />
           </div>
         )}
 
@@ -159,11 +157,16 @@ export default function Experience() {
               <span className="chip chip-violet">5 Technical Initiatives</span>
             </div>
 
-            <div className="company-projects-grid">
-              {companyProjectExperience.map((proj, idx) => (
+            <SectionCarousel
+              items={companyProjectExperience}
+              itemsPerPage={{ desktop: 2, tablet: 2, mobile: 1 }}
+              ariaLabel="Company Projects Carousel"
+              carouselId="company-projects-carousel"
+              renderItem={(proj, idx) => (
                 <div
                   key={proj.title}
                   className={`glass-card company-project-card ${idx % 2 === 0 ? 'glass-card-violet-accent' : 'glass-card-cyan'}`}
+                  style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
                 >
                   <div className="cp-header">
                     <span className="chip chip-violet">{proj.badge}</span>
@@ -173,7 +176,7 @@ export default function Experience() {
 
                   <p className="cp-summary">{proj.summary}</p>
 
-                  <ul className="cp-bullet-list">
+                  <ul className="cp-bullet-list" style={{ flex: '1 1 auto' }}>
                     {proj.bulletPoints.map((pt, pIdx) => (
                       <li key={pIdx} className="cp-bullet-item">
                         <CheckCircle2 size={15} className="text-cyan bullet-icon" />
@@ -193,8 +196,8 @@ export default function Experience() {
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
+              )}
+            />
           </div>
         )}
       </div>

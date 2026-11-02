@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { personalInfo, resumeData } from '../data/portfolioData';
+import SectionCarousel from './SectionCarousel';
 import {
   Download,
   ArrowRight,
@@ -12,7 +13,8 @@ import {
   ExternalLink,
   Mail,
   GraduationCap,
-  Award
+  Award,
+  Briefcase
 } from './Icons';
 import { LinkedinIcon } from './Icons';
 import { ProfessionalProfileFrame } from './AbstractDecorations';
@@ -52,6 +54,37 @@ export default function Hero({ onOpenResume }) {
       window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
     }
   };
+
+  const heroHighlightItems = [
+    {
+      id: 'degree',
+      icon: <GraduationCap size={20} className="text-cyan" />,
+      badge: 'Academic Foundation',
+      title: 'B.Tech in AI & Data Science',
+      desc: 'SNS College of Technology • CGPA 8.5'
+    },
+    {
+      id: 'experience',
+      icon: <Briefcase size={20} className="text-violet" />,
+      badge: 'Work Experience',
+      title: '5 Professional Internships',
+      desc: 'Full-stack, analytics, machine learning & BI roles'
+    },
+    {
+      id: 'projects',
+      icon: <Database size={20} className="text-cyan" />,
+      badge: 'Portfolio Output',
+      title: '10 Production Projects',
+      desc: 'Stock prediction, sales forecasting, CNN & local AI'
+    },
+    {
+      id: 'certifications',
+      icon: <Award size={20} className="text-pink" />,
+      badge: 'Accreditation',
+      title: '4 Verified Certifications',
+      desc: 'Python, Machine Learning, Power BI & Data Analysis'
+    }
+  ];
 
   return (
     <section id="home" className="hero-section" aria-label="Hero Section">
@@ -171,6 +204,57 @@ export default function Hero({ onOpenResume }) {
           >
             <ProfessionalProfileFrame imageSrc={personalInfo.profileImage} />
           </div>
+        </div>
+
+        {/* Hero Highlights Carousel */}
+        <div className="hero-highlights-carousel-wrap" style={{ marginTop: '2.5rem' }}>
+          <SectionCarousel
+            items={heroHighlightItems}
+            itemsPerPage={{ desktop: 2, tablet: 2, mobile: 1 }}
+            ariaLabel="Key Highlights Carousel"
+            carouselId="hero-highlights-carousel"
+            renderItem={(item) => (
+              <div
+                className="glass-card"
+                style={{
+                  height: '100%',
+                  padding: '1.1rem 1.35rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '1rem',
+                  background: 'rgba(255, 255, 255, 0.9)'
+                }}
+              >
+                <div
+                  style={{
+                    width: '42px',
+                    height: '42px',
+                    borderRadius: '12px',
+                    background: 'rgba(6, 182, 212, 0.12)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0
+                  }}
+                >
+                  {item.icon}
+                </div>
+                <div style={{ flex: '1 1 auto', minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.2rem' }}>
+                    <span className="chip chip-sm chip-cyan" style={{ fontSize: '0.65rem', padding: '0.15rem 0.45rem' }}>
+                      {item.badge}
+                    </span>
+                  </div>
+                  <h4 style={{ fontSize: '0.95rem', fontWeight: 700, margin: '0 0 0.15rem 0', color: 'var(--text-main)' }}>
+                    {item.title}
+                  </h4>
+                  <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: 0 }}>
+                    {item.desc}
+                  </p>
+                </div>
+              </div>
+            )}
+          />
         </div>
       </div>
     </section>

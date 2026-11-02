@@ -1,5 +1,6 @@
 import React from 'react';
 import { certificationsData } from '../data/portfolioData';
+import SectionCarousel from './SectionCarousel';
 import {
   Award,
   CheckCircle2,
@@ -27,12 +28,17 @@ export default function Certifications() {
           </p>
         </div>
 
-        {/* Certifications Grid */}
-        <div className="certifications-grid">
-          {certificationsData.map((cert, idx) => (
+        {/* Certifications Carousel */}
+        <SectionCarousel
+          items={certificationsData}
+          itemsPerPage={{ desktop: 2, tablet: 2, mobile: 1 }}
+          ariaLabel="Verified Certifications Carousel"
+          carouselId="certifications-carousel"
+          renderItem={(cert, idx) => (
             <div
               key={cert.id}
               className={`glass-card cert-card ${idx % 2 === 0 ? 'glass-card-violet-accent' : 'glass-card-cyan'}`}
+              style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
             >
               <div className="cert-card-top">
                 <div className="cert-icon-wrap">
@@ -41,7 +47,7 @@ export default function Certifications() {
                 <span className="chip chip-violet">{cert.badge}</span>
               </div>
 
-              <div className="cert-card-body">
+              <div className="cert-card-body" style={{ flex: '1 1 auto' }}>
                 <h3 className="cert-title">{cert.title}</h3>
                 <span className="cert-issuer">{cert.issuer}</span>
                 <p className="cert-description">{cert.description}</p>
@@ -54,8 +60,8 @@ export default function Certifications() {
                 </span>
               </div>
             </div>
-          ))}
-        </div>
+          )}
+        />
 
         {/* Factual Integrity Banner */}
         <div className="glass-card cert-notice-banner">
