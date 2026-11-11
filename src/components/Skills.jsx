@@ -104,12 +104,17 @@ export default function Skills() {
                 </div>
 
                 <div className="skills-list" style={{ flex: '1 1 auto' }}>
-                  {group.skills.map((skill, sIdx) => (
-                    <div key={sIdx} className="skill-chip-cinematic">
-                      <span className="chip-red-pip" />
-                      <span className="chip-label">{skill}</span>
-                    </div>
-                  ))}
+                  {group.skills.map((skill, sIdx) => {
+                    const skillName = typeof skill === 'object' ? skill.name : skill;
+                    const skillFocus = typeof skill === 'object' ? skill.focus : null;
+                    return (
+                      <div key={skillName || sIdx} className="skill-chip-cinematic">
+                        <span className="chip-red-pip" />
+                        <span className="chip-label">{skillName}</span>
+                        {skillFocus && <span className="chip-focus-text"> &bull; {skillFocus}</span>}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
