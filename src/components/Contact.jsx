@@ -9,18 +9,12 @@ import {
   ExternalLink,
   Download,
   FileText,
-  MapPin,
-  CheckCircle2
+  MapPin
 } from './Icons';
 import { GithubIcon, LinkedinIcon } from './Icons';
 
 export default function Contact({ onOpenResume }) {
   const [copiedKey, setCopiedKey] = useState(null);
-
-  const hasConfiguredGithub =
-    Boolean(personalInfo.github) &&
-    personalInfo.github.trim() !== '' &&
-    !personalInfo.github.includes('your-github-username');
 
   const handleCopy = (text, key) => {
     if (navigator?.clipboard?.writeText) {
@@ -34,17 +28,17 @@ export default function Contact({ onOpenResume }) {
     {
       id: 'linkedin',
       element: (
-        <div className="glass-card contact-channel-card glass-card-cyan" style={{ height: '100%', margin: 0, padding: '1.5rem' }}>
-          <div className="channel-icon-wrap bg-cyan-soft">
-            <LinkedinIcon size={24} className="text-cyan" />
+        <div className="cinematic-card contact-channel-card" style={{ height: '100%', margin: 0 }}>
+          <div className="channel-icon-wrap-cinematic">
+            <LinkedinIcon size={22} className="text-red" />
           </div>
           <div className="channel-details">
-            <span className="channel-label" style={{ fontWeight: 700, fontSize: '0.85rem' }}>LinkedIn Profile</span>
+            <span className="channel-label-cinematic">LinkedIn Profile</span>
             <a
               href={personalInfo.linkedin}
               target="_blank"
               rel="noopener noreferrer"
-              className="channel-value"
+              className="channel-value-cinematic"
               aria-label="Open Viswanathan M LinkedIn Profile in a new tab"
             >
               linkedin.com/in/viswanathan-m-434b55309
@@ -54,10 +48,10 @@ export default function Contact({ onOpenResume }) {
             href={personalInfo.linkedin}
             target="_blank"
             rel="noopener noreferrer"
-            className="btn btn-sm btn-primary copy-btn"
+            className="btn btn-cinematic-red btn-sm"
             aria-label="Visit LinkedIn Profile"
           >
-            <ExternalLink size={14} />
+            <ExternalLink size={13} />
             <span>Connect</span>
           </a>
         </div>
@@ -66,15 +60,15 @@ export default function Contact({ onOpenResume }) {
     {
       id: 'email',
       element: (
-        <div className="glass-card contact-channel-card" style={{ height: '100%', margin: 0, padding: '1.5rem' }}>
-          <div className="channel-icon-wrap bg-violet-soft">
-            <Mail size={24} className="text-violet" />
+        <div className="cinematic-card contact-channel-card" style={{ height: '100%', margin: 0 }}>
+          <div className="channel-icon-wrap-cinematic">
+            <Mail size={22} className="text-red" />
           </div>
           <div className="channel-details">
-            <span className="channel-label" style={{ fontWeight: 700, fontSize: '0.85rem' }}>Email Address</span>
+            <span className="channel-label-cinematic">Direct Email</span>
             <a
               href={`mailto:${personalInfo.email}`}
-              className="channel-value"
+              className="channel-value-cinematic"
               title="Send email to Viswanathan M"
             >
               {personalInfo.email}
@@ -82,19 +76,19 @@ export default function Contact({ onOpenResume }) {
           </div>
           <button
             onClick={() => handleCopy(personalInfo.email, 'email')}
-            className="btn btn-sm btn-secondary copy-btn"
+            className="btn btn-cinematic-dark btn-sm"
             title="Copy email to clipboard"
             aria-label="Copy email address"
             type="button"
           >
             {copiedKey === 'email' ? (
               <>
-                <Check size={14} className="text-cyan" />
+                <Check size={13} className="text-red" />
                 <span>Copied</span>
               </>
             ) : (
               <>
-                <Copy size={14} />
+                <Copy size={13} />
                 <span>Copy</span>
               </>
             )}
@@ -105,15 +99,15 @@ export default function Contact({ onOpenResume }) {
     {
       id: 'phone',
       element: (
-        <div className="glass-card contact-channel-card" style={{ height: '100%', margin: 0, padding: '1.5rem' }}>
-          <div className="channel-icon-wrap bg-cyan-soft">
-            <Phone size={24} className="text-cyan" />
+        <div className="cinematic-card contact-channel-card" style={{ height: '100%', margin: 0 }}>
+          <div className="channel-icon-wrap-cinematic">
+            <Phone size={22} className="text-red" />
           </div>
           <div className="channel-details">
-            <span className="channel-label" style={{ fontWeight: 700, fontSize: '0.85rem' }}>Direct Phone</span>
+            <span className="channel-label-cinematic">Direct Phone</span>
             <a
               href={`tel:${personalInfo.phone}`}
-              className="channel-value"
+              className="channel-value-cinematic"
               title="Call Viswanathan M"
             >
               {personalInfo.phone}
@@ -121,19 +115,19 @@ export default function Contact({ onOpenResume }) {
           </div>
           <button
             onClick={() => handleCopy(personalInfo.phone, 'phone')}
-            className="btn btn-sm btn-secondary copy-btn"
+            className="btn btn-cinematic-dark btn-sm"
             title="Copy phone number to clipboard"
             aria-label="Copy phone number"
             type="button"
           >
             {copiedKey === 'phone' ? (
               <>
-                <Check size={14} className="text-cyan" />
+                <Check size={13} className="text-red" />
                 <span>Copied</span>
               </>
             ) : (
               <>
-                <Copy size={14} />
+                <Copy size={13} />
                 <span>Copy</span>
               </>
             )}
@@ -144,17 +138,17 @@ export default function Contact({ onOpenResume }) {
     {
       id: 'github',
       element: (
-        <div className="glass-card contact-channel-card" style={{ height: '100%', margin: 0, padding: '1.5rem' }}>
-          <div className="channel-icon-wrap bg-violet-soft">
-            <GithubIcon size={24} className="text-violet" />
+        <div className="cinematic-card contact-channel-card" style={{ height: '100%', margin: 0 }}>
+          <div className="channel-icon-wrap-cinematic">
+            <GithubIcon size={22} className="text-red" />
           </div>
           <div className="channel-details">
-            <span className="channel-label" style={{ fontWeight: 700, fontSize: '0.85rem' }}>GitHub</span>
+            <span className="channel-label-cinematic">GitHub Profile</span>
             <a
               href={personalInfo.github}
               target="_blank"
               rel="noopener noreferrer"
-              className="channel-value"
+              className="channel-value-cinematic"
             >
               github.com/viswanathan6888
             </a>
@@ -163,10 +157,10 @@ export default function Contact({ onOpenResume }) {
             href={personalInfo.github}
             target="_blank"
             rel="noopener noreferrer"
-            className="btn btn-sm btn-secondary copy-btn"
+            className="btn btn-cinematic-dark btn-sm"
             aria-label="Open GitHub profile"
           >
-            <ExternalLink size={14} />
+            <ExternalLink size={13} />
             <span>Visit</span>
           </a>
         </div>
@@ -175,33 +169,33 @@ export default function Contact({ onOpenResume }) {
     {
       id: 'resume',
       element: (
-        <div className="glass-card contact-channel-card" style={{ height: '100%', margin: 0, padding: '1.5rem' }}>
-          <div className="channel-icon-wrap bg-cyan-soft">
-            <Download size={24} className="text-cyan" />
+        <div className="cinematic-card contact-channel-card" style={{ height: '100%', margin: 0 }}>
+          <div className="channel-icon-wrap-cinematic">
+            <Download size={22} className="text-red" />
           </div>
           <div className="channel-details">
-            <span className="channel-label" style={{ fontWeight: 700, fontSize: '0.85rem' }}>Resume PDF</span>
-            <span className="channel-value">{resumeData.fileName}</span>
+            <span className="channel-label-cinematic">Verified Resume PDF</span>
+            <span className="channel-value-cinematic">{resumeData.fileName}</span>
           </div>
           <div style={{ display: 'flex', gap: '0.5rem' }}>
             {onOpenResume && (
               <button
                 type="button"
                 onClick={onOpenResume}
-                className="btn btn-sm btn-secondary copy-btn"
+                className="btn btn-cinematic-dark btn-sm"
                 aria-label="View interactive resume"
               >
-                <FileText size={14} />
+                <FileText size={13} />
                 <span>View</span>
               </button>
             )}
             <a
               href={personalInfo.resumePdfUrl}
               download={resumeData.fileName}
-              className="btn btn-sm btn-primary copy-btn"
+              className="btn btn-cinematic-red btn-sm"
               aria-label="Download official resume PDF"
             >
-              <Download size={14} />
+              <Download size={13} />
               <span>Download</span>
             </a>
           </div>
@@ -211,12 +205,17 @@ export default function Contact({ onOpenResume }) {
   ];
 
   return (
-    <section id="contact" className="section contact-section" aria-label="Contact & Social Links">
-      <div className="container" style={{ maxWidth: '860px' }}>
+    <section id="contact" className="section contact-section cinematic-section" aria-label="Contact & Social Links">
+      <div className="container" style={{ maxWidth: '900px' }}>
         {/* Section Header */}
-        <div className="section-header">
-          <h2 className="section-title">
-            Contact &amp; <span className="text-gradient">Connect</span>
+        <div className="section-header cinematic-header">
+          <div className="section-kicker">
+            <span className="kicker-num">08</span>
+            <span className="kicker-sep">/</span>
+            <span className="kicker-title">CONNECT</span>
+          </div>
+          <h2 className="section-title cinematic-title">
+            LET'S WORK <span className="text-red-accent">TOGETHER.</span>
           </h2>
         </div>
 
@@ -231,27 +230,16 @@ export default function Contact({ onOpenResume }) {
           />
         </div>
 
-        {/* Clean Professional Availability Footnote */}
-        <div
-          className="glass-card availability-badge-card"
-          style={{
-            marginTop: '1.5rem',
-            padding: '1.25rem 1.75rem',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: '1rem'
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <span className="avail-pulse-dot" />
-            <span style={{ fontWeight: 700, fontSize: '0.92rem', color: 'var(--text-main)' }}>
+        {/* Clean Professional Availability Footnote with Red Indicator */}
+        <div className="cinematic-card availability-badge-cinematic" style={{ marginTop: '1.75rem' }}>
+          <div className="avail-status-group">
+            <span className="avail-pulse-red" />
+            <span className="avail-status-text">
               {personalInfo.status}
             </span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-            <MapPin size={15} className="text-cyan" />
+          <div className="avail-location-group">
+            <MapPin size={14} className="text-red" />
             <span>Coimbatore, Tamil Nadu, India</span>
           </div>
         </div>

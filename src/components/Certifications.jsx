@@ -5,11 +5,18 @@ import { ShieldCheck } from './Icons';
 
 export default function Certifications() {
   return (
-    <section id="certifications" className="section certifications-section" aria-label="Certifications">
+    <section id="certifications" className="section certifications-section cinematic-section" aria-label="Certifications">
       <div className="container">
         {/* Section Header */}
-        <div className="section-header">
-          <h2 className="section-title">Certifications</h2>
+        <div className="section-header cinematic-header">
+          <div className="section-kicker">
+            <span className="kicker-num">06</span>
+            <span className="kicker-sep">/</span>
+            <span className="kicker-title">CREDENTIALS</span>
+          </div>
+          <h2 className="section-title cinematic-title">
+            VERIFIED <span className="text-red-accent">CERTIFICATIONS.</span>
+          </h2>
         </div>
 
         {/* Certifications Carousel */}
@@ -18,22 +25,23 @@ export default function Certifications() {
           itemsPerPage={{ desktop: 2, tablet: 2, mobile: 1 }}
           ariaLabel="Verified Certifications Carousel"
           carouselId="certifications-carousel"
-          renderItem={(cert, idx) => (
+          renderItem={(cert) => (
             <div
               key={cert.id}
-              className={`glass-card cert-card ${idx % 2 === 0 ? 'glass-card-violet-accent' : 'glass-card-cyan'}`}
+              className="cinematic-card cert-card-cinematic"
               style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
             >
               <div className="cert-card-top">
-                <div className="cert-icon-wrap">
-                  <ShieldCheck size={24} className="text-cyan" />
+                <div className="cert-icon-wrap-cinematic">
+                  <ShieldCheck size={22} className="text-red" />
                 </div>
+                <span className="cert-status-badge">VERIFIED</span>
               </div>
 
               <div className="cert-card-body" style={{ flex: '1 1 auto' }}>
-                <h3 className="cert-title">{cert.title}</h3>
-                <span className="cert-issuer">{cert.issuer}</span>
-                <p className="cert-description">{cert.description}</p>
+                <h3 className="cert-title-cinematic">{cert.title}</h3>
+                <span className="cert-issuer-cinematic">{cert.issuer}</span>
+                <p className="cert-description-cinematic">{cert.description}</p>
               </div>
             </div>
           )}

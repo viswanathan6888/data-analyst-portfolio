@@ -1,14 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 
 /**
- * Premium Ambient Lighting & Subtle Interactive Mouse Spotlight
- * Inspired by Apple Pro and modern AI SaaS interfaces.
- * Features:
- * - Smooth mouse-following radial spotlight (damped via requestAnimationFrame)
- * - Ultra-soft ambient gradient glows in background (diffuse, non-distracting)
- * - Subtle geometric dot matrix with radial falloff
- * - Strictly pointer-events: none, non-blocking, composited
- * - Respects prefers-reduced-motion
+ * Cinematic Ambient Lighting & Interactive Red Cursor Spotlight
+ * Inspired by high-contrast dark editorial portfolios with vibrant red accents.
  */
 export default function FuturisticAmbientGlow() {
   const [mousePos, setMousePos] = useState({ x: -1000, y: -1000 });
@@ -24,9 +18,7 @@ export default function FuturisticAmbientGlow() {
       targetPos.current = { x: e.clientX, y: e.clientY };
     };
 
-    // Smooth lerp loop for the mouse spotlight
     const updatePosition = () => {
-      // Smooth linear interpolation (lerp)
       currentPos.current.x += (targetPos.current.x - currentPos.current.x) * 0.12;
       currentPos.current.y += (targetPos.current.y - currentPos.current.y) * 0.12;
 
@@ -49,22 +41,22 @@ export default function FuturisticAmbientGlow() {
 
   return (
     <div className="premium-ambient-backdrop" aria-hidden="true">
-      {/* Interactive Cursor Spotlight */}
+      {/* Interactive Cursor Spotlight with subtle dark red glow */}
       {mousePos.x > -500 && (
         <div
-          className="cursor-spotlight"
+          className="cursor-spotlight-cinematic"
           style={{
-            transform: `translate3d(${mousePos.x - 350}px, ${mousePos.y - 350}px, 0)`
+            transform: `translate3d(${mousePos.x - 300}px, ${mousePos.y - 300}px, 0)`
           }}
         />
       )}
 
-      {/* Soft Ambient Aurora Gradient Wells */}
-      <div className="ambient-aurora-well aurora-cyan" />
-      <div className="ambient-aurora-well aurora-violet" />
-      <div className="ambient-aurora-well aurora-pink" />
+      {/* Atmospheric Red & Charcoal Radial Wells */}
+      <div className="ambient-aurora-well aurora-red-deep" />
+      <div className="ambient-aurora-well aurora-red-subtle" />
+      <div className="ambient-aurora-well aurora-charcoal" />
 
-      {/* Subtle Architectural Dot Grid */}
+      {/* Subtle Architectural Grid */}
       <div className="ambient-dot-grid" />
     </div>
   );

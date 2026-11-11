@@ -3,25 +3,16 @@ import { projectsData } from '../data/portfolioData';
 import ProjectModal from './ProjectModal';
 import SectionCarousel from './SectionCarousel';
 import {
-  FolderGit2,
   ExternalLink,
-  Code2,
-  Database,
   Bot,
+  Database,
   Layers,
-  Sparkles,
-  ArrowUpRight,
+  Monitor,
   Search,
   Filter,
-  CheckCircle2,
-  Share2,
-  Monitor,
-  Info,
-  TrendingUp,
-  Activity,
+  ArrowUpRight,
   Eye
 } from './Icons';
-import { GithubIcon } from './Icons';
 
 export default function Projects() {
   const [selectedProject, setSelectedProject] = useState(null);
@@ -50,29 +41,29 @@ export default function Projects() {
     switch (project.previewType) {
       case 'stock-chart':
         return (
-          <div className="preview-canvas stock-canvas">
+          <div className="preview-canvas cinematic-preview stock-canvas">
             <div className="preview-top-bar">
-              <span className="preview-dot green-dot" />
+              <span className="preview-dot red-dot" />
               <span className="preview-title">Stock Prediction Model</span>
-              </div>
+            </div>
             <div className="stock-visual-lines">
               <div className="stock-metric-row">
                 <span className="stock-ticker">TICKER: HISTORICAL &bull; SMA-50</span>
-                <span className="stock-change text-green">+Predicted Trend</span>
+                <span className="stock-change text-red">+Predicted Trend</span>
               </div>
               <div className="stock-wave-container">
                 <svg viewBox="0 0 300 60" className="stock-svg" preserveAspectRatio="none">
                   <path
                     d="M0,45 Q40,55 80,30 T160,20 T240,35 T300,10"
                     fill="none"
-                    stroke="#06b6d4"
+                    stroke="#ff2a3b"
                     strokeWidth="2.5"
                   />
                   <path
                     d="M0,50 Q40,40 80,45 T160,25 T240,20 T300,5"
                     fill="none"
-                    stroke="#a855f7"
-                    strokeWidth="2"
+                    stroke="rgba(255, 255, 255, 0.4)"
+                    strokeWidth="1.5"
                     strokeDasharray="4 4"
                   />
                 </svg>
@@ -83,11 +74,11 @@ export default function Projects() {
 
       case 'forecast-chart':
         return (
-          <div className="preview-canvas forecast-canvas">
+          <div className="preview-canvas cinematic-preview forecast-canvas">
             <div className="preview-top-bar">
-              <span className="preview-dot purple-dot" />
+              <span className="preview-dot red-dot" />
               <span className="preview-title">Sales Forecasting Model</span>
-              </div>
+            </div>
             <div className="forecast-bars-container">
               <div className="f-bar-col">
                 <div className="f-bar" style={{ height: '45%' }} />
@@ -111,17 +102,17 @@ export default function Projects() {
 
       case 'medical-vision':
         return (
-          <div className="preview-canvas medical-canvas">
+          <div className="preview-canvas cinematic-preview medical-canvas">
             <div className="preview-top-bar">
-              <span className="preview-dot cyan-dot" />
+              <span className="preview-dot red-dot" />
               <span className="preview-title">Eye Pathology Classifier</span>
-              </div>
+            </div>
             <div className="medical-scan-box">
               <div className="scan-crosshair">
-                <Eye size={22} className="text-cyan" />
+                <Eye size={22} className="text-red" />
               </div>
               <div className="scan-info">
-                <span className="scan-status text-cyan">CNN Ingestion &bull; Augmentation Active</span>
+                <span className="scan-status text-red">CNN Ingestion &bull; Augmentation Active</span>
                 <span className="scan-sub">Multi-Class Ocular Triage</span>
               </div>
             </div>
@@ -130,17 +121,17 @@ export default function Projects() {
 
       case 'offline-chat':
         return (
-          <div className="preview-canvas offline-canvas">
+          <div className="preview-canvas cinematic-preview offline-canvas">
             <div className="preview-top-bar">
-              <span className="preview-dot green-dot" />
+              <span className="preview-dot red-dot" />
               <span className="preview-title">Offline Question-Answering</span>
-              </div>
+            </div>
             <div className="terminal-preview-code">
               <div className="terminal-line user-line">
                 <span className="prompt-sym">&gt;</span> &quot;Query local dataset insights&quot;
               </div>
               <div className="terminal-line qwen-line">
-                <span className="model-sym">[NLP System]</span> Parsing intent &bull; Zero Network
+                <span className="model-sym text-red">[NLP System]</span> Zero Network Mode
               </div>
               <div className="terminal-line sql-line">
                 <code>Output: Extracted contextual response</code>
@@ -151,15 +142,15 @@ export default function Projects() {
 
       case 'dashboard-funnel':
         return (
-          <div className="preview-canvas funnel-canvas">
+          <div className="preview-canvas cinematic-preview funnel-canvas">
             <div className="preview-top-bar">
-              <span className="preview-dot" />
+              <span className="preview-dot red-dot" />
               <span className="preview-title">Campaign Performance Tracker</span>
-              </div>
+            </div>
             <div className="funnel-bars">
               <div className="funnel-step">
                 <div className="funnel-bar bar-1" style={{ width: '100%' }}>
-                  <span className="bar-label">Impressions & Traffic</span>
+                  <span className="bar-label">Impressions &amp; Traffic</span>
                 </div>
               </div>
               <div className="funnel-step">
@@ -169,7 +160,7 @@ export default function Projects() {
               </div>
               <div className="funnel-step">
                 <div className="funnel-bar bar-3" style={{ width: '40%' }}>
-                  <span className="bar-label">Conversions & Leads</span>
+                  <span className="bar-label">Conversions &amp; Leads</span>
                 </div>
               </div>
             </div>
@@ -178,19 +169,19 @@ export default function Projects() {
 
       case 'dashboard-bi':
         return (
-          <div className="preview-canvas bi-canvas">
+          <div className="preview-canvas cinematic-preview bi-canvas">
             <div className="preview-top-bar">
-              <span className="preview-dot" />
-              <span className="preview-title">Power BI & Tableau Matrix</span>
-              </div>
+              <span className="preview-dot red-dot" />
+              <span className="preview-title">Power BI &amp; Tableau Matrix</span>
+            </div>
             <div className="bi-mini-grid">
               <div className="bi-mini-kpi">
                 <span className="bi-kpi-title">Warehouse</span>
-                <span className="bi-kpi-val text-cyan">BigQuery</span>
+                <span className="bi-kpi-val text-red">BigQuery</span>
               </div>
               <div className="bi-mini-kpi">
                 <span className="bi-kpi-title">Processing</span>
-                <span className="bi-kpi-val text-violet">Hadoop</span>
+                <span className="bi-kpi-val text-white">Hadoop</span>
               </div>
             </div>
             <div className="bi-sparklines">
@@ -204,17 +195,17 @@ export default function Projects() {
 
       case 'terminal-ai':
         return (
-          <div className="preview-canvas terminal-canvas">
+          <div className="preview-canvas cinematic-preview terminal-canvas">
             <div className="preview-top-bar">
-              <span className="preview-dot green-dot" />
+              <span className="preview-dot red-dot" />
               <span className="preview-title">Ollama + Qwen 2.5 Agent</span>
-              </div>
+            </div>
             <div className="terminal-preview-code">
               <div className="terminal-line user-line">
                 <span className="prompt-sym">&gt;</span> &quot;Analyze CPL by campaign tier&quot;
               </div>
               <div className="terminal-line qwen-line">
-                <span className="model-sym">[Qwen 2.5]</span> Translating into safe SQL CTE...
+                <span className="model-sym text-red">[Qwen 2.5]</span> Translating into safe SQL...
               </div>
               <div className="terminal-line sql-line">
                 <code>SELECT campaign, cpl FROM ad_spend...</code>
@@ -225,23 +216,23 @@ export default function Projects() {
 
       case 'dashboard-telemetry':
         return (
-          <div className="preview-canvas telemetry-canvas">
+          <div className="preview-canvas cinematic-preview telemetry-canvas">
             <div className="preview-top-bar">
-              <span className="preview-dot purple-dot" />
+              <span className="preview-dot red-dot" />
               <span className="preview-title">Antigravity 3D Console</span>
-              </div>
+            </div>
             <div className="telemetry-gauges">
               <div className="gauge-item">
                 <span className="gauge-lbl">PIPELINE</span>
-                <span className="gauge-val text-cyan">Active</span>
+                <span className="gauge-val text-red">Active</span>
               </div>
               <div className="gauge-item">
                 <span className="gauge-lbl">LATENCY</span>
-                <span className="gauge-val text-violet">&lt; 15ms</span>
+                <span className="gauge-val text-white">&lt; 15ms</span>
               </div>
               <div className="gauge-item">
                 <span className="gauge-lbl">STREAM</span>
-                <span className="gauge-val text-green">Online</span>
+                <span className="gauge-val text-red">Online</span>
               </div>
             </div>
           </div>
@@ -250,11 +241,11 @@ export default function Projects() {
       case 'code-pipeline':
       default:
         return (
-          <div className="preview-canvas api-canvas">
+          <div className="preview-canvas cinematic-preview api-canvas">
             <div className="preview-top-bar">
-              <span className="preview-dot cyan-dot" />
-              <span className="preview-title">Meta Graph API & Windsor.ai</span>
-              </div>
+              <span className="preview-dot red-dot" />
+              <span className="preview-title">Meta Graph API &amp; Windsor.ai</span>
+            </div>
             <div className="api-preview-lines">
               <div className="api-route">
                 <span className="api-method">GET</span> /v21.0/act_.../insights
@@ -270,72 +261,77 @@ export default function Projects() {
   };
 
   return (
-    <section id="projects" className="section projects-section" aria-label="Featured Projects">
+    <section id="projects" className="section projects-section cinematic-section" aria-label="Featured Projects">
       <div className="container">
         {/* Section Header */}
-        <div className="section-header">
-          <h2 className="section-title">
-            Featured <span className="text-gradient">Projects</span>
+        <div className="section-header cinematic-header">
+          <div className="section-kicker">
+            <span className="kicker-num">05</span>
+            <span className="kicker-sep">/</span>
+            <span className="kicker-title">SELECTED WORKS</span>
+          </div>
+          <h2 className="section-title cinematic-title">
+            FEATURED <span className="text-red-accent">PROJECTS.</span>
           </h2>
         </div>
 
         {/* Filter and Search Bar */}
-        <div className="projects-controls-row">
-          <div className="projects-filter-group" role="tablist" aria-label="Project filter tabs">
+        <div className="projects-controls-row cinematic-controls-row">
+          <div className="projects-filter-group cinematic-filter-group" role="tablist" aria-label="Project filter tabs">
             <button
               role="tab"
               aria-selected={activeFilter === 'all'}
               onClick={() => setActiveFilter('all')}
-              className={`filter-btn ${activeFilter === 'all' ? 'filter-btn-active' : ''}`}
+              className={`cinematic-filter-btn ${activeFilter === 'all' ? 'active' : ''}`}
             >
               <span>All Projects</span>
-              </button>
+            </button>
             <button
               role="tab"
               aria-selected={activeFilter === 'ai-ml'}
               onClick={() => setActiveFilter('ai-ml')}
-              className={`filter-btn ${activeFilter === 'ai-ml' ? 'filter-btn-active' : ''}`}
+              className={`cinematic-filter-btn ${activeFilter === 'ai-ml' ? 'active' : ''}`}
             >
               <Bot size={14} />
-              <span>AI & ML</span>
-              </button>
+              <span>AI &amp; ML</span>
+            </button>
             <button
               role="tab"
               aria-selected={activeFilter === 'analytics'}
               onClick={() => setActiveFilter('analytics')}
-              className={`filter-btn ${activeFilter === 'analytics' ? 'filter-btn-active' : ''}`}
+              className={`cinematic-filter-btn ${activeFilter === 'analytics' ? 'active' : ''}`}
             >
               <Database size={14} />
-              <span>Analytics & BI</span>
-              </button>
+              <span>Analytics &amp; BI</span>
+            </button>
             <button
               role="tab"
               aria-selected={activeFilter === 'data-eng'}
               onClick={() => setActiveFilter('data-eng')}
-              className={`filter-btn ${activeFilter === 'data-eng' ? 'filter-btn-active' : ''}`}
+              className={`cinematic-filter-btn ${activeFilter === 'data-eng' ? 'active' : ''}`}
             >
               <Layers size={14} />
-              <span>Engineering & APIs</span>
-              </button>
+              <span>Engineering &amp; APIs</span>
+            </button>
             <button
               role="tab"
               aria-selected={activeFilter === 'dev'}
               onClick={() => setActiveFilter('dev')}
-              className={`filter-btn ${activeFilter === 'dev' ? 'filter-btn-active' : ''}`}
+              className={`cinematic-filter-btn ${activeFilter === 'dev' ? 'active' : ''}`}
             >
               <Monitor size={14} />
               <span>Development</span>
-              </button>
+            </button>
           </div>
 
-          <div className="projects-search-box">
-            <Search size={16} className="search-icon text-muted" />
+          <div className="projects-search-box cinematic-search-box">
+            <Search size={15} className="search-icon text-muted" />
             <input
               type="text"
-              placeholder="Search tools (Python, Power BI, Qwen, Meta)..."
+              placeholder="Search (Python, Power BI, Qwen)..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="search-input"
+              className="cinematic-search-input"
               aria-label="Filter projects by technology or title"
             />
           </div>
@@ -351,7 +347,7 @@ export default function Projects() {
             renderItem={(project, idx) => (
               <div
                 key={project.id}
-                className={`glass-card project-card ${idx % 2 === 0 ? 'glass-card-violet-accent' : 'glass-card-cyan'}`}
+                className="cinematic-card project-card-cinematic"
                 style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
               >
                 {/* Visual Mockup Preview Header */}
@@ -359,17 +355,23 @@ export default function Projects() {
                   {renderVisualPreview(project)}
                 </div>
 
-                
+                {/* Project Number & Category row (matching video frame_008.jpg) */}
+                <div className="project-meta-top">
+                  <span className="project-number-tag">
+                    {String(idx + 1).padStart(2, '0')}
+                  </span>
+                  <span className="project-category-badge">{project.category}</span>
+                </div>
 
                 {/* Title & Summary */}
                 <div className="project-card-body" style={{ flex: '1 1 auto' }}>
-                  <h3 className="project-card-title">{project.title}</h3>
-                  <p className="project-card-summary">{project.summary}</p>
+                  <h3 className="project-card-title-cinematic">{project.title}</h3>
+                  <p className="project-card-summary-cinematic">{project.summary}</p>
 
                   {/* Tech Stack Pills */}
                   <div className="project-stack-wrap">
                     {project.stack.map((tech) => (
-                      <span key={tech} className="chip">
+                      <span key={tech} className="chip-cinematic">
                         {tech}
                       </span>
                     ))}
@@ -380,12 +382,12 @@ export default function Projects() {
                 <div className="project-card-footer">
                   <button
                     onClick={() => setSelectedProject(project)}
-                    className="btn btn-sm btn-primary project-inspect-btn"
+                    className="btn btn-cinematic-card-action"
                     style={{ width: '100%', justifyContent: 'center' }}
                     aria-label={`View details and architecture of ${project.title}`}
                   >
-                    <span>View Architecture &amp; Details</span>
-                    <ArrowUpRight size={14} />
+                    <span>View Architecture</span>
+                    <ArrowUpRight size={14} className="action-arrow" />
                   </button>
                 </div>
               </div>
@@ -395,8 +397,8 @@ export default function Projects() {
 
         {/* Empty Search State */}
         {filteredProjects.length === 0 && (
-          <div className="glass-card empty-results-card">
-            <Filter size={24} className="text-muted" />
+          <div className="cinematic-card empty-results-card">
+            <Filter size={24} className="text-red" />
             <p>
               No projects match your search criteria. Try searching for &quot;Python&quot;, &quot;Power BI&quot;, &quot;Meta&quot;, or &quot;Qwen&quot;.
             </p>
@@ -405,7 +407,7 @@ export default function Projects() {
                 setActiveFilter('all');
                 setSearchQuery('');
               }}
-              className="btn btn-sm btn-secondary"
+              className="btn btn-cinematic-dark"
             >
               Reset Filters
             </button>

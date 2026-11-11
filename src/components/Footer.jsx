@@ -1,6 +1,6 @@
 import React from 'react';
 import { personalInfo } from '../data/portfolioData';
-import { Terminal, ArrowUpRight, Mail, Phone, FileText } from './Icons';
+import { ArrowUpRight } from './Icons';
 import { GithubIcon, LinkedinIcon } from './Icons';
 
 export default function Footer({ onNavigate }) {
@@ -9,11 +9,6 @@ export default function Footer({ onNavigate }) {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
-
-  const hasConfiguredGithub =
-    Boolean(personalInfo.github) &&
-    personalInfo.github.trim() !== '' &&
-    !personalInfo.github.includes('your-github-username');
 
   const handleNavClick = (e, sectionId) => {
     e.preventDefault();
@@ -46,7 +41,7 @@ export default function Footer({ onNavigate }) {
   };
 
   return (
-    <footer className="footer-wrapper" role="contentinfo">
+    <footer className="footer-wrapper cinematic-footer" role="contentinfo">
       <div className="container footer-container">
         {/* Top Footer Row */}
         <div className="footer-top-row">
@@ -54,25 +49,22 @@ export default function Footer({ onNavigate }) {
             <a
               href="#home"
               onClick={(e) => handleNavClick(e, 'home')}
-              className="brand-logo"
-              style={{ textDecoration: 'none' }}
+              className="cinematic-brand-logo"
             >
-              <div className="brand-icon">
-                <Terminal size={18} />
-              </div>
-              <span className="brand-name">{personalInfo.name}</span>
+              <span className="brand-primary-name">VISWANATHAN</span>
+              <span className="brand-red-dot">&bull;</span>
             </a>
-            <p className="footer-tagline">
-              {personalInfo.title}. {personalInfo.objective}
+            <p className="footer-tagline-cinematic">
+              DATA ANALYST &bull; AI DEVELOPER &bull; COIMBATORE, INDIA
             </p>
           </div>
 
           {/* Quick Nav Links */}
           <div className="footer-links-group">
-            <h4 className="footer-links-title">Navigation</h4>
-            <ul className="footer-links-list">
+            <h4 className="footer-links-title-cinematic">Navigation</h4>
+            <ul className="footer-links-list-cinematic">
               <li><a href="#home" onClick={(e) => handleNavClick(e, 'home')}>Home</a></li>
-              <li><a href="#about" onClick={(e) => handleNavClick(e, 'about')}>About Me</a></li>
+              <li><a href="#about" onClick={(e) => handleNavClick(e, 'about')}>About</a></li>
               <li><a href="#skills" onClick={(e) => handleNavClick(e, 'skills')}>Skills</a></li>
               <li><a href="#experience" onClick={(e) => handleNavClick(e, 'experience')}>Experience</a></li>
               <li><a href="#projects" onClick={(e) => handleNavClick(e, 'projects')}>Projects</a></li>
@@ -85,70 +77,47 @@ export default function Footer({ onNavigate }) {
 
           {/* Connect Links */}
           <div className="footer-links-group">
-            <h4 className="footer-links-title">Verified Channels</h4>
-            <div className="footer-social-links">
+            <h4 className="footer-links-title-cinematic">Channels</h4>
+            <div className="footer-social-links-cinematic">
               <a
                 href={personalInfo.linkedin}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn btn-sm btn-secondary footer-social-btn"
+                className="cinematic-social-chip"
                 aria-label="LinkedIn profile"
               >
-                <LinkedinIcon size={16} />
+                <LinkedinIcon size={15} />
                 <span>LinkedIn</span>
+                <ArrowUpRight size={12} />
               </a>
-
               <a
-                href={`mailto:${personalInfo.email}`}
-                className="btn btn-sm btn-secondary footer-social-btn"
-                aria-label="Email link"
+                href={personalInfo.github}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="cinematic-social-chip"
+                aria-label="GitHub profile"
               >
-                <Mail size={16} />
-                <span>{personalInfo.email}</span>
+                <GithubIcon size={15} />
+                <span>GitHub</span>
+                <ArrowUpRight size={12} />
               </a>
-
-              <a
-                href={`tel:${personalInfo.phone}`}
-                className="btn btn-sm btn-secondary footer-social-btn"
-                aria-label="Phone call"
-              >
-                <Phone size={16} />
-                <span>{personalInfo.phone}</span>
-              </a>
-
-              {hasConfiguredGithub && (
-                <a
-                  href={personalInfo.github}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn btn-sm btn-secondary footer-social-btn"
-                  aria-label="GitHub profile"
-                >
-                  <GithubIcon size={16} />
-                  <span>GitHub</span>
-                </a>
-              )}
             </div>
           </div>
         </div>
 
-        {/* Divider */}
-        <div className="footer-divider" />
-
-        {/* Bottom Footer Row */}
-        <div className="footer-bottom-row">
-          <p className="footer-copy">
-            &copy; {currentYear} {personalInfo.name}. Grounded in verified academic and technical credentials.
+        {/* Bottom Copyright & Back to Top */}
+        <div className="footer-bottom-row cinematic-footer-bottom">
+          <p className="footer-copyright">
+            &copy; {currentYear} VISWANATHAN M. All rights reserved. Crafted with precision for Data &amp; AI.
           </p>
-
           <button
             onClick={scrollToTop}
-            className="back-to-top-btn"
-            aria-label="Scroll back to top"
+            className="footer-back-to-top-btn"
             type="button"
+            aria-label="Back to top of page"
           >
-            <span>Back to Top</span>
-            <ArrowUpRight size={14} />
+            <span>Back to top</span>
+            <span className="arrow-up">&uarr;</span>
           </button>
         </div>
       </div>

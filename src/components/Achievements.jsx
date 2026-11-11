@@ -5,11 +5,18 @@ import { Trophy, Award } from './Icons';
 
 export default function Achievements() {
   return (
-    <section id="achievements" className="section achievements-section" aria-label="Honors & Achievements">
+    <section id="achievements" className="section achievements-section cinematic-section" aria-label="Honors & Achievements">
       <div className="container">
         {/* Section Header */}
-        <div className="section-header">
-          <h2 className="section-title">Achievements</h2>
+        <div className="section-header cinematic-header">
+          <div className="section-kicker">
+            <span className="kicker-num">07</span>
+            <span className="kicker-sep">/</span>
+            <span className="kicker-title">HONORS &amp; RECOGNITION</span>
+          </div>
+          <h2 className="section-title cinematic-title">
+            ACHIEVEMENTS &amp; <span className="text-red-accent">AWARDS.</span>
+          </h2>
         </div>
 
         {/* Achievements Carousel */}
@@ -21,23 +28,24 @@ export default function Achievements() {
           renderItem={(item, idx) => (
             <div
               key={item.id}
-              className={`glass-card achievement-card ${idx === 0 ? 'highlight-featured' : ''}`}
+              className="cinematic-card achievement-card-cinematic"
               style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
             >
               <div className="achievement-icon-row">
-                <div className="achievement-trophy-wrap">
+                <div className="achievement-trophy-box">
                   {idx === 0 ? (
-                    <Trophy size={26} className="text-cyan trophy-gold" />
+                    <Trophy size={24} className="text-red" />
                   ) : (
-                    <Award size={26} className="text-violet" />
+                    <Award size={24} className="text-red" />
                   )}
                 </div>
+                <span className="achievement-year-tag">2024 - 2026</span>
               </div>
 
               <div className="achievement-body" style={{ flex: '1 1 auto' }}>
-                <h3 className="achievement-title">{item.title}</h3>
-                <span className="achievement-event">{item.event}</span>
-                <p className="achievement-desc">{item.description}</p>
+                <h3 className="achievement-title-cinematic">{item.title}</h3>
+                <span className="achievement-event-cinematic">{item.event}</span>
+                <p className="achievement-desc-cinematic">{item.description}</p>
               </div>
             </div>
           )}

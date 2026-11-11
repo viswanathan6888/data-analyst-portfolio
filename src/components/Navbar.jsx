@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { personalInfo, resumeData } from '../data/portfolioData';
-import { Menu, X, Download, Terminal, ChevronRight, FileText, Sparkles } from './Icons';
+import { Menu, X, Download, Terminal, ChevronRight, FileText } from './Icons';
 
 export default function Navbar({ currentPage = 'home', onNavigate }) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
-  const [clickedLink, setClickedLink] = useState(null);
 
   const navLinks = [
     { label: 'Home', href: '#home', id: 'home' },
@@ -49,8 +48,6 @@ export default function Navbar({ currentPage = 'home', onNavigate }) {
   const handleLinkClick = (e, link) => {
     e.preventDefault();
     setMobileMenuOpen(false);
-    setClickedLink(link.id);
-    setTimeout(() => setClickedLink(null), 400);
 
     if (link.id === 'resume') {
       if (onNavigate) {
@@ -85,7 +82,6 @@ export default function Navbar({ currentPage = 'home', onNavigate }) {
       return;
     }
 
-    // Currently on home page - smooth animated transition with header offset
     const target = document.getElementById(link.id);
     if (target) {
       const headerOffset = 76;
@@ -122,54 +118,40 @@ export default function Navbar({ currentPage = 'home', onNavigate }) {
 
   return (
     <header
-      className={`navbar-wrapper ${isScrolled ? 'navbar-scrolled' : ''}`}
+      className={`navbar-wrapper cinematic-navbar-wrapper ${isScrolled ? 'navbar-scrolled' : ''}`}
       role="banner"
     >
       <div className="container navbar-container">
-        {/* Brand / Logo with subtle futuristic hover glow */}
+        {/* Brand / Logo: VISWANATHAN • matching reference style */}
         <a
           href="#home"
           onClick={handleBrandClick}
-          className="brand-logo"
+          className="cinematic-brand-logo"
           aria-label="Back to home top"
         >
-          <div className="brand-icon brand-icon-glow">
-            <Terminal size={18} className="brand-terminal-icon" />
-          </div>
-          <div className="brand-text">
-            <span className="brand-name">{personalInfo.name}</span>
-            <span className="brand-badge">Data Analyst &bull; AI &amp; Data Science</span>
-          </div>
+          <span className="brand-primary-name">VISWANATHAN</span>
+          <span className="brand-red-dot">&bull;</span>
         </a>
 
-        {/* Desktop Futuristic Navigation */}
+        {/* Desktop Navigation Links */}
         <nav className="desktop-nav" aria-label="Main Navigation">
-          <ul className="nav-list futuristic-nav-capsule">
+          <ul className="cinematic-nav-list">
             {navLinks.map((link) => {
               const isActive =
                 currentPage === 'resume'
                   ? link.id === 'resume'
                   : activeSection === link.id;
-              const isJustClicked = clickedLink === link.id;
 
               return (
-                <li key={link.id} className="nav-item">
+                <li key={link.id} className="cinematic-nav-item">
                   <a
                     href={link.href}
                     onClick={(e) => handleLinkClick(e, link)}
-                    className={`nav-link ${isActive ? 'nav-link-active' : ''} ${link.id === 'resume' ? 'nav-link-resume' : ''} ${isJustClicked ? 'nav-link-pulse' : ''}`}
+                    className={`cinematic-nav-link ${isActive ? 'active' : ''} ${link.id === 'resume' ? 'resume-link' : ''}`}
                     aria-current={isActive ? 'page' : undefined}
                   >
-                    {link.id === 'resume' && <FileText size={14} className="nav-resume-icon" />}
                     <span>{link.label}</span>
-
-                    {/* Glowing neon indicator for selected item */}
-                    {isActive && (
-                      <span className="nav-neon-active-indicator" aria-hidden="true">
-                        <span className="nav-neon-core" />
-                        <span className="nav-neon-blur" />
-                      </span>
-                    )}
+                    {isActive && <span className="cinematic-nav-active-bar" aria-hidden="true" />}
                   </a>
                 </li>
               );
@@ -182,16 +164,16 @@ export default function Navbar({ currentPage = 'home', onNavigate }) {
           <a
             href={personalInfo.resumePdfUrl}
             download={resumeData.fileName}
-            className="btn btn-sm btn-secondary resume-nav-btn glow-hover-btn"
+            className="btn btn-cinematic-nav-cta"
             aria-label="Download Official Resume PDF"
             title="Download Official Resume PDF"
           >
-            <Download size={14} />
+            <Download size={13} />
             <span>Download CV</span>
           </a>
 
           <button
-            className="mobile-toggle"
+            className="mobile-toggle cinematic-mobile-toggle"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-expanded={mobileMenuOpen}
             aria-label={mobileMenuOpen ? 'Close Menu' : 'Open Menu'}
@@ -204,8 +186,8 @@ export default function Navbar({ currentPage = 'home', onNavigate }) {
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="mobile-menu-drawer glass-card mobile-futuristic-drawer">
-          <ul className="mobile-nav-list">
+        <div className="cinematic-mobile-drawer">
+          <ul className="cinematic-mobile-nav-list">
             {navLinks.map((link) => {
               const isActive =
                 currentPage === 'resume'
@@ -213,31 +195,27 @@ export default function Navbar({ currentPage = 'home', onNavigate }) {
                   : activeSection === link.id;
 
               return (
-                <li key={link.id} className="mobile-nav-item">
+                <li key={link.id} className="cinematic-mobile-nav-item">
                   <a
                     href={link.href}
                     onClick={(e) => handleLinkClick(e, link)}
-                    className={`mobile-nav-link ${isActive ? 'mobile-nav-link-active' : ''}`}
+                    className={`cinematic-mobile-nav-link ${isActive ? 'active' : ''}`}
                   >
-                    <div className="mobile-nav-label-wrap">
-                      {link.id === 'resume' ? (
-                        <FileText size={16} className="text-violet" />
-                      ) : (
-                        isActive && <span className="mobile-active-neon-pip" />
-                      )}
+                    <div className="nav-label-group">
+                      {isActive && <span className="mobile-red-dot" />}
                       <span>{link.label}</span>
                     </div>
-                    <ChevronRight size={16} />
+                    <ChevronRight size={16} className="mobile-chevron" />
                   </a>
                 </li>
               );
             })}
-            <li className="mobile-nav-item mobile-cta-item">
+            <li className="cinematic-mobile-nav-item mobile-cta-slot">
               <a
                 href={personalInfo.resumePdfUrl}
                 download={resumeData.fileName}
-                className="btn btn-primary glow-hover-btn"
-                style={{ width: '100%' }}
+                className="btn btn-cinematic-red"
+                style={{ width: '100%', justifyContent: 'center' }}
                 onClick={() => setMobileMenuOpen(false)}
               >
                 <Download size={16} />
