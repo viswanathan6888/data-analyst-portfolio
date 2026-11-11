@@ -26,8 +26,8 @@ export default function Hero({ onOpenResume }) {
       if (!ticking) {
         window.requestAnimationFrame(() => {
           const { innerWidth, innerHeight } = window;
-          const x = ((e.clientX / innerWidth) - 0.5) * 10;
-          const y = ((e.clientY / innerHeight) - 0.5) * 10;
+          const x = ((e.clientX / innerWidth) - 0.5) * 8;
+          const y = ((e.clientY / innerHeight) - 0.5) * 8;
           setParallaxOffset({ x, y });
           ticking = false;
         });
@@ -78,69 +78,78 @@ export default function Hero({ onOpenResume }) {
 
   return (
     <section id="home" className="hero-section cinematic-hero-section" aria-label="Hero Section">
-      {/* Giant Typography Layer Behind Portrait with Smooth Horizontal Gliding (Reference Video) */}
-      <div className="hero-giant-watermark-track animated-watermark" aria-hidden="true">
-        <div className="hero-giant-watermark-inner">
-          <span className="hero-giant-watermark-text">PORTFOLIO &bull; VISWANATHAN M. &bull; DATA &amp; AI &bull;&nbsp;</span>
-          <span className="hero-giant-watermark-text">PORTFOLIO &bull; VISWANATHAN M. &bull; DATA &amp; AI &bull;&nbsp;</span>
-        </div>
+      {/* Giant Red Typography "PORTFOLIO" Behind Subject (Exact Match to Reference Video) */}
+      <div className="hero-giant-portfolio-backdrop" aria-hidden="true">
+        <span className="hero-giant-portfolio-word">PORTFOLIO</span>
+      </div>
+
+      {/* Decorative Technical Editorial Grid Lines & Corner Crosshairs */}
+      <div className="hero-grid-decorations" aria-hidden="true">
+        <span className="hero-crosshair top-left">+</span>
+        <span className="hero-crosshair top-right">+</span>
+        <span className="hero-crosshair bottom-left">&times;</span>
+        <span className="hero-crosshair bottom-right">+</span>
+        <div className="hero-vertical-guide-left" />
+        <div className="hero-vertical-guide-right" />
       </div>
 
       <div className="container hero-container-cinematic">
-        <div className="hero-editorial-grid">
-          {/* Left Column: Progressive Entrance Animation for Name, Role & Details */}
+        {/* Exact 3-Column Editorial Hero Layout (Left: Info, Center: Portrait, Right: Stats) */}
+        <div className="hero-exact-layout">
+          {/* Left Column: Kicker, Script Greeting, Giant Name, Red Roles, Bio, CTA */}
           <div
             className="hero-left-column"
             style={{
-              transform: `translate3d(${parallaxOffset.x * 0.25}px, ${parallaxOffset.y * 0.25}px, 0)`
+              transform: `translate3d(${parallaxOffset.x * 0.2}px, ${parallaxOffset.y * 0.2}px, 0)`
             }}
           >
-            {/* Step 1: Kicker & Status Pill */}
+            {/* Kicker Tag & Status */}
             <div className="hero-kicker-row hero-anim-kicker">
-              <span className="hero-kicker-tag">01 / PORTFOLIO</span>
+              <span className="hero-kicker-tag">
+                <span className="kicker-red-dot" /> DATA ANALYST | AI DEVELOPER
+              </span>
               <div className="hero-status-pill-cinematic">
                 <span className="status-indicator-red" />
                 <span className="status-text">{personalInfo.status}</span>
               </div>
             </div>
 
-            {/* Step 2: Elegant Greeting (matching reference video frame_002.jpg) */}
+            {/* Handwritten Script Greeting: "Hello, I'm" (Caveat font) */}
             <div className="hero-greeting-line hero-anim-greeting">
-              <span className="greeting-script">Hello, I'm</span>
+              <span className="greeting-script-exact">Hello, I'm</span>
             </div>
 
-            {/* Step 3: Main Name Heading with Bold Condensed Editorial Typography */}
+            {/* Main Name: VISWANATHAN. (Oversized White Bebas Neue with Period) */}
             <div className="hero-name-mask-container hero-anim-name">
-              <h1 className="hero-main-name">
-                VISWANATHAN <span className="text-red-accent">M.</span>
+              <h1 className="hero-main-name-exact">
+                VISWANATHAN<span className="text-red-accent">.</span>
               </h1>
             </div>
 
-            {/* Step 4: Role Headline (Animated Separately from Name) */}
-            <div className="hero-role-headline hero-anim-role">
-              <span className="hero-role-badge">DATA ANALYST</span>
-              <span className="hero-role-divider">|</span>
-              <span className="hero-role-badge highlight">AI DEVELOPER</span>
+            {/* Target Role Headline: Bold Vibrant Red Stacked */}
+            <div className="hero-role-stacked hero-anim-role">
+              <div className="role-line-red">DATA ANALYST &amp;</div>
+              <div className="role-line-red">AI DEVELOPER</div>
             </div>
 
-            {/* Step 5: Professional Introduction */}
+            {/* Professional Introduction */}
             <p className="hero-editorial-intro hero-anim-intro">
-              AI &amp; Data Science professional focused on transforming complex data into 
-              actionable business insights and intelligent, production-ready solutions. 
-              Specializing in <strong>Data Analytics</strong>, <strong>Business Intelligence</strong>, 
-              <strong>Predictive Machine Learning</strong>, and <strong>Interactive Dashboards</strong> with Python, SQL, Power BI, and LLMs.
+              AI &amp; Data Science professional specialized in transforming multi-source raw data into
+              predictive intelligence, automated pipelines, and production-grade models. 
+              Strong expertise in <strong>Machine Learning</strong>, <strong>Power BI Dashboards</strong>, 
+              and <strong>Intelligent AI Systems</strong>.
             </p>
 
-            {/* Step 6: Primary Action Buttons */}
+            {/* Primary Action Buttons */}
             <div className="hero-cta-group hero-anim-cta">
               <a
                 href={personalInfo.resumePdfUrl}
                 download={resumeData.fileName}
-                className="btn btn-cinematic-red"
+                className="btn btn-exact-red"
                 aria-label="Download Official Resume PDF"
               >
-                <Download size={16} />
                 <span>Download Resume</span>
+                <span className="btn-icon-arrow">&darr;</span>
               </a>
 
               <button
@@ -164,7 +173,7 @@ export default function Hero({ onOpenResume }) {
               </button>
             </div>
 
-            {/* Step 7: Location & Social Row */}
+            {/* Location & Social Row */}
             <div className="hero-meta-footer hero-anim-meta">
               <span className="hero-location-tag">
                 <span className="red-pin">&bull;</span> {personalInfo.location}
@@ -194,18 +203,84 @@ export default function Hero({ onOpenResume }) {
             </div>
           </div>
 
-          {/* Right Column: Prominent Portrait with Cinematic Reveal & Floating Animation */}
+          {/* Center Column: Cutout Portrait Overlapping Giant "PORTFOLIO" Text */}
           <div
-            className="hero-right-portrait-column hero-anim-portrait"
+            className="hero-center-portrait-column hero-anim-portrait"
             style={{
-              transform: `translate3d(${-parallaxOffset.x * 0.4}px, ${-parallaxOffset.y * 0.4}px, 0)`
+              transform: `translate3d(${-parallaxOffset.x * 0.3}px, ${-parallaxOffset.y * 0.3}px, 0)`
             }}
           >
             <ProfessionalProfileFrame imageSrc={personalInfo.profileImage} />
           </div>
+
+          {/* Right Column: Hero Metrics & Numbers Column (Exact Match to Reference Video) */}
+          <div
+            className="hero-right-stats-column hero-anim-meta"
+            style={{
+              transform: `translate3d(${parallaxOffset.x * 0.15}px, ${parallaxOffset.y * 0.15}px, 0)`
+            }}
+          >
+            <div className="hero-stats-kicker">
+              <span>PRECISION &amp; SCALE</span>
+              <span className="stats-kicker-sep">/</span>
+              <span className="text-red-accent">DATA TO VALUE</span>
+            </div>
+
+            {/* Metric 1 */}
+            <div className="hero-stat-block">
+              <div className="stat-number-row">
+                <span className="stat-giant-num">5.</span>
+              </div>
+              <div className="stat-label-wrap">
+                <span className="stat-primary-label">INTERNSHIPS COMPLETED</span>
+                <span className="stat-sub-label">Analytics &amp; Machine Learning</span>
+              </div>
+            </div>
+
+            <div className="hero-stat-divider" />
+
+            {/* Metric 2 */}
+            <div className="hero-stat-block">
+              <div className="stat-number-row">
+                <span className="stat-giant-num">10.</span>
+              </div>
+              <div className="stat-label-wrap">
+                <span className="stat-primary-label">PRODUCTION PROJECTS</span>
+                <span className="stat-sub-label">Predictive ML, AI Agents &amp; Dashboards</span>
+              </div>
+            </div>
+
+            <div className="hero-stat-divider" />
+
+            {/* Metric 3 */}
+            <div className="hero-stat-block">
+              <div className="stat-number-row">
+                <span className="stat-giant-num">8.5</span>
+              </div>
+              <div className="stat-label-wrap">
+                <span className="stat-primary-label">ACADEMIC CGPA</span>
+                <span className="stat-sub-label">B.Tech AI &amp; Data Science</span>
+              </div>
+            </div>
+
+            <div className="hero-stat-divider" />
+
+            {/* Download CV Action Link */}
+            <div className="hero-right-download-link-box">
+              <a
+                href={personalInfo.resumePdfUrl}
+                download={resumeData.fileName}
+                className="hero-download-cv-link"
+                title="Download Official CV / Resume"
+              >
+                <span>DOWNLOAD CV</span>
+                <span className="download-cv-arrow">&darr;</span>
+              </a>
+            </div>
+          </div>
         </div>
 
-        {/* Step 8: Highlights Carousel with Smooth Staggered Slide-Up */}
+        {/* Highlights Carousel with Smooth Navigation */}
         <div className="hero-highlights-cinematic-wrap hero-anim-highlights">
           <SectionCarousel
             items={heroHighlightItems}

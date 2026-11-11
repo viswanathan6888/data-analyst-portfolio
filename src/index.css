@@ -642,6 +642,15 @@ button {
 .cinematic-brand-logo,
 .brand-logo {
   display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.brand-title-wrap {
+  display: inline-flex;
   align-items: center;
   gap: 0.35rem;
   font-family: var(--font-display);
@@ -649,8 +658,17 @@ button {
   font-weight: 900;
   letter-spacing: 0.05em;
   color: #ffffff;
-  text-decoration: none;
-  transition: color 0.2s ease;
+  line-height: 1;
+}
+
+.brand-sub-kicker {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-top: 0.15rem;
 }
 
 .cinematic-brand-logo:hover {
@@ -829,6 +847,121 @@ button {
   }
   100% {
     transform: translate3d(-50%, 0, 0);
+  }
+}
+
+/* ==========================================================================
+   EXACT HERO LAYOUT & GIANT RED TYPOGRAPHY (MATCHING REFERENCE VIDEO)
+   ========================================================================== */
+
+.hero-giant-portfolio-backdrop {
+  position: absolute;
+  top: 14%;
+  left: 0;
+  right: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+  user-select: none;
+  text-align: center;
+}
+
+.hero-giant-portfolio-word {
+  font-family: var(--font-display);
+  font-size: clamp(5.5rem, 18.5vw, 17.5rem);
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  color: #c9182b;
+  text-transform: uppercase;
+  white-space: nowrap;
+  line-height: 0.82;
+  opacity: 0.95;
+  filter: drop-shadow(0 0 45px rgba(229, 9, 20, 0.45));
+  text-shadow: 0 0 60px rgba(229, 9, 20, 0.35);
+}
+
+/* Technical Editorial Grid Lines & Corner Accents */
+.hero-grid-decorations {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.hero-crosshair {
+  position: absolute;
+  font-family: var(--font-mono);
+  font-size: 15px;
+  color: rgba(255, 42, 59, 0.5);
+  line-height: 1;
+}
+
+.hero-crosshair.top-left { top: 20px; left: 30px; }
+.hero-crosshair.top-right { top: 20px; right: 30px; }
+.hero-crosshair.bottom-left { bottom: 20px; left: 30px; }
+.hero-crosshair.bottom-right { bottom: 20px; right: 30px; }
+
+.hero-vertical-guide-left {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 20px;
+  width: 1px;
+  background: linear-gradient(180deg, transparent 0%, rgba(255, 255, 255, 0.05) 20%, rgba(255, 255, 255, 0.05) 80%, transparent 100%);
+}
+
+.hero-vertical-guide-right {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 20px;
+  width: 1px;
+  background: linear-gradient(180deg, transparent 0%, rgba(255, 255, 255, 0.05) 20%, rgba(255, 255, 255, 0.05) 80%, transparent 100%);
+}
+
+/* Exact 3-Column Hero Grid: Left Content, Center Portrait, Right Stats */
+.hero-exact-layout {
+  display: grid;
+  grid-template-columns: 1.15fr 0.95fr 0.65fr;
+  align-items: center;
+  gap: 2.2rem;
+  position: relative;
+  z-index: 3;
+  padding-top: 1.5rem;
+}
+
+@media (max-width: 1100px) {
+  .hero-exact-layout {
+    grid-template-columns: 1.2fr 0.9fr;
+    gap: 2rem;
+  }
+  .hero-right-stats-column {
+    grid-column: span 2;
+    border-left: none !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-left: 0 !important;
+    padding-top: 1.5rem !important;
+    display: grid !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-exact-layout {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+  .hero-center-portrait-column {
+    order: -1;
+  }
+  .hero-right-stats-column {
+    grid-column: span 1;
+    display: flex !important;
+    flex-direction: column !important;
   }
 }
 
@@ -1098,6 +1231,188 @@ button {
 
 .hero-role-divider {
   opacity: 0.3;
+}
+
+/* Greeting in Cursive Script (exact_004.jpg) */
+.greeting-script-exact {
+  font-family: 'Caveat', cursive;
+  font-size: clamp(2.2rem, 3.2vw, 3rem);
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.01em;
+  line-height: 1.1;
+  display: inline-block;
+}
+
+/* Oversized White Name with Dot */
+.hero-main-name-exact {
+  font-family: var(--font-display);
+  font-size: clamp(3.8rem, 6.8vw, 6.8rem);
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  color: #ffffff;
+  text-transform: uppercase;
+  line-height: 0.9;
+  margin: 0;
+}
+
+/* Stacked Roles in Vibrant Red */
+.hero-role-stacked {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  margin-top: 0.35rem;
+  margin-bottom: 0.25rem;
+}
+
+.role-line-red {
+  font-family: var(--font-display);
+  font-size: clamp(1.9rem, 2.9vw, 2.9rem);
+  font-weight: 900;
+  color: var(--red-primary);
+  line-height: 1.02;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+/* Exact Solid Red Button with Down Arrow (exact_004.jpg) */
+.btn-exact-red {
+  background: linear-gradient(135deg, #ff2a3b 0%, #dc1828 100%);
+  color: #ffffff;
+  border-radius: 999px;
+  padding: 0.72rem 1.6rem;
+  font-weight: 700;
+  font-size: 0.92rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  box-shadow: 0 4px 22px rgba(255, 42, 59, 0.45);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-exact-red:hover {
+  background: #ff3b4b;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(255, 42, 59, 0.65);
+  color: #ffffff;
+}
+
+.btn-icon-arrow {
+  font-size: 1.15rem;
+  line-height: 0;
+  transition: transform 0.2s ease;
+}
+
+.btn-exact-red:hover .btn-icon-arrow {
+  transform: translateY(2px);
+}
+
+/* Right Stats Column (exact_004.jpg) */
+.hero-right-stats-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+  padding-left: 1.6rem;
+  border-left: 1px solid rgba(255, 255, 255, 0.09);
+  z-index: 3;
+}
+
+.hero-stats-kicker {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.25rem;
+}
+
+.stats-kicker-sep {
+  color: var(--red-primary);
+  opacity: 0.6;
+}
+
+.hero-stat-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.stat-number-row {
+  display: flex;
+  align-items: baseline;
+}
+
+.stat-giant-num {
+  font-family: var(--font-display);
+  font-size: clamp(2.6rem, 3.8vw, 3.6rem);
+  font-weight: 900;
+  color: var(--red-primary);
+  line-height: 0.88;
+  letter-spacing: -0.01em;
+}
+
+.stat-label-wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-primary-label {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: #ffffff;
+  text-transform: uppercase;
+}
+
+.stat-sub-label {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  line-height: 1.3;
+}
+
+.hero-stat-divider {
+  height: 1px;
+  width: 100%;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.12) 0%, transparent 100%);
+}
+
+.hero-right-download-link-box {
+  margin-top: 0.35rem;
+}
+
+.hero-download-cv-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.84rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #ffffff;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.hero-download-cv-link:hover {
+  color: var(--red-primary);
+  transform: translateX(3px);
+}
+
+.download-cv-arrow {
+  color: var(--red-primary);
+  font-size: 1.1rem;
+  transition: transform 0.2s ease;
+}
+
+.hero-download-cv-link:hover .download-cv-arrow {
+  transform: translateY(2px);
 }
 
 /* Main Name Heading */
@@ -2928,6 +3243,619 @@ button {
   margin-top: 1.5rem;
   padding-top: 1rem;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* ==========================================================================
+   EXACT REFERENCE VIDEO DESIGN SYSTEM STYLES (SECTIONS & MODULES)
+   ========================================================================== */
+
+/* 1. Tech Stack Marquee Ticker (exact_018.jpg) */
+.tech-ticker-container {
+  width: 100%;
+  overflow: hidden;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(10, 10, 14, 0.9);
+  padding: 0.9rem 0;
+  margin-bottom: 3.5rem;
+  user-select: none;
+}
+
+.tech-ticker-track {
+  display: flex;
+  width: 100%;
+  overflow: hidden;
+}
+
+.tech-ticker-inner {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  animation: techTickerScroll 30s linear infinite;
+  will-change: transform;
+}
+
+@keyframes techTickerScroll {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
+}
+
+.tech-ticker-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 0 1.35rem;
+}
+
+.ticker-item-dot {
+  color: var(--red-primary);
+  font-size: 0.8rem;
+}
+
+.ticker-item-text {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.7);
+  white-space: nowrap;
+  text-transform: uppercase;
+  transition: color 0.2s ease;
+}
+
+.tech-ticker-item:hover .ticker-item-text {
+  color: #ffffff;
+}
+
+/* 2. Recognition 2-Column Grid (exact_018.jpg) */
+.recognition-exact-grid {
+  display: grid;
+  grid-template-columns: 0.85fr 1.15fr;
+  gap: 3.5rem;
+  align-items: flex-start;
+}
+
+.recognition-left-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.recognition-title-stacked {
+  display: flex;
+  flex-direction: column;
+}
+
+.recog-title-line {
+  font-family: var(--font-display);
+  font-size: clamp(2.8rem, 4.8vw, 4.4rem);
+  font-weight: 900;
+  line-height: 0.95;
+  letter-spacing: -0.01em;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+.recog-title-line.white {
+  color: #ffffff;
+}
+
+.recog-title-line.red {
+  color: var(--red-primary);
+}
+
+.recognition-summary-text {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.recognition-giant-stat-card {
+  position: relative;
+  background: #111117;
+  border: 1px solid rgba(255, 42, 59, 0.35);
+  border-radius: 16px;
+  padding: 2rem;
+  margin-top: 1rem;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7), inset 0 0 25px rgba(255, 42, 59, 0.1);
+}
+
+.stat-crosshair {
+  position: absolute;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--red-primary);
+}
+
+.stat-crosshair.top-left { top: 10px; left: 12px; }
+.stat-crosshair.bottom-right { bottom: 10px; right: 12px; }
+
+.giant-stat-number-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.giant-stat-number {
+  font-family: var(--font-display);
+  font-size: clamp(4.5rem, 7vw, 6.8rem);
+  font-weight: 900;
+  color: #ffffff;
+  line-height: 0.85;
+}
+
+.giant-stat-plus {
+  color: var(--red-primary);
+}
+
+.giant-stat-sparkle {
+  color: var(--red-primary);
+  font-size: 2.2rem;
+  animation: pulseGlowRed 2s infinite;
+}
+
+.giant-stat-caption {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-top: 0.5rem;
+  display: block;
+}
+
+.recognition-right-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.recognition-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.recognition-editorial-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 1.2rem 1.4rem;
+  background: #121218;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  transition: all 0.25s ease;
+}
+
+.recognition-editorial-row:hover {
+  border-color: rgba(255, 42, 59, 0.45);
+  background: #171722;
+  transform: translateX(4px);
+}
+
+.recog-row-num {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--red-primary);
+}
+
+.recog-item-title {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: 0.02em;
+}
+
+.recog-item-event {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--red-primary);
+  font-weight: 600;
+}
+
+.recog-item-desc {
+  font-size: 0.84rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+  line-height: 1.4;
+}
+
+.recog-year-pill {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #ffffff;
+  background: rgba(255, 42, 59, 0.15);
+  border: 1px solid rgba(255, 42, 59, 0.35);
+  padding: 0.3rem 0.7rem;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.recognition-carousel-wrap {
+  margin-top: 1rem;
+}
+
+@media (max-width: 900px) {
+  .recognition-exact-grid {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+}
+
+/* 3. About 3-Column Editorial Grid (exact_035.jpg) */
+.about-exact-3col-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 0.95fr;
+  gap: 2rem;
+  margin-bottom: 2.5rem;
+}
+
+.about-sub-header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 0.6rem;
+}
+
+.sub-header-num {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--red-primary);
+}
+
+.sub-header-title {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #ffffff;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.about-edu-card {
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.about-education-badge-cinematic {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.edu-title {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+.edu-institution {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+
+.edu-cgpa-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: rgba(255, 42, 59, 0.1);
+  border: 1px solid rgba(255, 42, 59, 0.3);
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  color: #ffffff;
+  width: max-content;
+}
+
+.cgpa-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--red-primary);
+  box-shadow: 0 0 6px var(--red-primary);
+}
+
+.edu-bio-text {
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-top: 0.5rem;
+}
+
+.about-meta-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.about-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.84rem;
+  color: var(--text-muted);
+}
+
+.about-process-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.about-process-item {
+  display: flex;
+  gap: 1.15rem;
+  background: #111117;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 1.25rem;
+  transition: all 0.25s ease;
+}
+
+.about-process-item:hover {
+  border-color: rgba(255, 42, 59, 0.4);
+  background: #151520;
+}
+
+.process-step-num {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: var(--red-primary);
+  line-height: 1;
+}
+
+.process-step-title {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #ffffff;
+  margin-bottom: 0.35rem;
+}
+
+.process-step-desc {
+  font-size: 0.84rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+/* The Signature Red Card (exact_035.jpg) */
+.about-red-quote-card {
+  background: linear-gradient(145deg, #c9182b 0%, #991420 100%);
+  border-radius: 16px;
+  padding: 2.25rem 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 380px;
+  box-shadow: 0 15px 40px rgba(201, 24, 43, 0.35);
+  position: relative;
+  overflow: hidden;
+}
+
+.about-red-quote-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top right, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.quote-mark-icon {
+  font-size: 4rem;
+  line-height: 0.8;
+  color: rgba(255, 255, 255, 0.35);
+  font-family: Georgia, serif;
+}
+
+.red-card-quote-text {
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.55;
+  color: #ffffff;
+  margin: 1.25rem 0;
+  position: relative;
+  z-index: 2;
+}
+
+.red-card-signature-box {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  padding-top: 1rem;
+  margin-top: auto;
+  position: relative;
+  z-index: 2;
+}
+
+.signature-cursive {
+  font-family: 'Caveat', cursive;
+  font-size: 2.3rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+}
+
+.signature-title {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.8);
+  text-transform: uppercase;
+}
+
+.red-card-action-slot {
+  margin-top: 1.25rem;
+  position: relative;
+  z-index: 2;
+}
+
+.btn-red-card-download {
+  background: #08080a;
+  color: #ffffff;
+  border-radius: 999px;
+  padding: 0.65rem 1.25rem;
+  font-size: 0.84rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  width: 100%;
+  justify-content: center;
+}
+
+.btn-red-card-download:hover {
+  background: #ffffff;
+  color: #c9182b;
+  transform: translateY(-2px);
+}
+
+.about-pillars-carousel-wrap {
+  margin-top: 1.5rem;
+}
+
+@media (max-width: 1050px) {
+  .about-exact-3col-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+/* 4. Experience Editorial Banner (exact_045.jpg) */
+.experience-editorial-banner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2.5rem;
+  background: #101016;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 2rem 2.25rem;
+  margin-bottom: 2.5rem;
+}
+
+.banner-left-timeline-glance {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.timeline-kicker {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--red-primary);
+  text-transform: uppercase;
+}
+
+.timeline-glance-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.glance-item {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  font-size: 0.86rem;
+}
+
+.glance-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.glance-dot.red {
+  background: var(--red-primary);
+  box-shadow: 0 0 8px var(--red-primary);
+}
+
+.glance-date {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  width: 120px;
+}
+
+.glance-role {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.banner-right-philosophy {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  padding-left: 2rem;
+}
+
+.philosophy-title-stacked {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  margin-bottom: 0.5rem;
+}
+
+.philosophy-line {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 2.8vw, 2.5rem);
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.philosophy-line.white {
+  color: #ffffff;
+}
+
+.philosophy-line.red {
+  color: var(--red-primary);
+}
+
+.philosophy-desc {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+@media (max-width: 850px) {
+  .experience-editorial-banner {
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+  }
+  .banner-right-philosophy {
+    border-left: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-left: 0;
+    padding-top: 1.5rem;
+  }
 }
 
 /* ==========================================================================

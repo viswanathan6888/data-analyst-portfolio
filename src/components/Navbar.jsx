@@ -129,8 +129,11 @@ export default function Navbar({ currentPage = 'home', onNavigate }) {
           className="cinematic-brand-logo"
           aria-label="Back to home top"
         >
-          <span className="brand-primary-name">VISWANATHAN</span>
-          <span className="brand-red-dot">&bull;</span>
+          <div className="brand-title-wrap">
+            <span className="brand-primary-name">VISWANATHAN</span>
+            <span className="brand-red-dot">&bull;</span>
+          </div>
+          <span className="brand-sub-kicker">DATA &amp; AI DEVELOPER</span>
         </a>
 
         {/* Desktop Navigation Links */}
