@@ -6,7 +6,7 @@ import React from 'react';
  * vibrant red accents (#ff2a3b / #ef4444), fine hairline borders, and geometric crosshairs (+, ×).
  */
 
-// Sleek dark cinematic section divider with subtle red center accent
+// Sleek dark cinematic section divider with subtle breathing red center accent
 export const WaveDivider = ({ flip = false, variant = 'default', className = '' }) => {
   return (
     <div
@@ -16,7 +16,7 @@ export const WaveDivider = ({ flip = false, variant = 'default', className = '' 
       <div className="divider-line-left" />
       <div className="divider-center-mark">
         <span className="divider-crosshair">+</span>
-        <span className="divider-red-dot" />
+        <span className="divider-red-dot breathing-dot" />
         <span className="divider-crosshair">+</span>
       </div>
       <div className="divider-line-right" />
@@ -37,16 +37,15 @@ export const FooterWaveDivider = () => {
   );
 };
 
-// Cinematic Dark Profile Frame
-// Large commanding portrait with red rim lighting/glow, bottom gradient fade, and editorial tags
+// Cinematic Dark Profile Frame with scale reveal, floating motion, and breathing glow
 export const ProfessionalProfileFrame = ({
   imageSrc = '/profile.jpg',
   altText = 'Viswanathan M - Data Analyst & AI Developer'
 }) => {
   return (
     <div className="cinematic-portrait-wrapper" aria-label="Viswanathan M Profile Portrait">
-      {/* Background Deep Red Atmospheric Glow */}
-      <div className="portrait-red-glow" aria-hidden="true" />
+      {/* Background Deep Red Atmospheric Glow with breathing pulse */}
+      <div className="portrait-red-glow portrait-glow-pulse" aria-hidden="true" />
 
       {/* Decorative Technical Crosshairs */}
       <div className="portrait-crosshair top-left">+</div>
@@ -54,8 +53,8 @@ export const ProfessionalProfileFrame = ({
       <div className="portrait-crosshair bottom-left">&times;</div>
       <div className="portrait-crosshair bottom-right">&times;</div>
 
-      {/* Main Cinematic Portrait Container */}
-      <div className="portrait-image-container">
+      {/* Main Cinematic Portrait Container with subtle vertical floating motion */}
+      <div className="portrait-image-container cinematic-portrait-float">
         <div className="portrait-rim-light" />
         <img
           src={imageSrc || '/profile.jpg'}
@@ -70,18 +69,18 @@ export const ProfessionalProfileFrame = ({
       </div>
 
       {/* Sleek Editorial Name Badge */}
-      <div className="portrait-caption-pill">
+      <div className="portrait-caption-pill floating-caption-badge">
         <span className="caption-red-indicator" />
         <span className="caption-name">VISWANATHAN M.</span>
         <span className="caption-role">DATA &bull; AI</span>
       </div>
 
-      {/* Editorial Pill Badges */}
-      <div className="editorial-floating-chip chip-left">
+      {/* Editorial Pill Badges with Micro-Floating Animations */}
+      <div className="editorial-floating-chip chip-left float-anim-left">
         <span className="chip-dot" />
         <span className="chip-title">AI DEVELOPER</span>
       </div>
-      <div className="editorial-floating-chip chip-right">
+      <div className="editorial-floating-chip chip-right float-anim-right">
         <span className="chip-dot red" />
         <span className="chip-title">DATA ANALYST</span>
       </div>

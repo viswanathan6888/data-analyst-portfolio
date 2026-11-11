@@ -9,10 +9,7 @@ import {
   GraduationCap,
   Award,
   Briefcase,
-  ExternalLink,
-  ChevronDown,
-  Layers,
-  Bot
+  ChevronDown
 } from './Icons';
 import { LinkedinIcon, GithubIcon } from './Icons';
 import { ProfessionalProfileFrame } from './AbstractDecorations';
@@ -81,22 +78,25 @@ export default function Hero({ onOpenResume }) {
 
   return (
     <section id="home" className="hero-section cinematic-hero-section" aria-label="Hero Section">
-      {/* Giant Typography Layer Behind Portrait (Inspired by Reference Video) */}
-      <div className="hero-giant-watermark-track" aria-hidden="true">
-        <span className="hero-giant-watermark-text">VISWANATHAN M.</span>
+      {/* Giant Typography Layer Behind Portrait with Smooth Horizontal Gliding (Reference Video) */}
+      <div className="hero-giant-watermark-track animated-watermark" aria-hidden="true">
+        <div className="hero-giant-watermark-inner">
+          <span className="hero-giant-watermark-text">PORTFOLIO &bull; VISWANATHAN M. &bull; DATA &amp; AI &bull;&nbsp;</span>
+          <span className="hero-giant-watermark-text">PORTFOLIO &bull; VISWANATHAN M. &bull; DATA &amp; AI &bull;&nbsp;</span>
+        </div>
       </div>
 
       <div className="container hero-container-cinematic">
         <div className="hero-editorial-grid">
-          {/* Left Column: Editorial Information & CTAs */}
+          {/* Left Column: Progressive Entrance Animation for Name, Role & Details */}
           <div
             className="hero-left-column"
             style={{
               transform: `translate3d(${parallaxOffset.x * 0.25}px, ${parallaxOffset.y * 0.25}px, 0)`
             }}
           >
-            {/* Status Pill with Vibrant Red Dot */}
-            <div className="hero-kicker-row">
+            {/* Step 1: Kicker & Status Pill */}
+            <div className="hero-kicker-row hero-anim-kicker">
               <span className="hero-kicker-tag">01 / PORTFOLIO</span>
               <div className="hero-status-pill-cinematic">
                 <span className="status-indicator-red" />
@@ -104,28 +104,35 @@ export default function Hero({ onOpenResume }) {
               </div>
             </div>
 
-            {/* Target Roles Headline */}
-            <div className="hero-role-headline">
+            {/* Step 2: Elegant Greeting (matching reference video frame_002.jpg) */}
+            <div className="hero-greeting-line hero-anim-greeting">
+              <span className="greeting-script">Hello, I'm</span>
+            </div>
+
+            {/* Step 3: Main Name Heading with Bold Condensed Editorial Typography */}
+            <div className="hero-name-mask-container hero-anim-name">
+              <h1 className="hero-main-name">
+                VISWANATHAN <span className="text-red-accent">M.</span>
+              </h1>
+            </div>
+
+            {/* Step 4: Role Headline (Animated Separately from Name) */}
+            <div className="hero-role-headline hero-anim-role">
               <span className="hero-role-badge">DATA ANALYST</span>
               <span className="hero-role-divider">|</span>
               <span className="hero-role-badge highlight">AI DEVELOPER</span>
             </div>
 
-            {/* Main Name Heading with Bold Condensed Editorial Typography */}
-            <h1 className="hero-main-name">
-              VISWANATHAN <span className="text-red-accent">M.</span>
-            </h1>
-
-            {/* Professional Introduction */}
-            <p className="hero-editorial-intro">
+            {/* Step 5: Professional Introduction */}
+            <p className="hero-editorial-intro hero-anim-intro">
               AI &amp; Data Science professional focused on transforming complex data into 
               actionable business insights and intelligent, production-ready solutions. 
               Specializing in <strong>Data Analytics</strong>, <strong>Business Intelligence</strong>, 
               <strong>Predictive Machine Learning</strong>, and <strong>Interactive Dashboards</strong> with Python, SQL, Power BI, and LLMs.
             </p>
 
-            {/* Primary Action Buttons */}
-            <div className="hero-cta-group">
+            {/* Step 6: Primary Action Buttons */}
+            <div className="hero-cta-group hero-anim-cta">
               <a
                 href={personalInfo.resumePdfUrl}
                 download={resumeData.fileName}
@@ -157,8 +164,8 @@ export default function Hero({ onOpenResume }) {
               </button>
             </div>
 
-            {/* Location & Social Row */}
-            <div className="hero-meta-footer">
+            {/* Step 7: Location & Social Row */}
+            <div className="hero-meta-footer hero-anim-meta">
               <span className="hero-location-tag">
                 <span className="red-pin">&bull;</span> {personalInfo.location}
               </span>
@@ -187,9 +194,9 @@ export default function Hero({ onOpenResume }) {
             </div>
           </div>
 
-          {/* Right Column: Prominent Portrait in front of Giant Backdrop */}
+          {/* Right Column: Prominent Portrait with Cinematic Reveal & Floating Animation */}
           <div
-            className="hero-right-portrait-column"
+            className="hero-right-portrait-column hero-anim-portrait"
             style={{
               transform: `translate3d(${-parallaxOffset.x * 0.4}px, ${-parallaxOffset.y * 0.4}px, 0)`
             }}
@@ -198,8 +205,8 @@ export default function Hero({ onOpenResume }) {
           </div>
         </div>
 
-        {/* Highlights Carousel (Clean Dark Charcoal Cards with Red Numbering) */}
-        <div className="hero-highlights-cinematic-wrap">
+        {/* Step 8: Highlights Carousel with Smooth Staggered Slide-Up */}
+        <div className="hero-highlights-cinematic-wrap hero-anim-highlights">
           <SectionCarousel
             items={heroHighlightItems}
             itemsPerPage={{ desktop: 4, tablet: 2, mobile: 1 }}
